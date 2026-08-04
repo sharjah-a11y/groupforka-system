@@ -446,7 +446,10 @@ const STR = {
     globalSearchPlaceholder:"اكتب أي كلمة (اسم فرع، رقم لوحة، وصف...)", globalSearchResultsCount:(n)=>`${n} نتيجة`,
     globalSearchNoResults:"لا توجد نتائج مطابقة", globalSearchPrompt:"ابدأ الكتابة أعلاه للبحث في كل الأقسام",
     dupWarningMsg:"⚠️ يوجد سجل مشابه بنفس البيانات مسجّل بالفعل. هل تريد المتابعة والحفظ رغم ذلك؟",
-    pageIndicator:(cur,total)=>`صفحة ${cur} من ${total}`, trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
+    syncConflictWarning:"⚠️ تم تعديل هذا السجل من جهاز آخر بعد ما فتحته أنت. لو حفظت الآن، هتُستبدل تعديلات الشخص التاني بتعديلاتك. هل تريد المتابعة؟",
+    pageIndicator:(cur,total)=>`صفحة ${cur} من ${total}`,
+    assetTcoTitle:"💰 التكلفة الإجمالية لعمر الأصل (TCO)", assetPurchasePrice:"سعر الشراء", assetRepairTotal:"إجمالي تكاليف الصيانة",
+    assetTcoTotal:"التكلفة الإجمالية", assetLinkedRequestsTitle:"📋 بلاغات الصيانة المرتبطة بهذا الأصل", noLinkedRequests:"لا توجد بلاغات صيانة مسجّلة لهذا الأصل بعد", trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
     trashEmpty:"سلة المحذوفات فارغة 👍", trashRestoreBtn:"↩️ استرجاع", trashDeleteForeverBtn:"حذف نهائي",
     trashDeletedOn:"حُذف في: ", trashDaysLeft:"متبقي للحذف النهائي: ", trashRestoredToast:"✅ تم استرجاع السجل",
     trashConfirmForever:"تحذير: الحذف النهائي لا يمكن التراجع عنه إطلاقًا. متأكد؟",
@@ -480,6 +483,7 @@ const STR = {
     navCalendar:"📅 التقويم", calendarTitle:"التقويم", calendarMeta:"جدول شهري لكل المواعيد القادمة عبر الأقسام",
     calendarPrevMonth:"‹ السابق", calendarNextMonth:"التالي ›", calendarNoEvents:"لا توجد أحداث في هذا اليوم",
     calendarToday:"اليوم",
+    calendarExportIcs:"📥 تصدير للتقويم (.ics)", calendarNoEventsToExport:"لا توجد مواعيد لتصديرها حاليًا",
     navBranchCompare:"🏢 مقارنة الفروع", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
     pmAutoScheduledToast:"✅ تم إنشاء موعد الصيانة القادم تلقائيًا",
@@ -678,7 +682,10 @@ const STR = {
     globalSearchPlaceholder:"Type anything (branch name, plate number, description...)", globalSearchResultsCount:(n)=>`${n} results`,
     globalSearchNoResults:"No matching results", globalSearchPrompt:"Start typing above to search all sections",
     dupWarningMsg:"⚠️ A similar record with the same data already exists. Do you want to continue and save anyway?",
-    pageIndicator:(cur,total)=>`Page ${cur} of ${total}`, trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
+    syncConflictWarning:"⚠️ This record was modified from another device after you opened it. If you save now, your changes will overwrite the other person's changes. Do you want to continue?",
+    pageIndicator:(cur,total)=>`Page ${cur} of ${total}`,
+    assetTcoTitle:"💰 Total Cost of Ownership (TCO)", assetPurchasePrice:"Purchase Price", assetRepairTotal:"Total Repair Costs",
+    assetTcoTotal:"Total Cost", assetLinkedRequestsTitle:"📋 Maintenance Requests Linked to This Asset", noLinkedRequests:"No maintenance requests recorded for this asset yet", trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
     trashEmpty:"Recycle bin is empty 👍", trashRestoreBtn:"↩️ Restore", trashDeleteForeverBtn:"Delete Forever",
     trashDeletedOn:"Deleted on: ", trashDaysLeft:"Days until permanent deletion: ", trashRestoredToast:"✅ Record restored",
     trashConfirmForever:"Warning: permanent deletion cannot be undone at all. Are you sure?",
@@ -712,6 +719,7 @@ const STR = {
     navCalendar:"📅 Calendar", calendarTitle:"Calendar", calendarMeta:"Monthly view of all upcoming dates across sections",
     calendarPrevMonth:"‹ Previous", calendarNextMonth:"Next ›", calendarNoEvents:"No events on this day",
     calendarToday:"Today",
+    calendarExportIcs:"📥 Export to Calendar (.ics)", calendarNoEventsToExport:"No upcoming dates to export right now",
     navBranchCompare:"🏢 Branch Comparison", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
     pmAutoScheduledToast:"✅ Next maintenance visit auto-scheduled",
@@ -992,7 +1000,7 @@ const MODULES = [
     {key:"location", label:"الموقع / المنطقة", labelEn:"Location / Area", type:"text"},
     {key:"reporter", label:"اسم المبلّغ", labelEn:"Reported By", type:"text"},
     {key:"reporterPhone", label:"رقم تواصل المبلّغ", labelEn:"Contact No.", type:"text"},
-    {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text"},
+    {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text", datalistId:"assetNames"},
     {key:"issue", label:"وصف المشكلة", labelEn:"Issue Description", type:"textarea", full:true},
     {key:"severity", label:"درجة الخطورة", labelEn:"Priority", type:"select", options:["حرج","عالٍ","متوسط","منخفض"]},
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
@@ -1472,9 +1480,12 @@ function removeMasterValue(type, val){
 }
 function buildDatalistsHtml(){
   const m = loadMasters();
-  return MASTER_TYPES.map(type=>
+  const masterLists = MASTER_TYPES.map(type=>
     `<datalist id="dl_${type}">${(m[type]||[]).map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`
   ).join("");
+  const assetNames = [...new Set(loadData("assets").map(a=>(a.name||"").trim()).filter(Boolean))];
+  const assetDatalist = `<datalist id="dl_assetNames">${assetNames.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`;
+  return masterLists + assetDatalist;
 }
 
 /* ---------------- PIN LOCK ---------------- */
@@ -2029,7 +2040,13 @@ function bindCommentsHandlers(m, existingRec){
   };
 }
 function buildLinkedRecordsHtml(m, rec, viewMode){
-  if(!viewMode || m.key!=="fleet" || !rec || !rec.plate || !rec.plate.trim()) return "";
+  if(!viewMode || !rec) return "";
+  if(m.key==="fleet") return buildFleetLinkedHtml(rec);
+  if(m.key==="assets") return buildAssetTcoHtml(rec);
+  return "";
+}
+function buildFleetLinkedHtml(rec){
+  if(!rec.plate || !rec.plate.trim()) return "";
   const plate = rec.plate.trim();
   const accidentsM = MODULES.find(x=>x.key==="accidents");
   const vehcheckM = MODULES.find(x=>x.key==="vehcheck");
@@ -2056,11 +2073,38 @@ function buildLinkedRecordsHtml(m, rec, viewMode){
 
   return html;
 }
+function buildAssetTcoHtml(assetRec){
+  if(!assetRec.id) return "";
+  const assetName = (assetRec.name||"").trim().toLowerCase();
+  const linkedRequests = loadData("requests").filter(r=>
+    r.linkedAssetId === assetRec.id || (assetName && (r.equipment||"").trim().toLowerCase() === assetName)
+  ).sort((a,b)=> new Date(b.reportDate||0)-new Date(a.reportDate||0));
+  const totalRepairCost = linkedRequests.reduce((s,r)=> s + (Number(r.cost)||0), 0);
+  const purchasePrice = Number(assetRec.price)||0;
+  const tco = purchasePrice + totalRepairCost;
+
+  let html = `<div class="section-title" style="margin-top:18px;">${t('assetTcoTitle')}</div>`;
+  html += `<div class="grid-cards" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+    <div class="card"><div class="label">${t('assetPurchasePrice')}</div><div class="kpi-val">${fmtMoney(purchasePrice)}</div></div>
+    <div class="card"><div class="label">${t('assetRepairTotal')}</div><div class="kpi-val">${fmtMoney(totalRepairCost)}</div></div>
+    <div class="card" style="background:var(--navy);"><div class="label" style="color:#fff;">${t('assetTcoTotal')}</div><div class="kpi-val" style="color:var(--gold);">${fmtMoney(tco)}</div></div>
+  </div>`;
+
+  html += `<div class="section-title">${t('assetLinkedRequestsTitle')} (${linkedRequests.length})</div>`;
+  html += linkedRequests.length ? `
+    <div class="table-wrap"><table>
+      <thead><tr><th>${LANG==='ar'?'التاريخ':'Date'}</th><th>${LANG==='ar'?'الوصف':'Description'}</th><th>${t('thStatus')}</th><th>${LANG==='ar'?'التكلفة':'Cost'}</th></tr></thead>
+      <tbody>${linkedRequests.map(r=>`<tr><td>${(r.reportDate||"").slice(0,10)}</td><td class="desc-cell">${r.issue||""}</td><td>${badge(r.status||"")}</td><td>${fmtMoney(r.cost)}</td></tr>`).join("")}</tbody>
+    </table></div>` : `<div style="font-size:12.5px; color:var(--muted);">${t('noLinkedRequests')}</div>`;
+
+  return html;
+}
 
 function openForm(m, existing, viewMode){
   formViewOnly = !!viewMode;
   const isEdit = !!existing;
   const rec = existing ? {...existing} : {};
+  const openedAtVersion = existing ? (existing._updatedAt || null) : null;
   if(!isEdit && m.numberField){
     const count = loadData(m.key).length + 1;
     const yr = new Date().getFullYear();
@@ -2097,6 +2141,10 @@ function openForm(m, existing, viewMode){
     if(f.master){
       const atr = (formViewOnly && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
       return `<input type="text" data-field="${f.key}" value="${val}" list="dl_${f.master}" autocomplete="off" ${dis} ${atr}>`;
+    }
+    if(f.datalistId){
+      const atr = (formViewOnly && isTranslatableField(f) && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
+      return `<input type="text" data-field="${f.key}" value="${val}" list="dl_${f.datalistId}" autocomplete="off" ${dis} ${atr}>`;
     }
     const atr = (formViewOnly && isTranslatableField(f) && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
     return `<input type="${f.type}" data-field="${f.key}" value="${val}" ${dis} ${atr}>`;
@@ -2257,12 +2305,23 @@ function openForm(m, existing, viewMode){
       const dupMsg = checkForLikelyDuplicate(m, newRec);
       if(dupMsg && !confirm(dupMsg)) return;
     }
+    if(isEdit){
+      const currentStored = loadData(m.key).find(x=>x.id===existing.id);
+      if(currentStored && openedAtVersion && currentStored._updatedAt && currentStored._updatedAt !== openedAtVersion){
+        if(!confirm(t('syncConflictWarning'))) return;
+      }
+    }
     m.fields.forEach(f=>{ if(f.master && newRec[f.key]) addMasterValue(f.master, newRec[f.key]); });
+    if(m.key==="requests" && newRec.equipment){
+      const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
+      newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
+    }
     if(m.key==="contractorEval" && m.weights){
       let total = 0;
       Object.keys(m.weights).forEach(k=>{ total += (Number(newRec[k])||0) * m.weights[k]; });
       newRec.weightedTotal = Math.round(total*10)/10;
     }
+    newRec._updatedAt = Date.now();
     let arr = loadData(m.key);
     if(isEdit){
       arr = arr.map(x=> x.id===existing.id ? newRec : x);
@@ -4260,6 +4319,45 @@ function calendarEventsForModule(){
     { key:"fleet", dateField:"insuranceExpiry", color:"#b8860b" },
   ];
 }
+function getAllCalendarEvents(){
+  let events = [];
+  calendarEventsForModule().forEach(cfg=>{
+    const m = MODULES.find(x=>x.key===cfg.key);
+    if(!m) return;
+    loadData(m.key).forEach(r=>{
+      const dateVal = r[cfg.dateField];
+      if(!dateVal) return;
+      const d = new Date(dateVal);
+      if(isNaN(d.getTime())) return;
+      const title = r.carName || r.projectName || r.item || r.company || r.equipment || r.branch || ML(m,"singular");
+      events.push({ id:r.id, moduleKey:m.key, moduleName:ML(m,"name"), title, date:d });
+    });
+  });
+  return events;
+}
+function icsEscape(s){ return (s||"").toString().replace(/[\\,;]/g, m=>"\\"+m).replace(/\n/g,"\\n"); }
+function exportCalendarToIcs(){
+  const events = getAllCalendarEvents();
+  if(!events.length){ alert(t('calendarNoEventsToExport')); return; }
+  const pad = n => String(n).padStart(2,"0");
+  const dateStamp = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//GROUP FORKA//Maintenance System//AR\r\nCALSCALE:GREGORIAN\r\n";
+  events.forEach(ev=>{
+    ics += "BEGIN:VEVENT\r\n";
+    ics += `UID:${ev.moduleKey}-${ev.id}@groupforka\r\n`;
+    ics += `DTSTAMP:${dateStamp(new Date())}T000000Z\r\n`;
+    ics += `DTSTART;VALUE=DATE:${dateStamp(ev.date)}\r\n`;
+    ics += `SUMMARY:${icsEscape(`${ev.moduleName} — ${ev.title}`)}\r\n`;
+    ics += "END:VEVENT\r\n";
+  });
+  ics += "END:VCALENDAR\r\n";
+  const blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `GroupForka_Calendar_${todayStr()}.ics`;
+  a.click();
+  showToast(t('exportedFile'));
+}
 function getCalendarEventsForMonth(year, month){
   const events = {}; // "YYYY-MM-DD" -> [{title, moduleKey, id, color}]
   calendarEventsForModule().forEach(cfg=>{
@@ -4281,7 +4379,7 @@ function getCalendarEventsForMonth(year, month){
 function renderCalendarPage(){
   document.getElementById("topbarTitle").textContent = t('calendarTitle');
   document.getElementById("topbarMeta").textContent = t('calendarMeta');
-  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  document.getElementById("topbarActions").innerHTML = `<button class="btn btn-outline" id="btnExportIcs">${t('calendarExportIcs')}</button>` + langSwitcherHtml();
   bindLangSwitcher();
 
   const cd = state.calendarDate;
@@ -4328,6 +4426,7 @@ function renderCalendarPage(){
   `;
   document.getElementById("calPrev").onclick = ()=>{ state.calendarDate = new Date(year, month-1, 1); renderCalendarPage(); };
   document.getElementById("calNext").onclick = ()=>{ state.calendarDate = new Date(year, month+1, 1); renderCalendarPage(); };
+  document.getElementById("btnExportIcs").onclick = exportCalendarToIcs;
   document.querySelectorAll("[data-calevent-module]").forEach(el=>{
     el.onclick = ()=>{
       const mk = el.dataset.caleventModule;
