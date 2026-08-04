@@ -355,6 +355,10 @@
     grid-column:1/-1; background:var(--info-bg); border:1.5px solid #cfe0fb; border-radius:10px; padding:12px 14px;
   }
   .cond-block .delay-title{font-size:12.5px; font-weight:800; color:#1b3f8f; margin-bottom:8px;}
+  .success-block{
+    grid-column:1/-1; background:var(--success-bg); border:1.5px solid #b7e0c4; border-radius:10px; padding:12px 14px;
+  }
+  .success-block .delay-title{font-size:12.5px; font-weight:800; color:#1b5e20; margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -948,6 +952,9 @@ const MODULES = [
   singular:"بلاغ صيانة", singularEn:"Maintenance Request",
   numberPrefix:"MR", numberField:"reqNo",
   statusField:"status", alertValues:["حرج","متأخر"],
+  conditionalGroups:[
+    {field:"status", value:"مغلق", titleAr:"✅ تفاصيل الإغلاق (تُعبّأ تلقائيًا)", titleEn:"✅ Closure Details (auto-filled)", style:"success", autoFillDateFields:["closeDate","doneDate"]},
+  ],
   overdueRule: r => ["مفتوح","قيد التنفيذ"].includes((r.status||"").trim()) && r.reportDate &&
     (Date.now() - new Date(r.reportDate).getTime()) > (SLA_MINUTES[(r.severity||"").trim()]||99999)*60000,
   fields:[
@@ -966,12 +973,12 @@ const MODULES = [
     {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"textarea"},
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
-    {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date"},
-    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"text"},
-    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"text"},
-    {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number"},
-    {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text"},
-    {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date"},
+    {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date", showIf:{field:"status",value:"مغلق"}},
+    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"text", showIf:{field:"status",value:"مغلق"}},
+    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"text", showIf:{field:"status",value:"مغلق"}},
+    {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", showIf:{field:"status",value:"مغلق"}},
+    {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", showIf:{field:"status",value:"مغلق"}},
+    {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", showIf:{field:"status",value:"مغلق"}},
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["مفتوح","قيد التنفيذ","متأخر","مغلق"]},
     {key:"delayReason", label:"سبب التأخير", labelEn:"Delay Reason", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
     {key:"delayResponsible", label:"الجهة المسؤولة عن التأخير", labelEn:"Responsible Party", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
@@ -2024,7 +2031,8 @@ function openForm(m, existing, viewMode){
     const isDelay = triggerField==="status" && triggerValue==="متأخر";
     const groupDef = (m.conditionalGroups||[]).find(g=>g.field===triggerField && g.value===triggerValue);
     const titleText = groupDef ? (LANG==='ar'?groupDef.titleAr:groupDef.titleEn) : (isDelay ? t('delayBlockTitle') : (LANG==='ar'?`تفاصيل إضافية (${triggerValue})`:`Additional Details (${triggerValue})`));
-    const blockClass = isDelay || (groupDef && groupDef.style==='danger') ? "delay-block" : "cond-block";
+    const blockClass = isDelay || (groupDef && groupDef.style==='danger') ? "delay-block"
+      : (groupDef && groupDef.style==='success') ? "success-block" : "cond-block";
     const safeId = "condBlock_"+triggerField+"_"+triggerValue.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g,"");
     return `
     <div class="${blockClass}" id="${safeId}" data-condtrigger="${triggerField}" data-condvalue="${triggerValue}" style="display:none;">
@@ -2084,7 +2092,24 @@ function openForm(m, existing, viewMode){
     };
     triggerFieldNames.forEach(tf=>{
       const triggerInput = document.querySelector(`[data-field="${tf}"]`);
-      if(triggerInput) triggerInput.addEventListener("change", updateAllConditionalBlocks);
+      if(triggerInput) triggerInput.addEventListener("change", ()=>{
+        updateAllConditionalBlocks();
+        const groupDef = (m.conditionalGroups||[]).find(g=>g.field===tf && g.value===triggerInput.value);
+        if(groupDef && groupDef.autoFillDateFields){
+          groupDef.autoFillDateFields.forEach(fk=>{
+            const el = document.querySelector(`[data-field="${fk}"]`);
+            if(el && !el.value){
+              const fdef = m.fields.find(f=>f.key===fk);
+              if(fdef && fdef.type==="datetime-local"){
+                const now = new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+                el.value = now.toISOString().slice(0,16);
+              } else {
+                el.value = todayStr();
+              }
+            }
+          });
+        }
+      });
     });
     updateAllConditionalBlocks();
   }
