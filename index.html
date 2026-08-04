@@ -545,6 +545,7 @@ const STR = {
     notifServiceLabel:"Service ID", notifTemplateLabel:"Template ID", notifPublicLabel:"Public Key",
     notifSaveBtn:"حفظ الإعدادات", notifTestBtn:"📧 اختبار الإرسال الآن",
     notifSavedOk:"تم حفظ الإعدادات", notifMissingFields:"عبّي كل الحقول أولًا (البريد + الأكواد الثلاثة)",
+    notifTestSubject:"رسالة اختبار", notifTestSampleLine:"هذه رسالة اختبار — لو وصلتك، فالإعدادات صحيحة وجاهزة للعمل ✅",
     notifSending:"جارِ الإرسال...", notifSentOk:"تم إرسال الإيميل بنجاح ✅", notifSentFail:"فشل الإرسال — تأكد من صحة الأكواد والاتصال بالإنترنت",
     notifNoCriticalNow:"لا توجد بنود حرجة أو متأخرة حاليًا — لا شي يستدعي إرسال إيميل",
     notifLastSent:"آخر إرسال تلقائي: ", notifNeverSent:"لم يُرسل أي إيميل تلقائي بعد",
@@ -765,6 +766,7 @@ const STR = {
     notifServiceLabel:"Service ID", notifTemplateLabel:"Template ID", notifPublicLabel:"Public Key",
     notifSaveBtn:"Save Settings", notifTestBtn:"📧 Send Test Now",
     notifSavedOk:"Settings saved", notifMissingFields:"Fill in all fields first (email + the 3 codes)",
+    notifTestSubject:"Test Message", notifTestSampleLine:"This is a test message — if you received it, your settings are correct and ready ✅",
     notifSending:"Sending...", notifSentOk:"Email sent successfully ✅", notifSentFail:"Send failed — check your codes and internet connection",
     notifNoCriticalNow:"No critical or overdue items right now — nothing to send",
     notifLastSent:"Last automatic send: ", notifNeverSent:"No automatic email has been sent yet",
@@ -3087,6 +3089,32 @@ function maybeAutoSendNotification(){
   if(getLastSentDate() === todayStr()) return; // already sent today
   sendNotificationEmail(false);
 }
+function sendTestEmail(){
+  const cfg = getNotifConfig();
+  if(!cfg.email || !cfg.serviceId || !cfg.templateId || !cfg.publicKey){
+    alert(t('notifMissingFields'));
+    return;
+  }
+  if(!window.emailjs){
+    alert(t('notifSentFail'));
+    return;
+  }
+  const params = {
+    to_email: cfg.email,
+    subject: `GROUP FORKA — ${t('notifTestSubject')}`,
+    critical_count: "0",
+    items_list: t('notifTestSampleLine'),
+    date: new Date().toLocaleString(LANG==="ar"?"ar-EG":"en-GB"),
+  };
+  showToast(t('notifSending'));
+  emailjs.send(cfg.serviceId, cfg.templateId, params).then(()=>{
+    showToast(t('notifSentOk'));
+  }).catch((err)=>{
+    console.error("EmailJS test send failed:", err);
+    const detail = (err && (err.text || err.message)) ? ": " + (err.text || err.message) : "";
+    alert(t('notifSentFail') + detail);
+  });
+}
 
 /* ---------------- CLOUD SYNC (Firebase) ---------------- */
 /* Pre-filled with GROUP FORKA's real cloud credentials — the system connects to the shared
@@ -3892,7 +3920,7 @@ function renderNotificationsPage(){
       publicKey: document.getElementById("notifPublic").value.trim(),
     };
     saveNotifConfig(newCfg);
-    sendNotificationEmail(true);
+    sendTestEmail();
   };
 }
 
