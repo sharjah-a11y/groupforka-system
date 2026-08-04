@@ -359,6 +359,20 @@
     grid-column:1/-1; background:var(--success-bg); border:1.5px solid #b7e0c4; border-radius:10px; padding:12px 14px;
   }
   .success-block .delay-title{font-size:12.5px; font-weight:800; color:#1b5e20; margin-bottom:8px;}
+  .voice-input-btn{
+    position:absolute; bottom:8px; inset-inline-end:8px; width:28px; height:28px; border-radius:50%;
+    border:none; background:var(--navy); color:#fff; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .voice-input-btn.listening{ background:#c0392b; animation: pulse 1s infinite; }
+  .ba-compare-wrap{ position:relative; max-width:90vw; max-height:70vh; overflow:hidden; border-radius:10px; }
+  .ba-img-after{ display:block; max-width:90vw; max-height:70vh; object-fit:contain; }
+  .ba-img-before-wrap{ position:absolute; inset:0; overflow:hidden; clip-path:inset(0 50% 0 0); }
+  .ba-img-before{ max-width:90vw; max-height:70vh; object-fit:contain; }
+  .ba-slider-handle{ position:absolute; top:0; bottom:0; inset-inline-start:50%; width:3px; background:#fff; box-shadow:0 0 6px rgba(0,0,0,.5); pointer-events:none; }
+  .ba-range{ width:90vw; max-width:500px; margin-top:14px; }
+  .ba-label{ position:absolute; top:10px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:12px; }
+  .ba-label-before{ inset-inline-start:10px; }
+  .ba-label-after{ inset-inline-end:10px; }
 </style>
 </head>
 <body>
@@ -449,7 +463,12 @@ const STR = {
     syncConflictWarning:"⚠️ تم تعديل هذا السجل من جهاز آخر بعد ما فتحته أنت. لو حفظت الآن، هتُستبدل تعديلات الشخص التاني بتعديلاتك. هل تريد المتابعة؟",
     pageIndicator:(cur,total)=>`صفحة ${cur} من ${total}`,
     assetTcoTitle:"💰 التكلفة الإجمالية لعمر الأصل (TCO)", assetPurchasePrice:"سعر الشراء", assetRepairTotal:"إجمالي تكاليف الصيانة",
-    assetTcoTotal:"التكلفة الإجمالية", assetLinkedRequestsTitle:"📋 بلاغات الصيانة المرتبطة بهذا الأصل", noLinkedRequests:"لا توجد بلاغات صيانة مسجّلة لهذا الأصل بعد", trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
+    assetTcoTotal:"التكلفة الإجمالية", assetLinkedRequestsTitle:"📋 بلاغات الصيانة المرتبطة بهذا الأصل", noLinkedRequests:"لا توجد بلاغات صيانة مسجّلة لهذا الأصل بعد",
+    assetHealthScore:"🩺 مؤشر الحالة", timelineTitle:"📖 الخط الزمني", timelinePurchased:"تاريخ الشراء", timelineEmpty:"لا توجد أحداث مسجّلة بعد",
+    vehicleHealthNote:"مؤشر يقيس حالة السيارة بناءً على عدد الحوادث/المخالفات وتكلفتها وعمر السيارة — كلما زاد اللون أخضر كانت الحالة أفضل.",
+    voiceInputTitle:"اضغط وتكلّم بدل الكتابة", voiceInputUnsupported:"المتصفح ده مش بيدعم التحويل من صوت لنص للأسف",
+    anniversaryMsg:(name,days)=>`مرّ ${days.toLocaleString('ar-EG')} يوم على "${name}"!`,
+    beforeAfterCompareBtn:"🔄 مقارنة قبل/بعد", beforeLabel:"قبل", afterLabel:"بعد", trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
     trashEmpty:"سلة المحذوفات فارغة 👍", trashRestoreBtn:"↩️ استرجاع", trashDeleteForeverBtn:"حذف نهائي",
     trashDeletedOn:"حُذف في: ", trashDaysLeft:"متبقي للحذف النهائي: ", trashRestoredToast:"✅ تم استرجاع السجل",
     trashConfirmForever:"تحذير: الحذف النهائي لا يمكن التراجع عنه إطلاقًا. متأكد؟",
@@ -685,7 +704,11 @@ const STR = {
     syncConflictWarning:"⚠️ This record was modified from another device after you opened it. If you save now, your changes will overwrite the other person's changes. Do you want to continue?",
     pageIndicator:(cur,total)=>`Page ${cur} of ${total}`,
     assetTcoTitle:"💰 Total Cost of Ownership (TCO)", assetPurchasePrice:"Purchase Price", assetRepairTotal:"Total Repair Costs",
-    assetTcoTotal:"Total Cost", assetLinkedRequestsTitle:"📋 Maintenance Requests Linked to This Asset", noLinkedRequests:"No maintenance requests recorded for this asset yet", trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
+    assetTcoTotal:"Total Cost", assetLinkedRequestsTitle:"📋 Maintenance Requests Linked to This Asset", noLinkedRequests:"No maintenance requests recorded for this asset yet",
+    assetHealthScore:"🩺 Health Score", timelineTitle:"📖 Timeline", timelinePurchased:"Purchase Date", timelineEmpty:"No events recorded yet",
+    vehicleHealthNote:"An indicator of vehicle condition based on accident/violation count, cost, and vehicle age — greener means better condition.",
+    voiceInputTitle:"Tap and speak instead of typing", voiceInputUnsupported:"Unfortunately this browser doesn't support speech-to-text",
+    anniversaryMsg:(name,days)=>`${days.toLocaleString('en-US')} days since "${name}"!`, trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
     trashEmpty:"Recycle bin is empty 👍", trashRestoreBtn:"↩️ Restore", trashDeleteForeverBtn:"Delete Forever",
     trashDeletedOn:"Deleted on: ", trashDaysLeft:"Days until permanent deletion: ", trashRestoredToast:"✅ Record restored",
     trashConfirmForever:"Warning: permanent deletion cannot be undone at all. Are you sure?",
@@ -1313,6 +1336,7 @@ const SLA_MINUTES = {"حرج":15,"عالٍ":30,"متوسط":120,"منخفض":144
 
 /* ---------------- STATE ---------------- */
 let state = { view:"dashboard", moduleState:{} };
+let isPublicMode = (location.hash === "#public");
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""} });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
@@ -1528,7 +1552,46 @@ function lockNow(){
 }
 
 /* ---------------- NAV RENDER ---------------- */
+function renderPublicStatusPage(){
+  const masters = loadMasters();
+  const branches = masters.branches || [];
+  const branchModules = MODULES.filter(m=>m.branchField);
+  const rows = branches.map(branch=>{
+    let criticalCount = 0;
+    branchModules.forEach(m=>{
+      const data = loadData(m.key).filter(r=>(r[m.branchField]||"").trim()===branch.trim());
+      criticalCount += data.filter(r=> isOverdue(m,r) || (m.alertValues||[]).includes((r[m.statusField]||"").trim())).length;
+    });
+    let status = "green", label = LANG==='ar'?"مستقر":"Stable";
+    if(criticalCount >= 5){ status="red"; label = LANG==='ar'?"يحتاج انتباه فوري":"Needs Immediate Attention"; }
+    else if(criticalCount >= 1){ status="yellow"; label = LANG==='ar'?"يحتاج متابعة":"Needs Follow-up"; }
+    return { branch, criticalCount, status, label };
+  });
+  const colorMap = {green:"#1f8a4c", yellow:"#b8860b", red:"#c0392b"};
+  const bgMap = {green:"#e8f8ee", yellow:"#fff6e0", red:"#fdecea"};
+  const dotMap = {green:"🟢", yellow:"🟡", red:"🔴"};
+
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; padding:30px 16px; font-family:'Tajawal',Arial,sans-serif;" dir="${LANG==='ar'?'rtl':'ltr'}">
+      <div style="max-width:700px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:24px;">
+          <div style="font-size:22px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#7a8699;">${LANG==='ar'?'حالة الفروع العامة':'General Branch Status'} — ${new Date().toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB')}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          ${rows.length ? rows.map(r=>`
+            <div style="background:${bgMap[r.status]}; border-inline-start:5px solid ${colorMap[r.status]}; border-radius:10px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+              <div><div style="font-weight:800; font-size:15px; color:#1F3864;">${escapeHtml(r.branch)}</div><div style="font-size:12px; color:#7a8699; margin-top:2px;">${r.label}</div></div>
+              <div style="font-size:22px;">${dotMap[r.status]}</div>
+            </div>`).join("") : `<div style="text-align:center; color:#7a8699; padding:30px;">${LANG==='ar'?'لا توجد فروع مسجّلة':'No branches registered'}</div>`}
+        </div>
+        <div style="text-align:center; margin-top:24px; font-size:11px; color:#a0aab8;">${LANG==='ar'?'صفحة عرض فقط للمشاركة':'View-only page for sharing'}</div>
+      </div>
+    </div>
+  `;
+}
 function renderNav(){
+  if(isPublicMode){ renderPublicStatusPage(); return; }
   const navRoot = document.getElementById("nav-modules");
   navRoot.innerHTML = MODULES.map(m=>{
     const count = loadData(m.key).length;
@@ -1605,6 +1668,7 @@ function kpiBarClass(pct){ if(pct===null) return ""; if(pct>=90) return ""; if(p
 
 /* ---------------- DASHBOARD ---------------- */
 function renderDashboard(){
+  if(isPublicMode){ renderPublicStatusPage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
   document.getElementById("topbarActions").innerHTML = `
@@ -1650,8 +1714,25 @@ function renderDashboard(){
     return da-db;
   });
 
+  const anniversaries = [];
+  const milestoneDays = [365, 730, 1000, 1500, 2000, 2500, 3000];
+  [...loadData("assets").map(a=>({name:a.name, date:a.purchaseDate})), ...loadData("fleet").map(f=>({name:f.carName, date:f.purchaseDate}))].forEach(item=>{
+    if(!item.date || !item.name) return;
+    const d = new Date(item.date);
+    if(isNaN(d.getTime())) return;
+    const daysSince = Math.floor((Date.now()-d.getTime())/(24*60*60*1000));
+    if(milestoneDays.includes(daysSince)){
+      anniversaries.push(t('anniversaryMsg', item.name, daysSince));
+    }
+  });
+  const anniversaryHtml = anniversaries.length ? `
+    <div class="banner" style="background:var(--info-bg); border-color:#cfe0fb; color:#1b3f8f; margin-bottom:16px;">
+      🎉 ${anniversaries.join(" · ")}
+    </div>` : "";
+
   const html = `
     <div class="banner">${t("localBanner")}</div>
+    ${anniversaryHtml}
     <div class="section-title">${LANG==="ar"?"ملخص عام":"Overview"}</div>
     <div class="grid-cards">
       <div class="card stat-card" data-view="requests">
@@ -1753,6 +1834,7 @@ function getFilteredData(m){
 }
 
 function renderModule(mKey){
+  if(isPublicMode){ renderPublicStatusPage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -1900,14 +1982,17 @@ function renderModuleRecordsBody(m){
     const ranked = Object.keys(byContractor).map(name=>{
       const scores = byContractor[name];
       const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
-      return {name, avg: Math.round(avg*10)/10, count: scores.length};
+      const contractorRecs = all.filter(r=>r.contractor===name).sort((a,b)=> new Date(a.date||0)-new Date(b.date||0));
+      const lastThree = contractorRecs.slice(-3).map(r=>Number(r.weightedTotal)||0);
+      const hasStreak = lastThree.length>=3 && lastThree.every(s=>s>=80);
+      return {name, avg: Math.round(avg*10)/10, count: scores.length, hasStreak};
     }).sort((a,b)=> b.avg-a.avg);
     if(ranked.length){
       rankingHtml = `
         <div class="section-title">${t('rankingTitle')}</div>
         <div class="table-wrap" style="margin-bottom:20px;">
           <table><thead><tr><th>#</th><th>${t('quotesCompany')}</th><th>${t('rankingScore')}</th><th>${t('rankingCount')}</th></tr></thead>
-          <tbody>${ranked.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td><b>${r.avg}</b></td><td>${r.count}</td></tr>`).join("")}</tbody></table>
+          <tbody>${ranked.map((r,i)=>`<tr><td>${i+1}</td><td>${i===0 && r.avg>=80 ? '🥇 ' : ''}${r.hasStreak ? '🔥 ' : ''}${r.name}</td><td><b>${r.avg}</b></td><td>${r.count}</td></tr>`).join("")}</tbody></table>
         </div>`;
     }
   }
@@ -2057,7 +2142,22 @@ function buildFleetLinkedHtml(rec){
 
   const fl = (mod,key) => FL(mod.fields.find(f=>f.key===key));
 
-  let html = `<div class="section-title" style="margin-top:18px;">${t('linkedViolationsTitle')}</div>`;
+  const totalAccidentCost = accidents.reduce((s,a)=> s + (Number(a.cost)||0), 0);
+  const purchasePrice = Number(rec.price)||0;
+  const healthScore = computeHealthScore(purchasePrice, totalAccidentCost, accidents.length, rec.purchaseDate);
+  let html = `<div class="section-title" style="margin-top:18px;">${t('assetHealthScore')}</div>
+    <div class="grid-cards" style="grid-template-columns:auto 1fr; align-items:center; margin-bottom:16px;">
+      <div class="card" style="display:flex; flex-direction:column; align-items:center; gap:6px;">${buildHealthGaugeSvg(healthScore)}</div>
+      <div class="card"><div class="sub">${t('vehicleHealthNote')}</div></div>
+    </div>`;
+
+  const timelineEvents = [];
+  if(rec.purchaseDate) timelineEvents.push({date:rec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
+  accidents.forEach(a=> timelineEvents.push({date:a.date, label:(a.type||"")+": "+(a.desc||"").slice(0,20), icon:"🚨", color:"#c0392b"}));
+  html += `<div class="section-title">${t('timelineTitle')}</div>`;
+  html += buildTimelineHtml(timelineEvents);
+
+  html += `<div class="section-title">${t('linkedViolationsTitle')}</div>`;
   html += accidents.length ? `
     <div class="table-wrap" style="margin-bottom:14px;"><table>
       <thead><tr><th>${fl(accidentsM,'date')}</th><th>${fl(accidentsM,'type')}</th><th>${fl(accidentsM,'desc')}</th><th>${fl(accidentsM,'status')}</th></tr></thead>
@@ -2073,6 +2173,45 @@ function buildFleetLinkedHtml(rec){
 
   return html;
 }
+function computeHealthScore(purchasePrice, totalRepairCost, repairCount, purchaseDate){
+  let score = 100;
+  score -= Math.min(40, repairCount * 8);
+  if(purchasePrice > 0) score -= Math.min(30, (totalRepairCost/purchasePrice)*100*0.5);
+  if(purchaseDate){
+    const d = new Date(purchaseDate);
+    if(!isNaN(d.getTime())){
+      const ageYears = (Date.now() - d.getTime()) / (365*24*60*60*1000);
+      score -= Math.min(20, Math.max(0,ageYears) * 2);
+    }
+  }
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+function healthColor(score){ return score >= 70 ? "#1f8a4c" : score >= 40 ? "#b8860b" : "#c0392b"; }
+function buildHealthGaugeSvg(score){
+  const color = healthColor(score);
+  const r = 32, circumference = 2*Math.PI*r;
+  const offset = circumference * (1 - score/100);
+  return `<svg width="80" height="80" viewBox="0 0 80 80">
+    <circle cx="40" cy="40" r="${r}" fill="none" stroke="#eef0f4" stroke-width="8"/>
+    <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
+      stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 40 40)"/>
+    <text x="40" y="46" text-anchor="middle" font-size="20" font-weight="900" fill="${color}" font-family="Arial">${score}</text>
+  </svg>`;
+}
+function buildTimelineHtml(events){
+  const sorted = events.filter(e=>e.date && !isNaN(new Date(e.date).getTime())).sort((a,b)=> new Date(a.date)-new Date(b.date));
+  if(!sorted.length) return `<div style="font-size:12.5px; color:var(--muted);">${t('timelineEmpty')}</div>`;
+  return `<div style="display:flex; overflow-x:auto; gap:0; padding:16px 4px; align-items:flex-start;">
+    ${sorted.map((e,i)=>`
+      <div style="display:flex; flex-direction:column; align-items:center; min-width:140px; position:relative; flex-shrink:0;">
+        ${i>0?`<div style="position:absolute; top:9px; inset-inline-end:50%; width:100%; height:2px; background:var(--line); z-index:0;"></div>`:''}
+        <div style="width:18px; height:18px; border-radius:50%; background:${e.color||'#1F3864'}; z-index:1; border:3px solid #fff; box-shadow:0 0 0 1px var(--line);"></div>
+        <div style="font-size:10.5px; color:var(--muted); margin-top:6px;">${(e.date||"").slice(0,10)}</div>
+        <div style="font-size:12px; font-weight:700; text-align:center; margin-top:2px; max-width:130px;">${e.icon||''} ${escapeHtml(e.label||'')}</div>
+      </div>
+    `).join("")}
+  </div>`;
+}
 function buildAssetTcoHtml(assetRec){
   if(!assetRec.id) return "";
   const assetName = (assetRec.name||"").trim().toLowerCase();
@@ -2082,13 +2221,24 @@ function buildAssetTcoHtml(assetRec){
   const totalRepairCost = linkedRequests.reduce((s,r)=> s + (Number(r.cost)||0), 0);
   const purchasePrice = Number(assetRec.price)||0;
   const tco = purchasePrice + totalRepairCost;
+  const healthScore = computeHealthScore(purchasePrice, totalRepairCost, linkedRequests.length, assetRec.purchaseDate);
 
   let html = `<div class="section-title" style="margin-top:18px;">${t('assetTcoTitle')}</div>`;
-  html += `<div class="grid-cards" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+  html += `<div class="grid-cards" style="grid-template-columns:auto repeat(3,1fr); align-items:center; margin-bottom:16px;">
+    <div class="card" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+      <div class="label">${t('assetHealthScore')}</div>
+      ${buildHealthGaugeSvg(healthScore)}
+    </div>
     <div class="card"><div class="label">${t('assetPurchasePrice')}</div><div class="kpi-val">${fmtMoney(purchasePrice)}</div></div>
     <div class="card"><div class="label">${t('assetRepairTotal')}</div><div class="kpi-val">${fmtMoney(totalRepairCost)}</div></div>
     <div class="card" style="background:var(--navy);"><div class="label" style="color:#fff;">${t('assetTcoTotal')}</div><div class="kpi-val" style="color:var(--gold);">${fmtMoney(tco)}</div></div>
   </div>`;
+
+  const timelineEvents = [];
+  if(assetRec.purchaseDate) timelineEvents.push({date:assetRec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
+  linkedRequests.forEach(r=> timelineEvents.push({date:r.reportDate, label:(r.issue||"").slice(0,30)||t('assetLinkedRequestsTitle'), icon:"🔧", color:"#c0392b"}));
+  html += `<div class="section-title">${t('timelineTitle')}</div>`;
+  html += buildTimelineHtml(timelineEvents);
 
   html += `<div class="section-title">${t('assetLinkedRequestsTitle')} (${linkedRequests.length})</div>`;
   html += linkedRequests.length ? `
@@ -2100,6 +2250,24 @@ function buildAssetTcoHtml(assetRec){
   return html;
 }
 
+function startVoiceInput(fieldKey, btn){
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognitionCtor){ alert(t('voiceInputUnsupported')); return; }
+  const textarea = document.querySelector(`[data-field="${fieldKey}"]`);
+  if(!textarea) return;
+  const recognition = new SpeechRecognitionCtor();
+  recognition.lang = LANG==='ar' ? "ar-SA" : "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  btn.classList.add("listening");
+  recognition.onresult = (e)=>{
+    const transcript = e.results[0][0].transcript;
+    textarea.value = textarea.value ? textarea.value + " " + transcript : transcript;
+  };
+  recognition.onerror = ()=>{ btn.classList.remove("listening"); };
+  recognition.onend = ()=>{ btn.classList.remove("listening"); };
+  try{ recognition.start(); }catch(e){ btn.classList.remove("listening"); alert(t('voiceInputUnsupported')); }
+}
 function openForm(m, existing, viewMode){
   formViewOnly = !!viewMode;
   const isEdit = !!existing;
@@ -2136,7 +2304,8 @@ function openForm(m, existing, viewMode){
     }
     if(f.type==="textarea"){
       const atr = (formViewOnly && isTranslatableField(f) && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
-      return `<textarea data-field="${f.key}" ${dis} ${atr}>${val}</textarea>`;
+      const micBtn = !formViewOnly ? `<button type="button" class="voice-input-btn" data-voicefield="${f.key}" title="${t('voiceInputTitle')}">🎙️</button>` : "";
+      return `<div style="position:relative;"><textarea data-field="${f.key}" ${dis} ${atr}>${val}</textarea>${micBtn}</div>`;
     }
     if(f.master){
       const atr = (formViewOnly && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
@@ -2212,6 +2381,9 @@ function openForm(m, existing, viewMode){
   document.getElementById("btnCancel").onclick = closeModal;
   document.getElementById("modalOverlay").onclick = (e)=>{ if(e.target.id==="modalOverlay") closeModal(); };
   if(document.getElementById("photoWidget")) renderPhotoWidget();
+  document.querySelectorAll("[data-voicefield]").forEach(btn=>{
+    btn.onclick = ()=> startVoiceInput(btn.dataset.voicefield, btn);
+  });
   if(isEdit) bindCommentsHandlers(m, existing);
   if(formViewOnly) autoTranslateDOM(document.getElementById("modalRoot"));
   if(document.getElementById("quotesWidget")) renderQuotesWidget();
@@ -2428,6 +2600,7 @@ function openLightbox(photos, startIndex){
   if(!photos || !photos.length) return;
   let idx = Math.max(0, Math.min(startIndex||0, photos.length-1));
   const root = document.getElementById("lightboxRoot");
+  const imagesOnly = photos.filter(p=>!isPdfAttachment(p) && !isVideoAttachment(p));
   function render(){
     const p = photos[idx];
     const isPdf = isPdfAttachment(p);
@@ -2446,6 +2619,7 @@ function openLightbox(photos, startIndex){
         ${photos.length>1 ? `<button class="lightbox-nav lightbox-next" id="lightboxNext">${LANG==='ar'?'‹':'›'}</button>` : ""}
         <div class="lightbox-name">${p.name||""}</div>
         ${photos.length>1 ? `<div class="lightbox-counter">${idx+1} / ${photos.length}</div>` : ""}
+        ${imagesOnly.length>=2 ? `<button class="btn btn-gold btn-sm" id="btnCompareBA" style="position:absolute; bottom:16px;">${t('beforeAfterCompareBtn')}</button>` : ""}
       </div>`;
     document.getElementById("lightboxClose").onclick = closeLightbox;
     document.getElementById("lightboxOverlay").onclick = (e)=>{ if(e.target.id==="lightboxOverlay") closeLightbox(); };
@@ -2453,9 +2627,38 @@ function openLightbox(photos, startIndex){
     const nextBtn = document.getElementById("lightboxNext");
     if(prevBtn) prevBtn.onclick = ()=>{ idx = (idx-1+photos.length)%photos.length; render(); };
     if(nextBtn) nextBtn.onclick = ()=>{ idx = (idx+1)%photos.length; render(); };
+    const compareBtn = document.getElementById("btnCompareBA");
+    if(compareBtn) compareBtn.onclick = ()=> openBeforeAfterCompare(imagesOnly[0], imagesOnly[imagesOnly.length-1]);
   }
   render();
   document.addEventListener("keydown", lightboxKeyHandler);
+}
+function openBeforeAfterCompare(beforeImg, afterImg){
+  const root = document.getElementById("lightboxRoot");
+  const beforeSrc = beforeImg.dataUrl || beforeImg.storageUrl || "";
+  const afterSrc = afterImg.dataUrl || afterImg.storageUrl || "";
+  root.innerHTML = `
+    <div class="lightbox-overlay" id="lightboxOverlay">
+      <button class="lightbox-close" id="lightboxClose">✕</button>
+      <div class="ba-compare-wrap" id="baWrap">
+        <img class="ba-img-after" src="${afterSrc}" alt="after">
+        <div class="ba-img-before-wrap" id="baBeforeWrap"><img class="ba-img-before" src="${beforeSrc}" alt="before"></div>
+        <div class="ba-slider-handle" id="baHandle"></div>
+        <div class="ba-label ba-label-before">${t('beforeLabel')}</div>
+        <div class="ba-label ba-label-after">${t('afterLabel')}</div>
+      </div>
+      <input type="range" id="baRange" min="0" max="100" value="50" class="ba-range">
+    </div>`;
+  document.getElementById("lightboxClose").onclick = closeLightbox;
+  document.getElementById("lightboxOverlay").onclick = (e)=>{ if(e.target.id==="lightboxOverlay") closeLightbox(); };
+  const range = document.getElementById("baRange");
+  const beforeWrap = document.getElementById("baBeforeWrap");
+  const handle = document.getElementById("baHandle");
+  range.oninput = ()=>{
+    beforeWrap.style.clipPath = `inset(0 ${100-range.value}% 0 0)`;
+    handle.style.insetInlineStart = range.value+"%";
+  };
+  range.oninput();
 }
 function lightboxKeyHandler(e){
   if(e.key==="Escape") closeLightbox();
@@ -4794,7 +4997,9 @@ setupServiceWorker();
 initEmailJsIfConfigured();
 updateCloudStatusBadge();
 initCloud();
-if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); }
+if(location.hash === "#public"){
+  renderPublicStatusPage();
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); }
 </script>
 </body>
 </html>
