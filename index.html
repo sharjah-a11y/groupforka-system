@@ -457,6 +457,7 @@ const STR = {
     pushNotifEnableBtn:"تفعيل التنبيهات", pushNotifDisableBtn:"إيقاف التنبيهات", pushNotifTestBtn:"إرسال تنبيه تجريبي",
     pushNotifUnsupported:"المتصفح ده مش بيدعم التنبيهات للأسف", pushNotifPermissionDenied:"محتاجين إذنك لإظهار التنبيهات — فعّلها من إعدادات المتصفح لو رفضتها بالغلط",
     pushNotifEnabledToast:"✅ تم تفعيل التنبيهات الفورية", pushNotifTestTitle:"🔔 GROUP FORKA", pushNotifTestBody:"هذا تنبيه تجريبي — التنبيهات شغالة تمام!",
+    pushNotifTestSentToast:"✅ تم إرسال التنبيه — لو مش شايفه، تأكد إن إشعارات المتصفح مفعّلة من إعدادات الجهاز",
     pushNotifNewCriticalTitle:"⚠️ بند جديد يحتاج متابعة", pushNotifMultipleBody:(n)=>`يوجد ${n} بنود جديدة حرجة أو متأخرة تحتاج متابعة`,
     pwaInstallLabel:"تثبيت كتطبيق", pwaInstallManualHint:"📱 آيفون (Safari): دوس زر المشاركة ⬆️ ثم \"إضافة إلى الشاشة الرئيسية\".\n📱 أندرويد (Chrome): دوس القائمة ⋮ فوق يمين الصفحة ثم \"تثبيت التطبيق\" أو \"إضافة إلى الشاشة الرئيسية\".\n💻 كمبيوتر (Chrome/Edge): دوّر على أيقونة تثبيت ⊕ في شريط العنوان (يمين خانة الرابط)، أو من القائمة ⋮ اختر \"تثبيت GROUP FORKA...\".",
     commentsTitle:"💬 التعليقات والمتابعات", commentsPlaceholder:"اكتب متابعة أو تعليق جديد...", commentsAdd:"إضافة",
@@ -678,6 +679,7 @@ const STR = {
     pushNotifEnableBtn:"Enable Notifications", pushNotifDisableBtn:"Disable Notifications", pushNotifTestBtn:"Send Test Notification",
     pushNotifUnsupported:"Unfortunately this browser doesn't support notifications", pushNotifPermissionDenied:"We need your permission to show notifications — enable it from browser settings if you denied it by mistake",
     pushNotifEnabledToast:"✅ Instant notifications enabled", pushNotifTestTitle:"🔔 GROUP FORKA", pushNotifTestBody:"This is a test notification — notifications are working!",
+    pushNotifTestSentToast:"✅ Notification sent — if you don't see it, make sure browser notifications are enabled in your device settings",
     pushNotifNewCriticalTitle:"⚠️ New item needs attention", pushNotifMultipleBody:(n)=>`There are ${n} new critical or overdue items needing attention`,
     pwaInstallLabel:"Install as App", pwaInstallManualHint:"📱 iPhone (Safari): tap the Share icon ⬆️ then \"Add to Home Screen\".\n📱 Android (Chrome): tap the ⋮ menu at the top-right then \"Install App\" or \"Add to Home Screen\".\n💻 Desktop (Chrome/Edge): look for an install icon ⊕ in the address bar, or from the ⋮ menu choose \"Install GROUP FORKA...\".",
     commentsTitle:"💬 Comments & Follow-ups", commentsPlaceholder:"Write a follow-up or comment...", commentsAdd:"Add",
@@ -3896,7 +3898,22 @@ function renderNotificationsPage(){
       renderNotificationsPage();
     });
   };
-  document.getElementById("btnTestPush").onclick = ()=> showLocalNotification(t('pushNotifTestTitle'), t('pushNotifTestBody'));
+  document.getElementById("btnTestPush").onclick = ()=>{
+    if(!("Notification" in window)){ alert(t('pushNotifUnsupported')); return; }
+    if(Notification.permission === "denied"){ alert(t('pushNotifPermissionDenied')); return; }
+    if(Notification.permission !== "granted"){
+      Notification.requestPermission().then(perm=>{
+        if(perm === "granted"){
+          showLocalNotification(t('pushNotifTestTitle'), t('pushNotifTestBody'));
+        } else {
+          alert(t('pushNotifPermissionDenied'));
+        }
+      });
+      return;
+    }
+    showLocalNotification(t('pushNotifTestTitle'), t('pushNotifTestBody'));
+    showToast(t('pushNotifTestSentToast'));
+  };
 
   document.getElementById("btnNotifSave").onclick = ()=>{
     const newCfg = {
@@ -4413,12 +4430,22 @@ function saveNotifiedIds(set){ localStorage.setItem("forka_notified_ids", JSON.s
 function seedNotifiedIdsBaseline(){ saveNotifiedIds(new Set(gatherCriticalItemsWithIds().map(i=>i.id))); }
 function showLocalNotification(title, body){
   if(!("Notification" in window) || Notification.permission !== "granted") return;
+  let fired = false;
+  const fireDirect = ()=>{ if(fired) return; fired = true; try{ new Notification(title, {body}); }catch(e){ console.error("Notification failed:", e); } };
+  const fallbackTimer = setTimeout(fireDirect, 1500); // guard against navigator.serviceWorker.ready hanging forever
   if(navigator.serviceWorker && navigator.serviceWorker.ready){
     navigator.serviceWorker.ready.then(reg=>{
+      clearTimeout(fallbackTimer);
+      if(fired) return;
+      fired = true;
       reg.showNotification(title, { body, icon:"icon-192.png", badge:"icon-192.png" });
-    }).catch(()=>{ try{ new Notification(title, {body}); }catch(e){} });
+    }).catch(()=>{
+      clearTimeout(fallbackTimer);
+      fireDirect();
+    });
   } else {
-    try{ new Notification(title, {body}); }catch(e){}
+    clearTimeout(fallbackTimer);
+    fireDirect();
   }
 }
 let pushWatcherInterval = null;
