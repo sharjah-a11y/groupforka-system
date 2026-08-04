@@ -380,6 +380,8 @@
   <div class="nav-item" data-view="reports"><span class="ic">📈</span><span id="navReportsLabel"></span></div>
   <div class="nav-item" data-view="calendar"><span class="ic">📅</span><span id="navCalendarLabel"></span></div>
   <div class="nav-item" data-view="branchCompare"><span class="ic">🏢</span><span id="navBranchCompareLabel"></span></div>
+  <div class="nav-item" data-view="trash"><span class="ic">🗑️</span><span id="navTrashLabel"></span></div>
+  <div class="nav-item" data-view="globalSearch"><span class="ic">🔍</span><span id="navGlobalSearchLabel"></span></div>
   <div class="nav-item" data-view="masters"><span class="ic">📇</span><span id="navMastersLabel"></span></div>
   <div class="nav-item" data-view="notifications"><span class="ic">🔔</span><span id="navNotifLabel"></span></div>
   <div class="nav-item" data-view="checklists"><span class="ic">✅</span><span id="navChecklistsLabel"></span></div>
@@ -438,6 +440,16 @@ const STR = {
     actions:"إجراءات", edit:"تعديل", delete:"حذف",
     emptyState:(s)=>`لا توجد سجلات — اضغط "إضافة ${s}" للبدء`,
     confirmDelete:"هل تريد حذف هذا السجل نهائيًا؟", deleted:"تم حذف السجل",
+    confirmDeleteSoft:"هل تريد نقل هذا السجل لسلة المحذوفات؟ (تقدر تسترجعه خلال 30 يوم)", deletedToTrash:"🗑️ تم النقل لسلة المحذوفات",
+    navTrash:"🗑️ سلة المحذوفات",
+    navGlobalSearch:"🔍 بحث شامل", globalSearchTitle:"بحث شامل", globalSearchMeta:"ابحث في كل الأقسام مرة واحدة",
+    globalSearchPlaceholder:"اكتب أي كلمة (اسم فرع، رقم لوحة، وصف...)", globalSearchResultsCount:(n)=>`${n} نتيجة`,
+    globalSearchNoResults:"لا توجد نتائج مطابقة", globalSearchPrompt:"ابدأ الكتابة أعلاه للبحث في كل الأقسام",
+    dupWarningMsg:"⚠️ يوجد سجل مشابه بنفس البيانات مسجّل بالفعل. هل تريد المتابعة والحفظ رغم ذلك؟",
+    pageIndicator:(cur,total)=>`صفحة ${cur} من ${total}`, trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
+    trashEmpty:"سلة المحذوفات فارغة 👍", trashRestoreBtn:"↩️ استرجاع", trashDeleteForeverBtn:"حذف نهائي",
+    trashDeletedOn:"حُذف في: ", trashDaysLeft:"متبقي للحذف النهائي: ", trashRestoredToast:"✅ تم استرجاع السجل",
+    trashConfirmForever:"تحذير: الحذف النهائي لا يمكن التراجع عنه إطلاقًا. متأكد؟",
     editTitle:"تعديل ", addTitle:"إضافة ", fieldsRequiredNote:" — الحقول المعلّمة بـ * إلزامية",
     cancel:"إلغاء", deleteRecord:"حذف السجل", saveEdits:"حفظ التعديلات", saveRecord:"حفظ السجل",
     fillRequired:"يرجى تعبئة الحقول الإلزامية:\n", savedEdits:"تم حفظ التعديلات", savedNew:"تمت إضافة السجل",
@@ -660,6 +672,16 @@ const STR = {
     actions:"Actions", edit:"Edit", delete:"Delete",
     emptyState:(s)=>`No records yet — click "Add ${s}" to get started`,
     confirmDelete:"Delete this record permanently?", deleted:"Record deleted",
+    confirmDeleteSoft:"Move this record to the recycle bin? (you can restore it within 30 days)", deletedToTrash:"🗑️ Moved to recycle bin",
+    navTrash:"🗑️ Recycle Bin",
+    navGlobalSearch:"🔍 Global Search", globalSearchTitle:"Global Search", globalSearchMeta:"Search all sections at once",
+    globalSearchPlaceholder:"Type anything (branch name, plate number, description...)", globalSearchResultsCount:(n)=>`${n} results`,
+    globalSearchNoResults:"No matching results", globalSearchPrompt:"Start typing above to search all sections",
+    dupWarningMsg:"⚠️ A similar record with the same data already exists. Do you want to continue and save anyway?",
+    pageIndicator:(cur,total)=>`Page ${cur} of ${total}`, trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
+    trashEmpty:"Recycle bin is empty 👍", trashRestoreBtn:"↩️ Restore", trashDeleteForeverBtn:"Delete Forever",
+    trashDeletedOn:"Deleted on: ", trashDaysLeft:"Days until permanent deletion: ", trashRestoredToast:"✅ Record restored",
+    trashConfirmForever:"Warning: permanent deletion cannot be undone at all. Are you sure?",
     editTitle:"Edit ", addTitle:"Add ", fieldsRequiredNote:" — fields marked * are required",
     cancel:"Cancel", deleteRecord:"Delete Record", saveEdits:"Save Changes", saveRecord:"Save Record",
     fillRequired:"Please fill the required fields:\n", savedEdits:"Changes saved", savedNew:"Record added",
@@ -886,6 +908,8 @@ function applyStaticText(){
   document.getElementById("navReportsLabel").textContent = t("navReports");
   document.getElementById("navCalendarLabel").textContent = t("navCalendar");
   document.getElementById("navBranchCompareLabel").textContent = t("navBranchCompare");
+  document.getElementById("navTrashLabel").textContent = t("navTrash");
+  document.getElementById("navGlobalSearchLabel").textContent = t("navGlobalSearch");
   document.getElementById("navMastersLabel").textContent = t("navMasters");
   document.getElementById("navNotifLabel").textContent = t("navNotif");
   document.getElementById("navChecklistsLabel").textContent = t("navChecklists");
@@ -1287,8 +1311,11 @@ let formQuotes = []; /* temp array of {company,amount,selected} while a form mod
 let formViewOnly = false;
 
 /* ---------------- STORAGE ---------------- */
-function loadData(key){
+function loadDataRaw(key){
   try{ return JSON.parse(localStorage.getItem("forka_"+key)) || []; }catch(e){ return []; }
+}
+function loadData(key){
+  return loadDataRaw(key).filter(r=> !r._deleted);
 }
 function saveData(key, arr){
   try{
@@ -1297,6 +1324,41 @@ function saveData(key, arr){
     console.error("saveData failed (likely storage quota exceeded):", e);
     alert(t('storageQuotaError'));
   }
+}
+const TRASH_RETENTION_DAYS = 30;
+function purgeExpiredTrash(){
+  MODULES.forEach(m=>{
+    const arr = loadDataRaw(m.key);
+    const cutoff = Date.now() - TRASH_RETENTION_DAYS*24*60*60*1000;
+    const kept = arr.filter(r=> !(r._deleted && r._deletedAt && r._deletedAt < cutoff));
+    if(kept.length !== arr.length){ saveData(m.key, kept); }
+  });
+}
+function getAllTrashedRecords(){
+  let items = [];
+  MODULES.forEach(m=>{
+    loadDataRaw(m.key).filter(r=>r._deleted).forEach(r=>{
+      items.push({ moduleKey:m.key, moduleName:ML(m,"name"), moduleIcon:m.icon, record:r });
+    });
+  });
+  items.sort((a,b)=> (b.record._deletedAt||0) - (a.record._deletedAt||0));
+  return items;
+}
+function restoreTrashedRecord(moduleKey, recordId){
+  const arr = loadDataRaw(moduleKey);
+  const idx = arr.findIndex(r=>r.id===recordId);
+  if(idx>=0){
+    delete arr[idx]._deleted;
+    delete arr[idx]._deletedAt;
+    saveData(moduleKey, arr);
+    cloudPushRecord(moduleKey, arr[idx]);
+  }
+}
+function permanentlyDeleteTrashedRecord(moduleKey, recordId){
+  const arr = loadDataRaw(moduleKey);
+  const kept = arr.filter(r=>r.id!==recordId);
+  saveData(moduleKey, kept);
+  cloudDeleteRecord(moduleKey, recordId);
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
@@ -1754,6 +1816,12 @@ function renderModuleRecordsBody(m){
   };
   const sortArrow = k => ms.sortKey===k ? `<span class="sort-ic">${ms.sortDir===1?'▲':'▼'}</span>` : "";
 
+  const PAGE_SIZE = 50;
+  if(ms.page === undefined) ms.page = 1;
+  const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  if(ms.page > totalPages) ms.page = totalPages;
+  const pageData = data.slice((ms.page-1)*PAGE_SIZE, ms.page*PAGE_SIZE);
+
   const tableHtml = `
     <div class="print-only print-header">
       <div class="pt-title">GROUP FORKA — ${ML(m,"name")}</div>
@@ -1766,7 +1834,7 @@ function renderModuleRecordsBody(m){
           <th class="no-print">${t('actions')}</th>
         </tr></thead>
         <tbody>
-        ${data.length ? data.map(r=>{
+        ${pageData.length ? pageData.map(r=>{
           const overdue = isOverdue(m, r);
           const photoCount = (r.photos && r.photos.length) ? r.photos.length : 0;
           return `
@@ -1801,6 +1869,12 @@ function renderModuleRecordsBody(m){
         </tbody>
       </table>
     </div>
+    ${totalPages > 1 ? `
+    <div class="toolbar no-print" style="justify-content:center;">
+      <button class="btn btn-outline btn-sm" id="pagePrev" ${ms.page<=1?'disabled':''}>${t('calendarPrevMonth')}</button>
+      <div style="font-weight:800; font-size:13px; color:var(--navy); min-width:100px; text-align:center;">${t('pageIndicator', ms.page, totalPages)}</div>
+      <button class="btn btn-outline btn-sm" id="pageNext" ${ms.page>=totalPages?'disabled':''}>${t('calendarNextMonth')}</button>
+    </div>` : ""}
   `;
 
   let rankingHtml = "";
@@ -1835,19 +1909,23 @@ function renderModuleRecordsBody(m){
   document.getElementById("btnExportPdf").onclick = ()=> exportModulePDF(m);
   document.getElementById("btnExport").onclick = ()=> exportModuleExcel(m);
   const si = document.getElementById("searchInput");
-  si.oninput = ()=>{ ms.search = si.value; renderModuleRecordsBody(m); si.focus(); si.setSelectionRange(si.value.length, si.value.length); };
+  si.oninput = ()=>{ ms.search = si.value; ms.page = 1; renderModuleRecordsBody(m); si.focus(); si.setSelectionRange(si.value.length, si.value.length); };
   const sf = document.getElementById("statusFilter");
-  if(sf) sf.onchange = ()=>{ ms.status = sf.value; renderModuleRecordsBody(m); };
+  if(sf) sf.onchange = ()=>{ ms.status = sf.value; ms.page = 1; renderModuleRecordsBody(m); };
   const drf = document.getElementById("dateRangeFilter");
-  if(drf) drf.onchange = ()=>{ ms.dateRange.preset = drf.value; renderModuleRecordsBody(m); };
+  if(drf) drf.onchange = ()=>{ ms.dateRange.preset = drf.value; ms.page = 1; renderModuleRecordsBody(m); };
   const drFrom = document.getElementById("dateRangeFrom");
-  if(drFrom) drFrom.onchange = ()=>{ ms.dateRange.from = drFrom.value; renderModuleRecordsBody(m); };
+  if(drFrom) drFrom.onchange = ()=>{ ms.dateRange.from = drFrom.value; ms.page = 1; renderModuleRecordsBody(m); };
   const drTo = document.getElementById("dateRangeTo");
-  if(drTo) drTo.onchange = ()=>{ ms.dateRange.to = drTo.value; renderModuleRecordsBody(m); };
+  if(drTo) drTo.onchange = ()=>{ ms.dateRange.to = drTo.value; ms.page = 1; renderModuleRecordsBody(m); };
   document.getElementById("btnToggleCols").onclick = ()=>{
     ms.showAllColumns = ms.showAllColumns===false ? true : false;
     renderModuleRecordsBody(m);
   };
+  const pagePrev = document.getElementById("pagePrev");
+  if(pagePrev) pagePrev.onclick = ()=>{ ms.page = Math.max(1, ms.page-1); renderModuleRecordsBody(m); };
+  const pageNext = document.getElementById("pageNext");
+  if(pageNext) pageNext.onclick = ()=>{ ms.page = ms.page+1; renderModuleRecordsBody(m); };
 
   document.querySelectorAll("th[data-sort]").forEach(th=>{
     th.onclick = ()=>{
@@ -1890,11 +1968,16 @@ function renderModuleRecordsBody(m){
   });
   document.querySelectorAll("[data-del]").forEach(b=>{
     b.onclick = ()=>{
-      if(confirm(t('confirmDelete'))){
-        const arr = loadData(m.key).filter(x=>x.id!==b.dataset.del);
-        saveData(m.key, arr);
-        cloudDeleteRecord(m.key, b.dataset.del);
-        showToast(t('deleted'));
+      if(confirm(t('confirmDeleteSoft'))){
+        const raw = loadDataRaw(m.key);
+        const idx = raw.findIndex(x=>x.id===b.dataset.del);
+        if(idx>=0){
+          raw[idx]._deleted = true;
+          raw[idx]._deletedAt = Date.now();
+          saveData(m.key, raw);
+          cloudPushRecord(m.key, raw[idx]);
+        }
+        showToast(t('deletedToTrash'));
         renderModuleRecordsBody(m); renderNav();
       }
     };
@@ -2126,11 +2209,16 @@ function openForm(m, existing, viewMode){
   }
   if(isEdit){
     document.getElementById("btnDeleteInModal").onclick = ()=>{
-      if(confirm(t('confirmDelete'))){
-        const arr = loadData(m.key).filter(x=>x.id!==existing.id);
-        saveData(m.key, arr);
-        cloudDeleteRecord(m.key, existing.id);
-        closeModal(); showToast(t('deleted'));
+      if(confirm(t('confirmDeleteSoft'))){
+        const raw = loadDataRaw(m.key);
+        const idx = raw.findIndex(x=>x.id===existing.id);
+        if(idx>=0){
+          raw[idx]._deleted = true;
+          raw[idx]._deletedAt = Date.now();
+          saveData(m.key, raw);
+          cloudPushRecord(m.key, raw[idx]);
+        }
+        closeModal(); showToast(t('deletedToTrash'));
         renderModule(m.key); renderNav();
       }
     };
@@ -2164,6 +2252,10 @@ function openForm(m, existing, viewMode){
     if(missingRequired.length){
       alert(t('fillRequired') + missingRequired.join("\n"));
       return;
+    }
+    if(!isEdit){
+      const dupMsg = checkForLikelyDuplicate(m, newRec);
+      if(dupMsg && !confirm(dupMsg)) return;
     }
     m.fields.forEach(f=>{ if(f.master && newRec[f.key]) addMasterValue(f.master, newRec[f.key]); });
     if(m.key==="contractorEval" && m.weights){
@@ -2222,6 +2314,17 @@ function autoScheduleNextPM(rec){
   return true;
 }
 function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; formPhotos = []; formQuotes = []; formViewOnly = false; }
+function checkForLikelyDuplicate(m, newRec){
+  const keyFields = [...new Set([m.branchField, m.freqField, m.contractorField].filter(Boolean))]
+    .filter(fk => (newRec[fk]||"").trim());
+  if(!keyFields.length) return null;
+  const match = loadData(m.key).find(r=>{
+    if(r.id === newRec.id) return false;
+    return keyFields.every(fk => (r[fk]||"").trim() === (newRec[fk]||"").trim());
+  });
+  if(match) return t('dupWarningMsg');
+  return null;
+}
 
 function renderQuotesWidget(){
   const w = document.getElementById("quotesWidget");
@@ -4241,6 +4344,118 @@ function renderCalendarPage(){
 }
 
 /* ---------------- BRANCH COMPARISON PAGE ---------------- */
+/* ---------------- GLOBAL SEARCH PAGE ---------------- */
+if(!state.globalSearchQuery) state.globalSearchQuery = "";
+function performGlobalSearch(query){
+  const q = query.trim().toLowerCase();
+  if(!q) return [];
+  let results = [];
+  MODULES.forEach(m=>{
+    loadData(m.key).forEach(r=>{
+      const matchField = Object.entries(r).find(([k,v])=> typeof v==="string" && v.toLowerCase().includes(q));
+      if(matchField){
+        const label = r.branch || r.company || r.reqNo || r.plate || r.name || r.carName || "";
+        results.push({ moduleKey:m.key, moduleName:ML(m,"name"), moduleIcon:m.icon, id:r.id, label, matchedText: matchField[1] });
+      }
+    });
+  });
+  return results;
+}
+function renderGlobalSearchPage(){
+  document.getElementById("topbarTitle").textContent = t('globalSearchTitle');
+  document.getElementById("topbarMeta").textContent = t('globalSearchMeta');
+  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  bindLangSwitcher();
+
+  const results = performGlobalSearch(state.globalSearchQuery);
+  document.getElementById("content").innerHTML = `
+    <div class="toolbar no-print">
+      <input type="text" id="globalSearchInput" placeholder="${t('globalSearchPlaceholder')}" value="${escapeAttr(state.globalSearchQuery)}" style="flex:1; max-width:420px;" autofocus>
+      <div class="spacer"></div>
+      <span style="font-size:12.5px;color:var(--muted)">${state.globalSearchQuery ? t('globalSearchResultsCount', results.length) : ""}</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>${t('reportModule')}</th><th>${LANG==='ar'?'التفاصيل':'Details'}</th><th>${LANG==='ar'?'تطابق في':'Matched in'}</th><th>${t('actions')}</th></tr></thead>
+        <tbody>
+        ${results.length ? results.map(res=>`
+          <tr>
+            <td>${res.moduleIcon} ${res.moduleName}</td>
+            <td>${escapeHtml(res.label)}</td>
+            <td class="desc-cell">${escapeHtml(res.matchedText.length>80?res.matchedText.slice(0,80)+"…":res.matchedText)}</td>
+            <td><button class="btn btn-sm btn-outline" data-gsview="${res.moduleKey}::${res.id}">${t('viewBtn')}</button></td>
+          </tr>`).join("") : `<tr class="empty-row"><td colspan="4">${state.globalSearchQuery ? t('globalSearchNoResults') : t('globalSearchPrompt')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+  const input = document.getElementById("globalSearchInput");
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  input.oninput = ()=>{ state.globalSearchQuery = input.value; renderGlobalSearchPage(); };
+  document.querySelectorAll("[data-gsview]").forEach(b=>{
+    b.onclick = ()=>{
+      const [mk, id] = b.dataset.gsview.split("::");
+      const mod = MODULES.find(x=>x.key===mk);
+      const rec = loadData(mk).find(r=>r.id===id);
+      if(mod && rec) openForm(mod, rec, true);
+    };
+  });
+}
+
+/* ---------------- RECYCLE BIN PAGE ---------------- */
+function renderTrashPage(){
+  purgeExpiredTrash();
+  document.getElementById("topbarTitle").textContent = t('trashTitle');
+  document.getElementById("topbarMeta").textContent = t('trashMeta');
+  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  bindLangSwitcher();
+
+  const items = getAllTrashedRecords();
+  document.getElementById("content").innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>${t('reportModule')}</th><th>${LANG==='ar'?'التفاصيل':'Details'}</th><th>${t('trashDeletedOn')}</th><th>${t('trashDaysLeft')}</th><th>${t('actions')}</th></tr></thead>
+        <tbody>
+        ${items.length ? items.map(it=>{
+          const r = it.record;
+          const label = r.branch || r.company || r.reqNo || r.plate || r.name || r.carName || "";
+          const deletedDate = r._deletedAt ? new Date(r._deletedAt) : null;
+          const daysLeft = deletedDate ? Math.max(0, TRASH_RETENTION_DAYS - Math.floor((Date.now()-r._deletedAt)/(24*60*60*1000))) : "-";
+          return `<tr>
+            <td>${it.moduleIcon} ${it.moduleName}</td>
+            <td>${escapeHtml(label)}</td>
+            <td>${deletedDate ? deletedDate.toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB') : "-"}</td>
+            <td>${badge(daysLeft+(LANG==='ar'?' يوم':' days'))}</td>
+            <td><div class="row-actions">
+              <button class="btn btn-sm btn-primary" data-restore="${it.moduleKey}::${r.id}">${t('trashRestoreBtn')}</button>
+              <button class="btn btn-sm btn-danger" data-forever="${it.moduleKey}::${r.id}">${t('trashDeleteForeverBtn')}</button>
+            </div></td>
+          </tr>`;
+        }).join("") : `<tr class="empty-row"><td colspan="5">${t('trashEmpty')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.querySelectorAll("[data-restore]").forEach(b=>{
+    b.onclick = ()=>{
+      const [mk, id] = b.dataset.restore.split("::");
+      restoreTrashedRecord(mk, id);
+      showToast(t('trashRestoredToast'));
+      renderTrashPage(); renderNav();
+    };
+  });
+  document.querySelectorAll("[data-forever]").forEach(b=>{
+    b.onclick = ()=>{
+      if(!confirm(t('trashConfirmForever'))) return;
+      const [mk, id] = b.dataset.forever.split("::");
+      permanentlyDeleteTrashedRecord(mk, id);
+      showToast(t('deleted'));
+      renderTrashPage(); renderNav();
+    };
+  });
+}
+
 function renderBranchComparePage(){
   document.getElementById("topbarTitle").textContent = t('branchCompareTitle');
   document.getElementById("topbarMeta").textContent = t('branchCompareMeta');
@@ -4375,6 +4590,8 @@ function render(){
   else if(state.view==="reports") renderReportsPage();
   else if(state.view==="calendar") renderCalendarPage();
   else if(state.view==="branchCompare") renderBranchComparePage();
+  else if(state.view==="trash") renderTrashPage();
+  else if(state.view==="globalSearch") renderGlobalSearchPage();
   else if(state.view==="masters") renderMastersPage();
   else if(state.view==="notifications") renderNotificationsPage();
   else if(state.view==="checklists") renderChecklistsPage();
@@ -4472,6 +4689,7 @@ if(getPushNotifEnabled() && "Notification" in window && Notification.permission 
   startPushNotifWatcher();
 }
 
+purgeExpiredTrash();
 applyStaticText();
 setupServiceWorker();
 initEmailJsIfConfigured();
