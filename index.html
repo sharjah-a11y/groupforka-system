@@ -374,6 +374,10 @@
   .ba-label{ position:absolute; top:10px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:12px; }
   .ba-label-before{ inset-inline-start:10px; }
   .ba-label-after{ inset-inline-end:10px; }
+  .map-canvas{ position:relative; width:100%; height:520px; background:linear-gradient(135deg,#f4f6fa,#e9edf5); border:2px dashed var(--line); border-radius:14px; overflow:hidden; }
+  .map-dot{ position:absolute; width:36px; height:36px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); cursor:grab; display:flex; align-items:center; justify-content:center; touch-action:none; transition:box-shadow .15s; }
+  .map-dot.dragging{ cursor:grabbing; box-shadow:0 4px 16px rgba(0,0,0,.4); z-index:5; }
+  .map-dot-label{ position:absolute; top:40px; font-size:10px; font-weight:800; color:var(--navy); background:#fff; padding:1px 6px; border-radius:6px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.15); }
 </style>
 </head>
 <body>
@@ -395,6 +399,7 @@
   <div class="nav-item" data-view="reports"><span class="ic">📈</span><span id="navReportsLabel"></span></div>
   <div class="nav-item" data-view="calendar"><span class="ic">📅</span><span id="navCalendarLabel"></span></div>
   <div class="nav-item" data-view="branchCompare"><span class="ic">🏢</span><span id="navBranchCompareLabel"></span></div>
+  <div class="nav-item" data-view="assetMap"><span class="ic">🗺️</span><span id="navAssetMapLabel"></span></div>
   <div class="nav-item" data-view="trash"><span class="ic">🗑️</span><span id="navTrashLabel"></span></div>
   <div class="nav-item" data-view="globalSearch"><span class="ic">🔍</span><span id="navGlobalSearchLabel"></span></div>
   <div class="nav-item" data-view="masters"><span class="ic">📇</span><span id="navMastersLabel"></span></div>
@@ -469,6 +474,9 @@ const STR = {
     vehicleHealthNote:"مؤشر يقيس حالة السيارة بناءً على عدد الحوادث/المخالفات وتكلفتها وعمر السيارة — كلما زاد اللون أخضر كانت الحالة أفضل.",
     voiceInputTitle:"اضغط وتكلّم بدل الكتابة", voiceInputUnsupported:"المتصفح ده مش بيدعم التحويل من صوت لنص للأسف",
     anniversaryMsg:(name,days)=>`مرّ ${days.toLocaleString('ar-EG')} يوم على "${name}"!`,
+    rootCauseTitle:"🧠 تحليل السبب الجذري للأعطال", rootCauseEmpty:"لا توجد بيانات أسباب جذرية في هذه الفترة",
+    predictiveRiskTitle:"🔮 احتمالية العطل القادم", predictiveRisk_high:"مرتفعة ⚠️", predictiveRisk_medium:"متوسطة", predictiveRisk_low:"منخفضة ✅",
+    predictiveRiskDetail:(since,avg)=>`مرّ ${since} يوم منذ آخر عطل، بينما متوسط الفترة بين الأعطال تاريخيًا ${avg} يوم.`,
     beforeAfterCompareBtn:"🔄 مقارنة قبل/بعد", beforeLabel:"قبل", afterLabel:"بعد", trashTitle:"سلة المحذوفات", trashMeta:"السجلات المحذوفة تُحفظ هنا 30 يومًا قبل الحذف النهائي التلقائي",
     trashEmpty:"سلة المحذوفات فارغة 👍", trashRestoreBtn:"↩️ استرجاع", trashDeleteForeverBtn:"حذف نهائي",
     trashDeletedOn:"حُذف في: ", trashDaysLeft:"متبقي للحذف النهائي: ", trashRestoredToast:"✅ تم استرجاع السجل",
@@ -504,7 +512,13 @@ const STR = {
     calendarPrevMonth:"‹ السابق", calendarNextMonth:"التالي ›", calendarNoEvents:"لا توجد أحداث في هذا اليوم",
     calendarToday:"اليوم",
     calendarExportIcs:"📥 تصدير للتقويم (.ics)", calendarNoEventsToExport:"لا توجد مواعيد لتصديرها حاليًا",
-    navBranchCompare:"🏢 مقارنة الفروع", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
+    navBranchCompare:"🏢 مقارنة الفروع",
+    navAssetMap:"🗺️ خريطة الأصول", assetMapTitle:"الخريطة التفاعلية للأصول", assetMapMeta:"عرض بصري لحالة كل أصل في مكانه",
+    assetMapInstructions:"اسحب أي نقطة لوضعها في مكانها الصحيح على الخريطة، ودوس عليها لعرض تفاصيلها. اللون يعكس الحالة الصحية للأصل.",
+    assetMapEmpty:"لا توجد أصول مسجّلة بعد لعرضها على الخريطة",
+    webhookTitle:"🔗 التكامل الخارجي (Webhook)", webhookSub:"أي حدث مهم (بند حرج جديد، إغلاق بلاغ) يُرسل تلقائيًا كبيانات JSON لهذا الرابط — يصلح للربط مع Zapier أو Make أو أي نظام عندك.",
+    webhookUrlLabel:"رابط الـ Webhook", webhookSaveBtn:"حفظ", webhookTestBtn:"إرسال اختبار",
+    webhookMissingUrl:"اكتب الرابط أولًا", webhookTestSentToast:"✅ تم إرسال بيانات الاختبار", webhookTestFailed:"⚠️ فشل الإرسال — تأكد من صحة الرابط", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
     pmAutoScheduledToast:"✅ تم إنشاء موعد الصيانة القادم تلقائيًا",
     backupTitle:"نسخ احتياطي واستيراد", backupMeta:"احفظ نسخة من بياناتك أو استرجعها",
@@ -709,7 +723,10 @@ const STR = {
     assetHealthScore:"🩺 Health Score", timelineTitle:"📖 Timeline", timelinePurchased:"Purchase Date", timelineEmpty:"No events recorded yet",
     vehicleHealthNote:"An indicator of vehicle condition based on accident/violation count, cost, and vehicle age — greener means better condition.",
     voiceInputTitle:"Tap and speak instead of typing", voiceInputUnsupported:"Unfortunately this browser doesn't support speech-to-text",
-    anniversaryMsg:(name,days)=>`${days.toLocaleString('en-US')} days since "${name}"!`, trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
+    anniversaryMsg:(name,days)=>`${days.toLocaleString('en-US')} days since "${name}"!`,
+    rootCauseTitle:"🧠 Root Cause Analysis", rootCauseEmpty:"No root cause data in this period",
+    predictiveRiskTitle:"🔮 Next Failure Risk", predictiveRisk_high:"High ⚠️", predictiveRisk_medium:"Medium", predictiveRisk_low:"Low ✅",
+    predictiveRiskDetail:(since,avg)=>`${since} days since the last failure, versus a historical average interval of ${avg} days.`, trashTitle:"Recycle Bin", trashMeta:"Deleted records are kept here for 30 days before automatic permanent deletion",
     trashEmpty:"Recycle bin is empty 👍", trashRestoreBtn:"↩️ Restore", trashDeleteForeverBtn:"Delete Forever",
     trashDeletedOn:"Deleted on: ", trashDaysLeft:"Days until permanent deletion: ", trashRestoredToast:"✅ Record restored",
     trashConfirmForever:"Warning: permanent deletion cannot be undone at all. Are you sure?",
@@ -744,7 +761,13 @@ const STR = {
     calendarPrevMonth:"‹ Previous", calendarNextMonth:"Next ›", calendarNoEvents:"No events on this day",
     calendarToday:"Today",
     calendarExportIcs:"📥 Export to Calendar (.ics)", calendarNoEventsToExport:"No upcoming dates to export right now",
-    navBranchCompare:"🏢 Branch Comparison", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
+    navBranchCompare:"🏢 Branch Comparison",
+    navAssetMap:"🗺️ Asset Map", assetMapTitle:"Interactive Asset Map", assetMapMeta:"Visual view of each asset's condition in its location",
+    assetMapInstructions:"Drag any dot to place it in its correct spot on the map, and click it to view details. Color reflects the asset's health condition.",
+    assetMapEmpty:"No assets registered yet to show on the map",
+    webhookTitle:"🔗 External Integration (Webhook)", webhookSub:"Any important event (new critical item, request closed) is automatically sent as JSON to this URL — works with Zapier, Make, or your own system.",
+    webhookUrlLabel:"Webhook URL", webhookSaveBtn:"Save", webhookTestBtn:"Send Test",
+    webhookMissingUrl:"Enter the URL first", webhookTestSentToast:"✅ Test data sent", webhookTestFailed:"⚠️ Delivery failed — check the URL is correct", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
     pmAutoScheduledToast:"✅ Next maintenance visit auto-scheduled",
     backupTitle:"Backup & Restore", backupMeta:"Save a copy of your data or restore it",
@@ -940,6 +963,7 @@ function applyStaticText(){
   document.getElementById("navReportsLabel").textContent = t("navReports");
   document.getElementById("navCalendarLabel").textContent = t("navCalendar");
   document.getElementById("navBranchCompareLabel").textContent = t("navBranchCompare");
+  document.getElementById("navAssetMapLabel").textContent = t("navAssetMap");
   document.getElementById("navTrashLabel").textContent = t("navTrash");
   document.getElementById("navGlobalSearchLabel").textContent = t("navGlobalSearch");
   document.getElementById("navMastersLabel").textContent = t("navMasters");
@@ -1039,6 +1063,9 @@ const MODULES = [
     {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", showIf:{field:"status",value:"مغلق"}},
     {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", showIf:{field:"status",value:"مغلق"}},
     {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", showIf:{field:"status",value:"مغلق"}},
+    {key:"rootCause", label:"السبب الجذري للعطل", labelEn:"Root Cause of Failure", type:"select", required:true,
+      options:["سوء استخدام","عمر طبيعي / تآكل","تركيب أو تصنيع خاطئ","نقص صيانة وقائية","ظروف تشغيل قاسية","سبب آخر"],
+      showIf:{field:"status",value:"مغلق"}},
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["مفتوح","قيد التنفيذ","متأخر","مغلق"]},
     {key:"delayReason", label:"سبب التأخير", labelEn:"Delay Reason", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
     {key:"delayResponsible", label:"الجهة المسؤولة عن التأخير", labelEn:"Responsible Party", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
@@ -2213,6 +2240,20 @@ function buildTimelineHtml(events){
     `).join("")}
   </div>`;
 }
+function computePredictiveRisk(linkedRequests){
+  const dated = linkedRequests.filter(r=>r.reportDate && !isNaN(new Date(r.reportDate).getTime()))
+    .map(r=>new Date(r.reportDate)).sort((a,b)=>a-b);
+  if(dated.length < 3) return null; // not enough history for a meaningful prediction
+  let gaps = [];
+  for(let i=1;i<dated.length;i++){ gaps.push((dated[i]-dated[i-1])/(24*60*60*1000)); }
+  const avgInterval = gaps.reduce((a,b)=>a+b,0)/gaps.length;
+  const daysSinceLast = (Date.now()-dated[dated.length-1].getTime())/(24*60*60*1000);
+  const ratio = avgInterval>0 ? daysSinceLast/avgInterval : 0;
+  let level = "low";
+  if(ratio >= 0.85) level = "high";
+  else if(ratio >= 0.5) level = "medium";
+  return { avgInterval:Math.round(avgInterval), daysSinceLast:Math.round(daysSinceLast), level };
+}
 function buildAssetTcoHtml(assetRec){
   if(!assetRec.id) return "";
   const assetName = (assetRec.name||"").trim().toLowerCase();
@@ -2223,6 +2264,7 @@ function buildAssetTcoHtml(assetRec){
   const purchasePrice = Number(assetRec.price)||0;
   const tco = purchasePrice + totalRepairCost;
   const healthScore = computeHealthScore(purchasePrice, totalRepairCost, linkedRequests.length, assetRec.purchaseDate);
+  const risk = computePredictiveRisk(linkedRequests);
 
   let html = `<div class="section-title" style="margin-top:18px;">${t('assetTcoTitle')}</div>`;
   html += `<div class="grid-cards" style="grid-template-columns:auto repeat(3,1fr); align-items:center; margin-bottom:16px;">
@@ -2234,6 +2276,15 @@ function buildAssetTcoHtml(assetRec){
     <div class="card"><div class="label">${t('assetRepairTotal')}</div><div class="kpi-val">${fmtMoney(totalRepairCost)}</div></div>
     <div class="card" style="background:var(--navy);"><div class="label" style="color:#fff;">${t('assetTcoTotal')}</div><div class="kpi-val" style="color:var(--gold);">${fmtMoney(tco)}</div></div>
   </div>`;
+
+  if(risk){
+    const riskColors = { high:{bg:"var(--danger-bg)", border:"#f2c4bd", text:"#8a2a1e"}, medium:{bg:"#fff6e0", border:"#f0d9a0", text:"#8a5a00"}, low:{bg:"var(--success-bg)", border:"#b7e0c4", text:"#1b5e20"} };
+    const rc = riskColors[risk.level];
+    html += `<div class="banner" style="background:${rc.bg}; border-color:${rc.border}; color:${rc.text}; margin-bottom:16px;">
+      <b>${t('predictiveRiskTitle')}: ${t('predictiveRisk_'+risk.level)}</b><br>
+      ${t('predictiveRiskDetail', risk.daysSinceLast, risk.avgInterval)}
+    </div>`;
+  }
 
   const timelineEvents = [];
   if(assetRec.purchaseDate) timelineEvents.push({date:assetRec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
@@ -2503,6 +2554,14 @@ function openForm(m, existing, viewMode){
     }
     saveData(m.key, arr);
     cloudPushRecord(m.key, newRec);
+    if(m.key==="requests"){
+      if(!isEdit && (m.alertValues||[]).includes((newRec.status||"").trim())){
+        fireWebhook("critical_item_created", { module:m.key, branch:newRec.branch, issue:newRec.issue, status:newRec.status });
+      }
+      if(newRec.status==="مغلق" && (!isEdit || (existing && existing.status!=="مغلق"))){
+        fireWebhook("request_closed", { module:m.key, branch:newRec.branch, cost:newRec.cost, rootCause:newRec.rootCause });
+      }
+    }
     if(m.key==="pm" && !newRec._nextCreated){
       const doneStatuses = ["منجز في موعده","منجز متأخر"];
       if(doneStatuses.includes((newRec.status||"").trim()) && newRec.frequency){
@@ -3780,6 +3839,12 @@ function renderReportBody(from, to){
     </tr>`;
   }).join("") : "";
 
+  const closedReqs = loadData("requests").filter(r=> r.status==="مغلق" && r.rootCause && r.closeDate && new Date(r.closeDate) >= fromD && new Date(r.closeDate) <= toD);
+  const rootCauseCounts = {};
+  closedReqs.forEach(r=>{ rootCauseCounts[r.rootCause] = (rootCauseCounts[r.rootCause]||0) + 1; });
+  const rootCauseRows = Object.entries(rootCauseCounts).sort((a,b)=>b[1]-a[1]);
+  const maxCount = rootCauseRows.length ? rootCauseRows[0][1] : 1;
+
   document.getElementById("reportBody").innerHTML = `
     <div class="print-only print-header">
       <div class="pt-title">GROUP FORKA — ${t('reportsTitle')} (${from} → ${to})</div>
@@ -3802,6 +3867,18 @@ function renderReportBody(from, to){
         <tbody>${critRows || `<tr class="empty-row"><td colspan="4">${t('reportNoCritical')}</td></tr>`}</tbody>
       </table>
     </div>
+    <div class="section-title">${t('rootCauseTitle')}</div>
+    ${rootCauseRows.length ? `
+    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
+      ${rootCauseRows.map(([cause,count])=>`
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="min-width:170px; font-size:12.5px; font-weight:700;">${cause}</div>
+          <div style="flex:1; background:#eef0f4; border-radius:6px; height:20px; overflow:hidden;">
+            <div style="width:${Math.round((count/maxCount)*100)}%; background:var(--navy); height:100%;"></div>
+          </div>
+          <div style="min-width:24px; font-weight:800; font-size:12.5px;">${count}</div>
+        </div>`).join("")}
+    </div>` : `<div style="font-size:12.5px; color:var(--muted);">${t('rootCauseEmpty')}</div>`}
   `;
 }
 
@@ -4759,6 +4836,75 @@ function renderTrashPage(){
   });
 }
 
+/* ---------------- ASSET MAP (DIGITAL TWIN) PAGE ---------------- */
+function renderAssetMapPage(){
+  document.getElementById("topbarTitle").textContent = t('assetMapTitle');
+  document.getElementById("topbarMeta").textContent = t('assetMapMeta');
+  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  bindLangSwitcher();
+
+  const assets = loadData("assets");
+  const dotsHtml = assets.map((a,i)=>{
+    const assetName = (a.name||"").trim().toLowerCase();
+    const linkedRequests = loadData("requests").filter(r=>
+      r.linkedAssetId === a.id || (assetName && (r.equipment||"").trim().toLowerCase() === assetName));
+    const totalRepairCost = linkedRequests.reduce((s,r)=> s + (Number(r.cost)||0), 0);
+    const score = computeHealthScore(Number(a.price)||0, totalRepairCost, linkedRequests.length, a.purchaseDate);
+    const color = healthColor(score);
+    // Default grid layout if position was never set
+    const defaultX = 8 + (i % 6) * 15;
+    const defaultY = 12 + Math.floor(i / 6) * 18;
+    const x = a.mapX !== undefined ? a.mapX : defaultX;
+    const y = a.mapY !== undefined ? a.mapY : defaultY;
+    return `<div class="map-dot" data-assetid="${a.id}" style="inset-inline-start:${x}%; top:${y}%; background:${color};" title="${escapeAttr(a.name||'')}">
+      <span class="map-dot-label">${escapeHtml((a.name||'').slice(0,14))}</span>
+    </div>`;
+  }).join("");
+
+  document.getElementById("content").innerHTML = `
+    <div class="banner no-print" style="margin-bottom:14px;">${t('assetMapInstructions')}</div>
+    <div class="map-canvas" id="mapCanvas">${dotsHtml || `<div style="padding:40px; text-align:center; color:var(--muted);">${t('assetMapEmpty')}</div>`}</div>
+  `;
+
+  const canvas = document.getElementById("mapCanvas");
+  let dragEl = null, dragOffsetX = 0, dragOffsetY = 0;
+  canvas.querySelectorAll(".map-dot").forEach(dot=>{
+    dot.addEventListener("pointerdown", (e)=>{
+      dragEl = dot;
+      dot.setPointerCapture(e.pointerId);
+      dot.classList.add("dragging");
+    });
+    dot.addEventListener("click", (e)=>{
+      if(dot.classList.contains("was-dragged")){ dot.classList.remove("was-dragged"); return; }
+      const rec = loadData("assets").find(a=>a.id===dot.dataset.assetid);
+      const mod = MODULES.find(m=>m.key==="assets");
+      if(rec && mod) openForm(mod, rec, true);
+    });
+  });
+  canvas.addEventListener("pointermove", (e)=>{
+    if(!dragEl) return;
+    dragEl.classList.add("was-dragged");
+    const rect = canvas.getBoundingClientRect();
+    let xPct = ((e.clientX - rect.left) / rect.width) * 100;
+    let yPct = ((e.clientY - rect.top) / rect.height) * 100;
+    xPct = Math.max(0, Math.min(96, xPct));
+    yPct = Math.max(0, Math.min(92, yPct));
+    dragEl.style.insetInlineStart = xPct+"%";
+    dragEl.style.top = yPct+"%";
+  });
+  canvas.addEventListener("pointerup", (e)=>{
+    if(!dragEl) return;
+    const assetId = dragEl.dataset.assetid;
+    const xPct = parseFloat(dragEl.style.insetInlineStart);
+    const yPct = parseFloat(dragEl.style.top);
+    const arr = loadData("assets");
+    const idx = arr.findIndex(a=>a.id===assetId);
+    if(idx>=0){ arr[idx].mapX = xPct; arr[idx].mapY = yPct; saveData("assets", arr); cloudPushRecord("assets", arr[idx]); }
+    dragEl.classList.remove("dragging");
+    dragEl = null;
+  });
+}
+
 function renderBranchComparePage(){
   document.getElementById("topbarTitle").textContent = t('branchCompareTitle');
   document.getElementById("topbarMeta").textContent = t('branchCompareMeta');
@@ -4806,6 +4952,18 @@ function renderBranchComparePage(){
 }
 
 /* ---------------- SETTINGS / PIN PAGE ---------------- */
+/* ---------------- WEBHOOK INTEGRATION ---------------- */
+function getWebhookUrl(){ return localStorage.getItem("forka_webhook_url") || ""; }
+function saveWebhookUrl(url){ localStorage.setItem("forka_webhook_url", url); }
+function fireWebhook(eventType, data){
+  const url = getWebhookUrl();
+  if(!url) return Promise.resolve();
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ source:"GROUP_FORKA", event: eventType, timestamp: new Date().toISOString(), data })
+  }).catch(err=>{ console.error("Webhook delivery failed:", err); throw err; });
+}
 function renderSettingsPage(){
   document.getElementById("topbarTitle").textContent = t('settingsTitle');
   document.getElementById("topbarMeta").textContent = t('settingsMeta');
@@ -4846,6 +5004,13 @@ function renderSettingsPage(){
         </div>
         <div style="font-size:11.5px; color:var(--muted);">${t('settingsAutoTranslateNote')}</div>
       </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px;">${t('webhookTitle')}</div>
+        <div class="sub" style="margin-bottom:16px;">${t('webhookSub')}</div>
+        <div class="field" style="margin-bottom:12px;"><label>${t('webhookUrlLabel')}</label><input type="url" id="webhookUrl" value="${getWebhookUrl()}" placeholder="https://hooks.zapier.com/..."></div>
+        <button class="btn btn-primary btn-sm" id="btnSaveWebhook">${t('webhookSaveBtn')}</button>
+        <button class="btn btn-outline btn-sm" id="btnTestWebhook">${t('webhookTestBtn')}</button>
+      </div>
     </div>
   `;
   if(document.getElementById("btnLockNow")) document.getElementById("btnLockNow").onclick = lockNow;
@@ -4881,6 +5046,18 @@ function renderSettingsPage(){
     setAutoTranslateEnabled(e.target.checked);
     showToast(t('settingsSavedOk_generic'));
   };
+  document.getElementById("btnSaveWebhook").onclick = ()=>{
+    saveWebhookUrl(document.getElementById("webhookUrl").value.trim());
+    showToast(t('settingsSavedOk_generic'));
+  };
+  document.getElementById("btnTestWebhook").onclick = ()=>{
+    const url = document.getElementById("webhookUrl").value.trim();
+    if(!url){ alert(t('webhookMissingUrl')); return; }
+    saveWebhookUrl(url);
+    fireWebhook("test", { message: LANG==='ar'?"هذا اختبار من نظام GROUP FORKA":"This is a test from GROUP FORKA system" })
+      .then(()=> showToast(t('webhookTestSentToast')))
+      .catch(()=> alert(t('webhookTestFailed')));
+  };
 }
 
 /* ---------------- HELP ---------------- */
@@ -4893,6 +5070,7 @@ function render(){
   else if(state.view==="reports") renderReportsPage();
   else if(state.view==="calendar") renderCalendarPage();
   else if(state.view==="branchCompare") renderBranchComparePage();
+  else if(state.view==="assetMap") renderAssetMapPage();
   else if(state.view==="trash") renderTrashPage();
   else if(state.view==="globalSearch") renderGlobalSearchPage();
   else if(state.view==="masters") renderMastersPage();
