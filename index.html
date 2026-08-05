@@ -518,7 +518,11 @@ const STR = {
     assetMapEmpty:"لا توجد أصول مسجّلة بعد لعرضها على الخريطة",
     webhookTitle:"🔗 التكامل الخارجي (Webhook)", webhookSub:"أي حدث مهم (بند حرج جديد، إغلاق بلاغ) يُرسل تلقائيًا كبيانات JSON لهذا الرابط — يصلح للربط مع Zapier أو Make أو أي نظام عندك.",
     webhookUrlLabel:"رابط الـ Webhook", webhookSaveBtn:"حفظ", webhookTestBtn:"إرسال اختبار",
-    webhookMissingUrl:"اكتب الرابط أولًا", webhookTestSentToast:"✅ تم إرسال بيانات الاختبار", webhookTestFailed:"⚠️ فشل الإرسال — تأكد من صحة الرابط", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
+    webhookMissingUrl:"اكتب الرابط أولًا", webhookTestSentToast:"✅ تم إرسال بيانات الاختبار", webhookTestFailed:"⚠️ فشل الإرسال — تأكد من صحة الرابط",
+    bulkCheckBtn:"📋 فحص يومي شامل", bulkCheckTitle:"الفحص اليومي الشامل لكل السيارات", bulkCheckSub:"عبّي الأعمدة اللي تحتاجها لكل سيارة، والسيارات اللي متلمسهاش مش هتتحفظ.",
+    bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
+    bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
+    bulkCheckSavedToast:(n)=>`✅ تم حفظ فحص ${n} سيارة/سيارات بنجاح`, branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
     pmAutoScheduledToast:"✅ تم إنشاء موعد الصيانة القادم تلقائيًا",
     backupTitle:"نسخ احتياطي واستيراد", backupMeta:"احفظ نسخة من بياناتك أو استرجعها",
@@ -767,7 +771,11 @@ const STR = {
     assetMapEmpty:"No assets registered yet to show on the map",
     webhookTitle:"🔗 External Integration (Webhook)", webhookSub:"Any important event (new critical item, request closed) is automatically sent as JSON to this URL — works with Zapier, Make, or your own system.",
     webhookUrlLabel:"Webhook URL", webhookSaveBtn:"Save", webhookTestBtn:"Send Test",
-    webhookMissingUrl:"Enter the URL first", webhookTestSentToast:"✅ Test data sent", webhookTestFailed:"⚠️ Delivery failed — check the URL is correct", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
+    webhookMissingUrl:"Enter the URL first", webhookTestSentToast:"✅ Test data sent", webhookTestFailed:"⚠️ Delivery failed — check the URL is correct",
+    bulkCheckBtn:"📋 Bulk Daily Check", bulkCheckTitle:"Bulk Daily Check for All Vehicles", bulkCheckSub:"Fill in the columns you need for each vehicle — vehicles you don't touch won't be saved.",
+    bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
+    bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
+    bulkCheckSavedToast:(n)=>`✅ Saved checks for ${n} vehicle(s) successfully`, branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
     pmAutoScheduledToast:"✅ Next maintenance visit auto-scheduled",
     backupTitle:"Backup & Restore", backupMeta:"Save a copy of your data or restore it",
@@ -1049,6 +1057,7 @@ const MODULES = [
     {key:"reporter", label:"اسم المبلّغ", labelEn:"Reported By", type:"text"},
     {key:"reporterPhone", label:"رقم تواصل المبلّغ", labelEn:"Contact No.", type:"text"},
     {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text", datalistId:"assetNames"},
+    {key:"linkedAssetName", label:"🔗 الأصل المرتبط (اختياري، للربط المؤكد)", labelEn:"🔗 Linked Asset (optional, for a guaranteed link)", type:"select", options:()=> [...new Set(loadData("assets").map(a=>a.name).filter(Boolean))]},
     {key:"issue", label:"وصف المشكلة", labelEn:"Issue Description", type:"textarea", full:true},
     {key:"severity", label:"درجة الخطورة", labelEn:"Priority", type:"select", options:["حرج","عالٍ","متوسط","منخفض"]},
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
@@ -1135,6 +1144,7 @@ const MODULES = [
 },
 {
   key:"vehcheck", icon:"🚗", name:"فحص المركبات اليومي", nameEn:"Daily Vehicle Inspection",
+  bulkCheckEnabled:true,
   singular:"فحص مركبة", singularEn:"Vehicle Check",
   statusField:null, alertValues:[],
   fields:[
@@ -1870,6 +1880,7 @@ function renderModule(mKey){
   document.getElementById("topbarMeta").textContent = (LANG==="ar"?"إجمالي السجلات: ":"Total records: ") + loadData(m.key).length;
   document.getElementById("topbarActions").innerHTML = ms.activeTab==="report" ? langSwitcherHtml() : `
     ${m.qrEnabled ? `<button class="btn btn-outline" id="btnQrScan">${t("qrScan")}</button>` : ""}
+    ${m.bulkCheckEnabled ? `<button class="btn btn-gold" id="btnBulkCheck">${t("bulkCheckBtn")}</button>` : ""}
     <button class="btn btn-outline" id="btnPrint">${t("print")}</button>
     <button class="btn btn-outline" id="btnExportPdf">${t("exportPDF")}</button>
     <button class="btn btn-outline" id="btnExport">${t("exportExcel")}</button>
@@ -1879,6 +1890,8 @@ function renderModule(mKey){
   bindLangSwitcher();
   const btnQrScan = document.getElementById("btnQrScan");
   if(btnQrScan) btnQrScan.onclick = openQrScanModal;
+  const btnBulkCheck = document.getElementById("btnBulkCheck");
+  if(btnBulkCheck) btnBulkCheck.onclick = openBulkVehCheckModal;
 
   const tabsHtml = `
     <div class="toolbar no-print" style="margin-bottom:10px; gap:6px;">
@@ -2350,9 +2363,10 @@ function openForm(m, existing, viewMode){
     if(f.type==="photo") return `<div id="photoWidget" class="photo-widget"></div><input type="file" id="photoFileInput" accept="image/*,application/pdf,video/*" multiple style="display:none">`;
     if(f.type==="quotes") return `<div id="quotesWidget" class="quotes-widget"></div>`;
     if(f.type==="select"){
+      const opts = typeof f.options === "function" ? f.options() : f.options;
       return `<select data-field="${f.key}" ${dis}>
         <option value=""></option>
-        ${f.options.map(o=>`<option value="${o}" ${val===o?'selected':''}>${optLabel(o)}</option>`).join("")}
+        ${opts.map(o=>`<option value="${o}" ${val===o?'selected':''}>${optLabel(o)}</option>`).join("")}
       </select>`;
     }
     if(f.type==="textarea"){
@@ -2537,9 +2551,16 @@ function openForm(m, existing, viewMode){
       }
     }
     m.fields.forEach(f=>{ if(f.master && newRec[f.key]) addMasterValue(f.master, newRec[f.key]); });
-    if(m.key==="requests" && newRec.equipment){
-      const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
-      newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
+    if(m.key==="requests"){
+      if(newRec.linkedAssetName){
+        const explicitAsset = loadData("assets").find(a=> (a.name||"").trim() === newRec.linkedAssetName.trim());
+        newRec.linkedAssetId = explicitAsset ? explicitAsset.id : null;
+      } else if(newRec.equipment){
+        const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
+        newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
+      } else {
+        newRec.linkedAssetId = null;
+      }
     }
     if(m.key==="contractorEval" && m.weights){
       let total = 0;
@@ -2758,6 +2779,83 @@ function openQrGenerateModal(m, rec){
   };
 }
 let qrScanStream = null;
+/* ---------------- BULK DAILY VEHICLE CHECK ---------------- */
+function openBulkVehCheckModal(){
+  const vehcheckM = MODULES.find(m=>m.key==="vehcheck");
+  const vehicles = loadData("fleet");
+  const root = document.getElementById("modalRoot");
+  const today = todayStr();
+  const selectFieldOpts = (key)=> vehcheckM.fields.find(f=>f.key===key).options;
+
+  root.innerHTML = `
+    ${buildDatalistsHtml()}
+    <div class="modal-overlay" id="bulkCheckOverlay">
+      <div class="modal" style="max-width:96vw; width:1100px;">
+        <h2>${t('bulkCheckTitle')}</h2>
+        <div class="modal-sub">${t('bulkCheckSub')}</div>
+        <div class="field" style="max-width:220px; margin-bottom:14px;"><label>${t('bulkCheckDate')}</label><input type="date" id="bulkCheckDate" value="${today}"></div>
+        <div class="table-wrap" style="max-height:55vh; overflow-y:auto;">
+          <table>
+            <thead><tr>
+              <th>${t('bulkCheckPlate')}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='tires'))}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='oil'))}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='brakes'))}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='ac'))}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='docs'))}</th>
+              <th>${FL(vehcheckM.fields.find(f=>f.key==='odometer'))}</th>
+            </tr></thead>
+            <tbody>
+              ${vehicles.length ? vehicles.map(v=>`
+                <tr data-bulkrow="${v.plate||v.id}">
+                  <td><b>${escapeHtml(v.plate||v.carName||'')}</b></td>
+                  <td><select data-bulkfield="tires"><option value=""></option>${selectFieldOpts('tires').map(o=>`<option value="${o}">${o}</option>`).join("")}</select></td>
+                  <td><select data-bulkfield="oil"><option value=""></option>${selectFieldOpts('oil').map(o=>`<option value="${o}">${o}</option>`).join("")}</select></td>
+                  <td><select data-bulkfield="brakes"><option value=""></option>${selectFieldOpts('brakes').map(o=>`<option value="${o}">${o}</option>`).join("")}</select></td>
+                  <td><select data-bulkfield="ac"><option value=""></option>${selectFieldOpts('ac').map(o=>`<option value="${o}">${o}</option>`).join("")}</select></td>
+                  <td><select data-bulkfield="docs"><option value=""></option>${selectFieldOpts('docs').map(o=>`<option value="${o}">${o}</option>`).join("")}</select></td>
+                  <td><input type="number" data-bulkfield="odometer" style="width:90px;"></td>
+                </tr>`).join("") : `<tr class="empty-row"><td colspan="7">${t('bulkCheckNoVehicles')}</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" id="btnBulkCheckCancel">${t('cancel')}</button>
+          <button class="btn btn-primary" id="btnBulkCheckSave">${t('bulkCheckSaveBtn')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnBulkCheckCancel").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("bulkCheckOverlay").onclick = (e)=>{ if(e.target.id==="bulkCheckOverlay") root.innerHTML = ""; };
+  document.getElementById("btnBulkCheckSave").onclick = ()=>{
+    const date = document.getElementById("bulkCheckDate").value;
+    if(!date){ alert(t('bulkCheckMissingDate')); return; }
+    let arr = loadData("vehcheck");
+    let savedCount = 0;
+    document.querySelectorAll("[data-bulkrow]").forEach(row=>{
+      const plate = row.dataset.bulkrow;
+      const vehicle = vehicles.find(v=> (v.plate||v.id)===plate);
+      const rec = { id: uid(), date, plate: vehicle.plate||"", vType: vehicle.vType||vehicle.carName||"", driver: vehicle.driver||"" };
+      let touched = false;
+      row.querySelectorAll("[data-bulkfield]").forEach(el=>{
+        if(el.value){ rec[el.dataset.bulkfield] = el.value; touched = true; }
+      });
+      if(touched){
+        rec._updatedAt = Date.now();
+        arr.push(rec);
+        cloudPushRecord("vehcheck", rec);
+        savedCount++;
+      }
+    });
+    if(savedCount===0){ alert(t('bulkCheckNothingFilled')); return; }
+    saveData("vehcheck", arr);
+    root.innerHTML = "";
+    showToast(t('bulkCheckSavedToast', savedCount));
+    renderModule("vehcheck"); renderNav();
+  };
+}
+
 function openQrScanModal(){
   if(!window.jsQR){ alert(t('qrCameraError')); return; }
   const root = document.getElementById("qrRoot");
