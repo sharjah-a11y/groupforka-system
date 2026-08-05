@@ -1057,15 +1057,15 @@ const MODULES = [
     {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"textarea"},
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
-    {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date", showIf:{field:"status",value:"مغلق"}},
-    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"text", showIf:{field:"status",value:"مغلق"}},
-    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"text", showIf:{field:"status",value:"مغلق"}},
-    {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", showIf:{field:"status",value:"مغلق"}},
-    {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", showIf:{field:"status",value:"مغلق"}},
-    {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", showIf:{field:"status",value:"مغلق"}},
+    {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"rootCause", label:"السبب الجذري للعطل", labelEn:"Root Cause of Failure", type:"select", required:true,
       options:["سوء استخدام","عمر طبيعي / تآكل","تركيب أو تصنيع خاطئ","نقص صيانة وقائية","ظروف تشغيل قاسية","سبب آخر"],
-      showIf:{field:"status",value:"مغلق"}},
+      alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["مفتوح","قيد التنفيذ","متأخر","مغلق"]},
     {key:"delayReason", label:"سبب التأخير", labelEn:"Delay Reason", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
     {key:"delayResponsible", label:"الجهة المسؤولة عن التأخير", labelEn:"Responsible Party", type:"text", showIf:{field:"status",value:"متأخر"}, required:true},
@@ -1449,6 +1449,7 @@ function isTranslatableField(f){
 function isFieldRelevantForList(f, m, statusFilterValue, forceAll){
   if(!f.showIf) return true;
   if(forceAll) return true;
+  if(f.alwaysInList) return true;
   return f.showIf.field === m.statusField && statusFilterValue === f.showIf.value;
 }
 function getListRelevantFields(m, statusFilterValue, forceAll){
