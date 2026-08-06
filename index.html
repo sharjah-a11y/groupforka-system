@@ -1452,11 +1452,13 @@ function restoreTrashedRecord(moduleKey, recordId){
     const m = MODULES.find(x=>x.key===moduleKey);
     if(m && m.numberField && arr[idx][m.numberField]){
       const numVal = arr[idx][m.numberField];
-      const collision = arr.some(r=> r.id!==recordId && !r._deleted && r[m.numberField]===numVal);
-      if(collision){
-        const activeCount = arr.filter(r=>!r._deleted && r.id!==recordId).length + 1;
+      const activeNums = new Set(arr.filter(r=> r.id!==recordId && !r._deleted).map(r=>r[m.numberField]).filter(Boolean));
+      if(activeNums.has(numVal)){
         const yr = new Date().getFullYear();
-        arr[idx][m.numberField] = `${m.numberPrefix}-${yr}-${String(activeCount).padStart(3,"0")}`;
+        let n = activeNums.size + 1;
+        let candidate = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`;
+        while(activeNums.has(candidate)){ n++; candidate = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`; }
+        arr[idx][m.numberField] = candidate;
       }
     }
     saveData(moduleKey, arr);
@@ -2374,15 +2376,24 @@ function startVoiceInput(fieldKey, btn){
   recognition.onend = ()=>{ btn.classList.remove("listening"); };
   try{ recognition.start(); }catch(e){ btn.classList.remove("listening"); alert(t('voiceInputUnsupported')); }
 }
+function getNextRecordNumber(m){
+  const yr = new Date().getFullYear();
+  const activeNums = new Set(loadData(m.key).map(r=>r[m.numberField]).filter(Boolean));
+  let n = activeNums.size + 1;
+  let candidate = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`;
+  while(activeNums.has(candidate)){
+    n++;
+    candidate = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`;
+  }
+  return candidate;
+}
 function openForm(m, existing, viewMode){
   formViewOnly = !!viewMode;
   const isEdit = !!existing;
   const rec = existing ? {...existing} : {};
   const openedAtVersion = existing ? (existing._updatedAt || null) : null;
   if(!isEdit && m.numberField){
-    const count = loadData(m.key).length + 1;
-    const yr = new Date().getFullYear();
-    rec[m.numberField] = `${m.numberPrefix}-${yr}-${String(count).padStart(3,"0")}`;
+    rec[m.numberField] = getNextRecordNumber(m);
   }
   if(!isEdit){
     m.fields.forEach(f=>{
@@ -2607,6 +2618,14 @@ function openForm(m, existing, viewMode){
       let total = 0;
       Object.keys(m.weights).forEach(k=>{ total += (Number(newRec[k])||0) * m.weights[k]; });
       newRec.weightedTotal = Math.round(total*10)/10;
+    }
+    if(!isEdit && m.numberField){
+      // Final safety check right before persisting: if another device created a record with this
+      // exact number in the time between opening this form and saving it, bump to the next free one.
+      const currentActiveNums = new Set(loadData(m.key).map(r=>r[m.numberField]).filter(Boolean));
+      if(currentActiveNums.has(newRec[m.numberField])){
+        newRec[m.numberField] = getNextRecordNumber(m);
+      }
     }
     newRec._updatedAt = Date.now();
     let arr = loadDataRaw(m.key);
