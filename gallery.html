@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GROUP FORKA — معرض المرفقات</title>
+<style>
+  body{font-family:'Tajawal',Arial,sans-serif; background:#EEF1F6; margin:0; padding:24px 16px;}
+  .header{text-align:center; margin-bottom:24px;}
+  .header .title{color:#1F3864; font-weight:900; font-size:20px;}
+  .header .sub{color:#7a8699; font-size:12.5px; margin-top:4px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; max-width:1100px; margin:0 auto;}
+  .item{background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); text-align:center;}
+  .item img, .item video{width:100%; height:200px; object-fit:cover; display:block; background:#000;}
+  .item iframe{width:100%; height:200px; border:none; display:block;}
+  .item a{display:block; padding:10px; color:#1F3864; font-weight:700; text-decoration:none; font-size:13px; border-top:1px solid #eef0f4;}
+  .item a:hover{background:#f7f9fc;}
+  .filetype{padding:40px 10px; font-size:44px; background:#fdecea;}
+  .empty{text-align:center; color:#7a8699; padding:60px 20px; font-size:14px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title">GROUP FORKA — معرض المرفقات</div>
+  <div class="sub">كل الصور والملفات المرفقة بهذا السجل</div>
+</div>
+<div class="grid" id="grid"></div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const urls = (params.get('urls')||'').split(',').map(u=>decodeURIComponent(u)).filter(Boolean);
+  const grid = document.getElementById('grid');
+
+  function isVideo(u){ return /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u) || u.includes('/video/upload/'); }
+  function isPdf(u){ return /\.pdf(\?|$)/i.test(u); }
+
+  if(!urls.length){
+    grid.outerHTML = '<div class="empty">لا توجد مرفقات لعرضها</div>';
+  } else {
+    urls.forEach((url, i)=>{
+      const div = document.createElement('div');
+      div.className = 'item';
+      let mediaHtml;
+      if(isVideo(url)){
+        mediaHtml = `<video src="${url}" controls preload="metadata"></video>`;
+      } else if(isPdf(url)){
+        mediaHtml = `<div class="filetype">📄</div>`;
+      } else {
+        mediaHtml = `<img src="${url}" alt="مرفق ${i+1}" loading="lazy">`;
+      }
+      div.innerHTML = mediaHtml + `<a href="${url}" target="_blank" rel="noopener">فتح بالحجم الكامل ⤴️</a>`;
+      grid.appendChild(div);
+    });
+  }
+</script>
+</body>
+</html>
