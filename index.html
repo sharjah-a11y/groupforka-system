@@ -1065,9 +1065,7 @@ const MODULES = [
     {key:"reqNo", label:"رقم الطلب", labelEn:"Request No.", type:"text"},
     {key:"reportDate", label:"تاريخ ووقت البلاغ", labelEn:"Report Date/Time", type:"datetime-local"},
     {key:"branch", label:"اسم المطعم / الفرع", labelEn:"Restaurant / Branch", type:"text", required:true, master:"branches"},
-    {key:"location", label:"الموقع / المنطقة", labelEn:"Location / Area", type:"text"},
     {key:"reporter", label:"اسم المبلّغ", labelEn:"Reported By", type:"text"},
-    {key:"reporterPhone", label:"رقم تواصل المبلّغ", labelEn:"Contact No.", type:"text"},
     {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text", datalistId:"assetNames"},
     {key:"linkedAssetName", label:"🔗 الأصل المرتبط (اختياري، للربط المؤكد)", labelEn:"🔗 Linked Asset (optional, for a guaranteed link)", type:"select", options:()=> [...new Set(loadData("assets").map(a=>a.name).filter(Boolean))]},
     {key:"issue", label:"وصف المشكلة", labelEn:"Issue Description", type:"textarea", full:true},
@@ -1075,7 +1073,6 @@ const MODULES = [
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
     {key:"contractor", label:"اسم المقاول / الفني", labelEn:"Contractor / Technician", type:"text", master:"contractors"},
     {key:"arrivalDate", label:"تاريخ الوصول", labelEn:"Arrival Date", type:"date"},
-    {key:"arrivalTime", label:"وقت الوصول", labelEn:"Arrival Time", type:"time"},
     {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"textarea"},
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
@@ -1724,10 +1721,10 @@ function computeKPIs(){
   const closureRate = reqs.length ? Math.round((closedReqs/reqs.length)*100) : null;
 
   // 2) Avg response time (minutes) between reportDate and arrival
-  const withBoth = reqs.filter(r=>r.reportDate && r.arrivalDate && r.arrivalTime);
+  const withBoth = reqs.filter(r=>r.reportDate && r.arrivalDate);
   let avgResponse = null;
   if(withBoth.length){
-    const total = withBoth.reduce((s,r)=> s + Math.max(0,(new Date(r.arrivalDate+"T"+r.arrivalTime)-new Date(r.reportDate))/60000), 0);
+    const total = withBoth.reduce((s,r)=> s + Math.max(0,(new Date(r.arrivalDate)-new Date(r.reportDate))/60000), 0);
     avgResponse = Math.round(total/withBoth.length);
   }
 
