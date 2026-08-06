@@ -1066,7 +1066,8 @@ const MODULES = [
     {key:"severity", label:"درجة الخطورة", labelEn:"Priority", type:"select", options:["حرج","عالٍ","متوسط","منخفض"]},
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
     {key:"contractor", label:"اسم المقاول / الفني", labelEn:"Contractor / Technician", type:"text", master:"contractors"},
-    {key:"arrival", label:"تاريخ ووقت الوصول", labelEn:"Arrival Date/Time", type:"datetime-local"},
+    {key:"arrivalDate", label:"تاريخ الوصول", labelEn:"Arrival Date", type:"date"},
+    {key:"arrivalTime", label:"وقت الوصول", labelEn:"Arrival Time", type:"time"},
     {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"textarea"},
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
@@ -1679,10 +1680,10 @@ function computeKPIs(){
   const closureRate = reqs.length ? Math.round((closedReqs/reqs.length)*100) : null;
 
   // 2) Avg response time (minutes) between reportDate and arrival
-  const withBoth = reqs.filter(r=>r.reportDate && r.arrival);
+  const withBoth = reqs.filter(r=>r.reportDate && r.arrivalDate && r.arrivalTime);
   let avgResponse = null;
   if(withBoth.length){
-    const total = withBoth.reduce((s,r)=> s + Math.max(0,(new Date(r.arrival)-new Date(r.reportDate))/60000), 0);
+    const total = withBoth.reduce((s,r)=> s + Math.max(0,(new Date(r.arrivalDate+"T"+r.arrivalTime)-new Date(r.reportDate))/60000), 0);
     avgResponse = Math.round(total/withBoth.length);
   }
 
