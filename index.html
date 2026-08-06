@@ -1419,12 +1419,46 @@ function getAllTrashedRecords(){
   items.sort((a,b)=> (b.record._deletedAt||0) - (a.record._deletedAt||0));
   return items;
 }
+function renumberAfterDelete(m, deletedRecord){
+  if(!m.numberField || !deletedRecord || !deletedRecord[m.numberField]) return;
+  const re = new RegExp(`^${m.numberPrefix}-(\\d{4})-(\\d+)$`);
+  const match = (deletedRecord[m.numberField]||"").match(re);
+  if(!match) return;
+  const deletedYear = match[1];
+  const deletedSeq = parseInt(match[2], 10);
+  const arr = loadDataRaw(m.key);
+  let changed = false;
+  arr.forEach(r=>{
+    if(r._deleted || r.id===deletedRecord.id) return;
+    const rMatch = (r[m.numberField]||"").match(re);
+    if(!rMatch) return;
+    const rYear = rMatch[1], rSeq = parseInt(rMatch[2], 10);
+    if(rYear === deletedYear && rSeq > deletedSeq){
+      r[m.numberField] = `${m.numberPrefix}-${rYear}-${String(rSeq-1).padStart(3,"0")}`;
+      changed = true;
+    }
+  });
+  if(changed){
+    saveData(m.key, arr);
+    arr.forEach(r=>{ if(!r._deleted) cloudPushRecord(m.key, r); });
+  }
+}
 function restoreTrashedRecord(moduleKey, recordId){
   const arr = loadDataRaw(moduleKey);
   const idx = arr.findIndex(r=>r.id===recordId);
   if(idx>=0){
     delete arr[idx]._deleted;
     delete arr[idx]._deletedAt;
+    const m = MODULES.find(x=>x.key===moduleKey);
+    if(m && m.numberField && arr[idx][m.numberField]){
+      const numVal = arr[idx][m.numberField];
+      const collision = arr.some(r=> r.id!==recordId && !r._deleted && r[m.numberField]===numVal);
+      if(collision){
+        const activeCount = arr.filter(r=>!r._deleted && r.id!==recordId).length + 1;
+        const yr = new Date().getFullYear();
+        arr[idx][m.numberField] = `${m.numberPrefix}-${yr}-${String(activeCount).padStart(3,"0")}`;
+      }
+    }
     saveData(moduleKey, arr);
     cloudPushRecord(moduleKey, arr[idx]);
   }
@@ -2119,6 +2153,7 @@ function renderModuleRecordsBody(m){
           raw[idx]._deletedAt = Date.now();
           saveData(m.key, raw);
           cloudPushRecord(m.key, raw[idx]);
+          renumberAfterDelete(m, raw[idx]);
         }
         showToast(t('deletedToTrash'));
         renderModuleRecordsBody(m); renderNav();
@@ -2158,7 +2193,7 @@ function bindCommentsHandlers(m, existingRec){
     const inp = document.getElementById("newCommentInput");
     const text = inp.value.trim();
     if(!text) return;
-    const arr = loadData(m.key);
+    const arr = loadDataRaw(m.key);
     const idx = arr.findIndex(x=>x.id===existingRec.id);
     if(idx>=0){
       if(!arr[idx]._comments) arr[idx]._comments = [];
@@ -2509,6 +2544,7 @@ function openForm(m, existing, viewMode){
           raw[idx]._deletedAt = Date.now();
           saveData(m.key, raw);
           cloudPushRecord(m.key, raw[idx]);
+          renumberAfterDelete(m, raw[idx]);
         }
         closeModal(); showToast(t('deletedToTrash'));
         renderModule(m.key); renderNav();
@@ -2573,7 +2609,7 @@ function openForm(m, existing, viewMode){
       newRec.weightedTotal = Math.round(total*10)/10;
     }
     newRec._updatedAt = Date.now();
-    let arr = loadData(m.key);
+    let arr = loadDataRaw(m.key);
     if(isEdit){
       arr = arr.map(x=> x.id===existing.id ? newRec : x);
     } else {
@@ -2594,7 +2630,7 @@ function openForm(m, existing, viewMode){
       if(doneStatuses.includes((newRec.status||"").trim()) && newRec.frequency){
         if(autoScheduleNextPM(newRec)){
           newRec._nextCreated = true;
-          let freshArr = loadData(m.key); // reload — autoScheduleNextPM already wrote a new record to storage
+          let freshArr = loadDataRaw(m.key); // reload — autoScheduleNextPM already wrote a new record to storage
           freshArr = freshArr.map(x=> x.id===newRec.id ? newRec : x);
           saveData(m.key, freshArr);
           cloudPushRecord(m.key, newRec);
@@ -2625,7 +2661,7 @@ function autoScheduleNextPM(rec){
     nextVisit: nextDate.toISOString().slice(0,10),
     status: "مجدول",
   };
-  const pmArr = loadData("pm");
+  const pmArr = loadDataRaw("pm");
   pmArr.push(newPm);
   saveData("pm", pmArr);
   cloudPushRecord("pm", newPm);
@@ -2851,7 +2887,7 @@ function openBulkVehCheckModal(){
   document.getElementById("btnBulkCheckSave").onclick = ()=>{
     const date = document.getElementById("bulkCheckDate").value;
     if(!date){ alert(t('bulkCheckMissingDate')); return; }
-    let arr = loadData("vehcheck");
+    let arr = loadDataRaw("vehcheck");
     let savedCount = 0;
     document.querySelectorAll("[data-bulkrow]").forEach(row=>{
       const plate = row.dataset.bulkrow;
@@ -5019,7 +5055,7 @@ function renderAssetMapPage(){
     const assetId = dragEl.dataset.assetid;
     const xPct = parseFloat(dragEl.style.insetInlineStart);
     const yPct = parseFloat(dragEl.style.top);
-    const arr = loadData("assets");
+    const arr = loadDataRaw("assets");
     const idx = arr.findIndex(a=>a.id===assetId);
     if(idx>=0){ arr[idx].mapX = xPct; arr[idx].mapY = yPct; saveData("assets", arr); cloudPushRecord("assets", arr[idx]); }
     dragEl.classList.remove("dragging");
