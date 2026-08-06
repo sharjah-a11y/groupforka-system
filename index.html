@@ -3505,7 +3505,7 @@ function renderBackup(){
   `;
   document.getElementById("btnBackupJson").onclick = ()=>{
     const all = {};
-    MODULES.forEach(m=> all[m.key] = loadData(m.key));
+    MODULES.forEach(m=> all[m.key] = loadDataRaw(m.key));
     const blob = new Blob([JSON.stringify(all, null, 2)], {type:"application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
