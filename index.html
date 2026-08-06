@@ -519,6 +519,10 @@ const STR = {
     webhookTitle:"🔗 التكامل الخارجي (Webhook)", webhookSub:"أي حدث مهم (بند حرج جديد، إغلاق بلاغ) يُرسل تلقائيًا كبيانات JSON لهذا الرابط — يصلح للربط مع Zapier أو Make أو أي نظام عندك.",
     webhookUrlLabel:"رابط الـ Webhook", webhookSaveBtn:"حفظ", webhookTestBtn:"إرسال اختبار",
     webhookMissingUrl:"اكتب الرابط أولًا", webhookTestSentToast:"✅ تم إرسال بيانات الاختبار", webhookTestFailed:"⚠️ فشل الإرسال — تأكد من صحة الرابط",
+    renumberTitle:"🔧 إصلاح ترقيم السجلات", renumberSub:"لو الأرقام بقت غير مرتبة أو فيها تكرار، الأداة دي بترتّبها من جديد بالتسلسل الصحيح حسب تاريخ كل سجل (بدون ما تمسح أو تغيّر أي بيانات تانية).",
+    renumberModuleLabel:"اختر القسم", renumberBtn:"إعادة الترقيم الآن",
+    renumberConfirm:"هيتم تغيير أرقام كل السجلات النشطة في هذا القسم لترتيب صحيح تسلسلي. هل تريد المتابعة؟",
+    renumberDoneToast:(n)=>`✅ تم إعادة ترقيم ${n} سجل بنجاح`,
     bulkCheckBtn:"📋 فحص يومي شامل", bulkCheckTitle:"الفحص اليومي الشامل لكل السيارات", bulkCheckSub:"عبّي الأعمدة اللي تحتاجها لكل سيارة، والسيارات اللي متلمسهاش مش هتتحفظ.",
     bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
     bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
@@ -774,6 +778,10 @@ const STR = {
     webhookTitle:"🔗 External Integration (Webhook)", webhookSub:"Any important event (new critical item, request closed) is automatically sent as JSON to this URL — works with Zapier, Make, or your own system.",
     webhookUrlLabel:"Webhook URL", webhookSaveBtn:"Save", webhookTestBtn:"Send Test",
     webhookMissingUrl:"Enter the URL first", webhookTestSentToast:"✅ Test data sent", webhookTestFailed:"⚠️ Delivery failed — check the URL is correct",
+    renumberTitle:"🔧 Fix Record Numbering", renumberSub:"If numbers became out of order or duplicated, this tool reorders them correctly by each record's date (without deleting or changing any other data).",
+    renumberModuleLabel:"Choose Module", renumberBtn:"Renumber Now",
+    renumberConfirm:"This will change the numbers of all active records in this module to a correct sequential order. Continue?",
+    renumberDoneToast:(n)=>`✅ Successfully renumbered ${n} records`,
     bulkCheckBtn:"📋 Bulk Daily Check", bulkCheckTitle:"Bulk Daily Check for All Vehicles", bulkCheckSub:"Fill in the columns you need for each vehicle — vehicles you don't touch won't be saved.",
     bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
     bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
@@ -2375,6 +2383,28 @@ function startVoiceInput(fieldKey, btn){
   recognition.onerror = ()=>{ btn.classList.remove("listening"); };
   recognition.onend = ()=>{ btn.classList.remove("listening"); };
   try{ recognition.start(); }catch(e){ btn.classList.remove("listening"); alert(t('voiceInputUnsupported')); }
+}
+function renumberAllRecords(moduleKey){
+  const m = MODULES.find(x=>x.key===moduleKey);
+  if(!m || !m.numberField) return 0;
+  const arr = loadDataRaw(moduleKey);
+  const active = arr.filter(r=>!r._deleted);
+  const dateFieldCandidate = m.dateFieldForReports || (m.fields.find(f=>f.type==="date"||f.type==="datetime-local")||{}).key;
+  active.sort((a,b)=>{
+    const da = dateFieldCandidate && a[dateFieldCandidate] ? new Date(a[dateFieldCandidate]).getTime() : (a._updatedAt||0);
+    const db = dateFieldCandidate && b[dateFieldCandidate] ? new Date(b[dateFieldCandidate]).getTime() : (b._updatedAt||0);
+    return da-db;
+  });
+  const yearCounters = {};
+  active.forEach(r=>{
+    const d = dateFieldCandidate && r[dateFieldCandidate] ? new Date(r[dateFieldCandidate]) : null;
+    const yr = (d && !isNaN(d.getTime())) ? d.getFullYear() : new Date().getFullYear();
+    yearCounters[yr] = (yearCounters[yr]||0) + 1;
+    r[m.numberField] = `${m.numberPrefix}-${yr}-${String(yearCounters[yr]).padStart(3,"0")}`;
+  });
+  saveData(moduleKey, arr);
+  active.forEach(r=> cloudPushRecord(moduleKey, r));
+  return active.length;
 }
 function getNextRecordNumber(m){
   const yr = new Date().getFullYear();
@@ -5188,6 +5218,17 @@ function renderSettingsPage(){
         <button class="btn btn-primary btn-sm" id="btnSaveWebhook">${t('webhookSaveBtn')}</button>
         <button class="btn btn-outline btn-sm" id="btnTestWebhook">${t('webhookTestBtn')}</button>
       </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px;">${t('renumberTitle')}</div>
+        <div class="sub" style="margin-bottom:16px;">${t('renumberSub')}</div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('renumberModuleLabel')}</label>
+          <select id="renumberModuleSelect">
+            ${MODULES.filter(m=>m.numberField).map(m=>`<option value="${m.key}">${ML(m,"name")}</option>`).join("")}
+          </select>
+        </div>
+        <button class="btn btn-danger btn-sm" id="btnRenumberFix">${t('renumberBtn')}</button>
+      </div>
     </div>
   `;
   if(document.getElementById("btnLockNow")) document.getElementById("btnLockNow").onclick = lockNow;
@@ -5234,6 +5275,12 @@ function renderSettingsPage(){
     fireWebhook("test", { message: LANG==='ar'?"هذا اختبار من نظام GROUP FORKA":"This is a test from GROUP FORKA system" })
       .then(()=> showToast(t('webhookTestSentToast')))
       .catch(()=> alert(t('webhookTestFailed')));
+  };
+  document.getElementById("btnRenumberFix").onclick = ()=>{
+    const mk = document.getElementById("renumberModuleSelect").value;
+    if(!confirm(t('renumberConfirm'))) return;
+    const count = renumberAllRecords(mk);
+    showToast(t('renumberDoneToast', count));
   };
 }
 
