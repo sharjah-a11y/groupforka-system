@@ -3248,9 +3248,11 @@ function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
         photoCell.value = { text: lines[0].text, hyperlink: lines[0].url };
         photoCell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
       } else if(lines.length > 1){
-        // Multiple attachments: first one becomes the cell's main hyperlink; the rest listed below it as plain text
-        // (Excel cells support a single hyperlink each, so the primary attachment is the clickable one).
-        photoCell.value = { text: lines.map(l=>l.text).join("\n"), hyperlink: lines[0].url };
+        // Multiple attachments: one link to a gallery page showing all of them together,
+        // since a single Excel cell can only carry one hyperlink target.
+        const galleryUrl = GALLERY_BASE_URL + "?urls=" + lines.map(l=>encodeURIComponent(l.url)).join(",");
+        const galleryText = LANG==='ar' ? `🖼️ فتح كل المرفقات (${lines.length})` : `🖼️ Open all attachments (${lines.length})`;
+        photoCell.value = { text: galleryText, hyperlink: galleryUrl };
         photoCell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
       } else if(attachments.length){
         // Attachments exist but none uploaded to the cloud yet — nothing clickable to offer.
@@ -3662,6 +3664,7 @@ function sendTestEmail(){
 }
 
 /* ---------------- CLOUD SYNC (Firebase) ---------------- */
+const GALLERY_BASE_URL = "https://sharjah-a11y.github.io/groupforka-system/gallery.html";
 /* Pre-filled with GROUP FORKA's real cloud credentials — the system connects to the shared
    cloud automatically on any device/browser, with no codes to enter, ever. */
 let EMBEDDED_FIREBASE_CONFIG = {
