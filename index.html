@@ -1389,7 +1389,7 @@ const SLA_MINUTES = {"حرج":15,"عالٍ":30,"متوسط":120,"منخفض":144
 /* ---------------- STATE ---------------- */
 let state = { view:"dashboard", moduleState:{} };
 let isPublicMode = (location.hash === "#public");
-MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""} });
+MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
 let formViewOnly = false;
@@ -2008,6 +2008,14 @@ function renderModule(mKey){
   if(btnQrScan) btnQrScan.onclick = openQrScanModal;
   const btnBulkCheck = document.getElementById("btnBulkCheck");
   if(btnBulkCheck) btnBulkCheck.onclick = openBulkVehCheckModal;
+  const btnAddTop = document.getElementById("btnAdd");
+  if(btnAddTop) btnAddTop.onclick = ()=> openForm(m, null);
+  const btnPrintTop = document.getElementById("btnPrint");
+  if(btnPrintTop) btnPrintTop.onclick = ()=> window.print();
+  const btnExportPdfTop = document.getElementById("btnExportPdf");
+  if(btnExportPdfTop) btnExportPdfTop.onclick = ()=> exportModulePDF(m);
+  const btnExportTop = document.getElementById("btnExport");
+  if(btnExportTop) btnExportTop.onclick = ()=> exportModuleExcel(m);
 
   const tabsHtml = `
     <div class="toolbar no-print" style="margin-bottom:10px; gap:6px;">
@@ -4161,7 +4169,7 @@ function renderReportBody(from, to){
 
 /* ================= PER-MODULE REPORT ENGINE ================= */
 MODULES.forEach(m=>{
-  state.moduleState[m.key].activeTab = "records";
+  state.moduleState[m.key].activeTab = m.key==="assets" ? "byBranch" : "records";
   state.moduleState[m.key].reportRange = { preset:"week", from:"", to:"" };
   state.moduleState[m.key].reportBranch = "all";
 });
