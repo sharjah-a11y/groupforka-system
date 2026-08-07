@@ -686,7 +686,8 @@ const STR = {
     thInspectionExpiry:"انتهاء الفحص الدوري", thDocuments:"حالة الأوراق",
     noFleetAlerts:"لا توجد سيارات قريبة من انتهاء التأمين أو الترخيص حاليًا 👍",
     viewBtn:"👁️ عرض", viewTitle:"عرض ", closeBtn:"إغلاق", photosNone:"لا توجد صور مرفقة",
-    tabRecords:"📋 السجلات", tabReport:"📊 تقرير القسم",
+    tabRecords:"📋 السجلات", tabReport:"📊 تقرير القسم", tabByBranch:"🏢 حسب الفروع",
+    assetsNoBranch:"بدون فرع محدد", assetsBranchCount:(n)=>`${n} عنصر`, assetsNoDataForBranches:"لا توجد أصول أو سيارات مسجّلة بعد",
     mrPeriod:"الفترة", mrToday:"اليوم", mrWeek:"آخر 7 أيام", mrMonth:"آخر 30 يوم", mrCustom:"مخصص",
     dateRangeAll:"كل التواريخ",
     mrFrom:"من", mrTo:"إلى", mrBranch:"الفرع", mrAllBranches:"كل الفروع", mrGenerate:"تحديث التقرير",
@@ -946,7 +947,8 @@ const STR = {
     thInspectionExpiry:"Inspection Expiry", thDocuments:"Documents Status",
     noFleetAlerts:"No vehicles nearing insurance or license expiry right now 👍",
     viewBtn:"👁️ View", viewTitle:"View ", closeBtn:"Close", photosNone:"No photos attached",
-    tabRecords:"📋 Records", tabReport:"📊 Section Report",
+    tabRecords:"📋 Records", tabReport:"📊 Section Report", tabByBranch:"🏢 By Branch",
+    assetsNoBranch:"No Branch Assigned", assetsBranchCount:(n)=>`${n} items`, assetsNoDataForBranches:"No assets or vehicles registered yet",
     mrPeriod:"Period", mrToday:"Today", mrWeek:"Last 7 Days", mrMonth:"Last 30 Days", mrCustom:"Custom",
     dateRangeAll:"All Dates",
     mrFrom:"From", mrTo:"To", mrBranch:"Branch", mrAllBranches:"All Branches", mrGenerate:"Refresh Report",
@@ -1920,6 +1922,72 @@ function getFilteredData(m){
   return data;
 }
 
+function renderAssetsByBranchView(){
+  const assetsM = MODULES.find(m=>m.key==="assets");
+  const fleetM = MODULES.find(m=>m.key==="fleet");
+  const masters = loadMasters();
+  const branches = masters.branches || [];
+
+  const assets = loadData("assets");
+  const vehicles = loadData("fleet");
+  const noBranchLabel = t('assetsNoBranch');
+
+  const groups = {};
+  branches.forEach(b=> groups[b] = { assets:[], vehicles:[] });
+  groups[noBranchLabel] = { assets:[], vehicles:[] };
+
+  assets.forEach(a=>{
+    const b = (a.branch||"").trim();
+    const key = (b && groups[b]) ? b : noBranchLabel;
+    groups[key].assets.push(a);
+  });
+  vehicles.forEach(v=>{
+    const b = (v.branch||"").trim();
+    const key = (b && groups[b]) ? b : noBranchLabel;
+    groups[key].vehicles.push(v);
+  });
+
+  const groupKeys = [...branches, noBranchLabel].filter(k=> groups[k].assets.length || groups[k].vehicles.length);
+
+  const html = groupKeys.length ? groupKeys.map(branch=>{
+    const g = groups[branch];
+    const total = g.assets.length + g.vehicles.length;
+    const rows = [
+      ...g.assets.map(a=>({icon:"🏷️", name:a.name, sub:a.category||"", moduleKey:"assets", id:a.id, condition:a.condition||""})),
+      ...g.vehicles.map(v=>({icon:"🚙", name:v.carName, sub:v.plate||"", moduleKey:"fleet", id:v.id, condition:v.status||""})),
+    ];
+    return `
+      <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>🏢 ${escapeHtml(branch)}</span>
+        <span style="font-size:12px; color:var(--muted); font-weight:700;">${t('assetsBranchCount', total)}</span>
+      </div>
+      <div class="table-wrap" style="margin-bottom:18px;">
+        <table>
+          <thead><tr><th></th><th>${LANG==='ar'?'الاسم':'Name'}</th><th>${LANG==='ar'?'التفاصيل':'Details'}</th><th>${t('thStatus')}</th><th>${t('actions')}</th></tr></thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td style="font-size:16px;">${r.icon}</td>
+                <td><b>${escapeHtml(r.name||'')}</b></td>
+                <td>${escapeHtml(r.sub||'')}</td>
+                <td>${badge(r.condition)}</td>
+                <td><button class="btn btn-sm btn-outline" data-branchview="${r.moduleKey}::${r.id}">${t('viewBtn')}</button></td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }).join("") : `<div style="padding:40px; text-align:center; color:var(--muted);">${t('assetsNoDataForBranches')}</div>`;
+
+  document.getElementById("moduleBody").innerHTML = html;
+  document.querySelectorAll("[data-branchview]").forEach(b=>{
+    b.onclick = ()=>{
+      const [mk, id] = b.dataset.branchview.split("::");
+      const mod = MODULES.find(x=>x.key===mk);
+      const rec = loadData(mk).find(r=>r.id===id);
+      if(mod && rec) openForm(mod, rec, true);
+    };
+  });
+}
 function renderModule(mKey){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
@@ -1944,6 +2012,7 @@ function renderModule(mKey){
   const tabsHtml = `
     <div class="toolbar no-print" style="margin-bottom:10px; gap:6px;">
       <button class="btn ${ms.activeTab==="records"?'btn-primary':'btn-outline'} btn-sm" data-tab="records">${t('tabRecords')}</button>
+      ${m.key==="assets" ? `<button class="btn ${ms.activeTab==="byBranch"?'btn-primary':'btn-outline'} btn-sm" data-tab="byBranch">${t('tabByBranch')}</button>` : ""}
       <button class="btn ${ms.activeTab==="report"?'btn-primary':'btn-outline'} btn-sm" data-tab="report">${t('tabReport')}</button>
     </div>
     <div id="moduleBody"></div>
@@ -1955,6 +2024,8 @@ function renderModule(mKey){
 
   if(ms.activeTab==="report"){
     renderModuleReportTab(m);
+  } else if(ms.activeTab==="byBranch" && m.key==="assets"){
+    renderAssetsByBranchView();
   } else {
     renderModuleRecordsBody(m);
   }
