@@ -375,7 +375,7 @@
   .ba-label-before{ inset-inline-start:10px; }
   .ba-label-after{ inset-inline-end:10px; }
   .map-canvas{ position:relative; width:100%; height:520px; background:linear-gradient(135deg,#f4f6fa,#e9edf5); border:2px dashed var(--line); border-radius:14px; overflow:hidden; }
-  .map-dot{ position:absolute; width:36px; height:36px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); cursor:grab; display:flex; align-items:center; justify-content:center; touch-action:none; transition:box-shadow .15s; }
+  .map-dot{ position:absolute; width:36px; height:36px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); cursor:grab; display:flex; align-items:center; justify-content:center; touch-action:none; transition:box-shadow .15s; font-size:15px; }
   .map-dot.dragging{ cursor:grabbing; box-shadow:0 4px 16px rgba(0,0,0,.4); z-index:5; }
   .map-dot-label{ position:absolute; top:40px; font-size:10px; font-weight:800; color:var(--navy); background:#fff; padding:1px 6px; border-radius:6px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.15); }
 </style>
@@ -516,6 +516,7 @@ const STR = {
     navAssetMap:"🗺️ خريطة الأصول", assetMapTitle:"الخريطة التفاعلية للأصول", assetMapMeta:"عرض بصري لحالة كل أصل في مكانه",
     assetMapInstructions:"اسحب أي نقطة لوضعها في مكانها الصحيح على الخريطة، ودوس عليها لعرض تفاصيلها. اللون يعكس الحالة الصحية للأصل.",
     assetMapEmpty:"لا توجد أصول مسجّلة بعد لعرضها على الخريطة",
+    assetMapAllBranches:"كل الفروع", assetMapLegendAsset:"أصل", assetMapLegendVehicle:"سيارة",
     webhookTitle:"🔗 التكامل الخارجي (Webhook)", webhookSub:"أي حدث مهم (بند حرج جديد، إغلاق بلاغ) يُرسل تلقائيًا كبيانات JSON لهذا الرابط — يصلح للربط مع Zapier أو Make أو أي نظام عندك.",
     webhookUrlLabel:"رابط الـ Webhook", webhookSaveBtn:"حفظ", webhookTestBtn:"إرسال اختبار",
     webhookMissingUrl:"اكتب الرابط أولًا", webhookTestSentToast:"✅ تم إرسال بيانات الاختبار", webhookTestFailed:"⚠️ فشل الإرسال — تأكد من صحة الرابط",
@@ -775,6 +776,7 @@ const STR = {
     navAssetMap:"🗺️ Asset Map", assetMapTitle:"Interactive Asset Map", assetMapMeta:"Visual view of each asset's condition in its location",
     assetMapInstructions:"Drag any dot to place it in its correct spot on the map, and click it to view details. Color reflects the asset's health condition.",
     assetMapEmpty:"No assets registered yet to show on the map",
+    assetMapAllBranches:"All Branches", assetMapLegendAsset:"Asset", assetMapLegendVehicle:"Vehicle",
     webhookTitle:"🔗 External Integration (Webhook)", webhookSub:"Any important event (new critical item, request closed) is automatically sent as JSON to this URL — works with Zapier, Make, or your own system.",
     webhookUrlLabel:"Webhook URL", webhookSaveBtn:"Save", webhookTestBtn:"Send Test",
     webhookMissingUrl:"Enter the URL first", webhookTestSentToast:"✅ Test data sent", webhookTestFailed:"⚠️ Delivery failed — check the URL is correct",
@@ -5047,31 +5049,67 @@ function renderAssetMapPage(){
   document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
   bindLangSwitcher();
 
-  const assets = loadData("assets");
-  const dotsHtml = assets.map((a,i)=>{
-    const assetName = (a.name||"").trim().toLowerCase();
-    const linkedRequests = loadData("requests").filter(r=>
-      r.linkedAssetId === a.id || (assetName && (r.equipment||"").trim().toLowerCase() === assetName));
-    const totalRepairCost = linkedRequests.reduce((s,r)=> s + (Number(r.cost)||0), 0);
-    const score = computeHealthScore(Number(a.price)||0, totalRepairCost, linkedRequests.length, a.purchaseDate);
+  if(!state.assetMapBranchFilter) state.assetMapBranchFilter = "";
+  const masters = loadMasters();
+  const branches = masters.branches || [];
+
+  const assetItems = loadData("assets").map(a=>({
+    id:a.id, moduleKey:"assets", name:a.name, branch:a.branch, price:a.price, purchaseDate:a.purchaseDate,
+    mapX:a.mapX, mapY:a.mapY, icon:"🏷️",
+  }));
+  const fleetItems = loadData("fleet").map(v=>({
+    id:v.id, moduleKey:"fleet", name:v.carName, branch:v.branch, price:v.price, purchaseDate:v.purchaseDate,
+    mapX:v.mapX, mapY:v.mapY, icon:"🚙", plate:v.plate,
+  }));
+  let allItems = [...assetItems, ...fleetItems];
+  if(state.assetMapBranchFilter){
+    allItems = allItems.filter(it=> (it.branch||"").trim() === state.assetMapBranchFilter);
+  }
+
+  const dotsHtml = allItems.map((it,i)=>{
+    let score;
+    if(it.moduleKey==="assets"){
+      const assetName = (it.name||"").trim().toLowerCase();
+      const linkedRequests = loadData("requests").filter(r=>
+        r.linkedAssetId === it.id || (assetName && (r.equipment||"").trim().toLowerCase() === assetName));
+      const totalRepairCost = linkedRequests.reduce((s,r)=> s + (Number(r.cost)||0), 0);
+      score = computeHealthScore(Number(it.price)||0, totalRepairCost, linkedRequests.length, it.purchaseDate);
+    } else {
+      const plate = (it.plate||"").trim();
+      const accidents = loadData("accidents").filter(a=>(a.plate||"").trim()===plate);
+      const totalAccidentCost = accidents.reduce((s,a)=> s + (Number(a.cost)||0), 0);
+      score = computeHealthScore(Number(it.price)||0, totalAccidentCost, accidents.length, it.purchaseDate);
+    }
     const color = healthColor(score);
-    // Default grid layout if position was never set
     const defaultX = 8 + (i % 6) * 15;
     const defaultY = 12 + Math.floor(i / 6) * 18;
-    const x = a.mapX !== undefined ? a.mapX : defaultX;
-    const y = a.mapY !== undefined ? a.mapY : defaultY;
-    return `<div class="map-dot" data-assetid="${a.id}" style="inset-inline-start:${x}%; top:${y}%; background:${color};" title="${escapeAttr(a.name||'')}">
-      <span class="map-dot-label">${escapeHtml((a.name||'').slice(0,14))}</span>
+    const x = it.mapX !== undefined ? it.mapX : defaultX;
+    const y = it.mapY !== undefined ? it.mapY : defaultY;
+    return `<div class="map-dot" data-itemid="${it.id}" data-modulekey="${it.moduleKey}" style="inset-inline-start:${x}%; top:${y}%; background:${color};" title="${escapeAttr(it.name||'')}">
+      ${it.icon}
+      <span class="map-dot-label">${escapeHtml((it.name||'').slice(0,14))}</span>
     </div>`;
   }).join("");
 
   document.getElementById("content").innerHTML = `
+    <div class="toolbar no-print" style="margin-bottom:10px;">
+      <select id="assetMapBranchFilter">
+        <option value="">${t('assetMapAllBranches')}</option>
+        ${branches.map(b=>`<option value="${b}" ${state.assetMapBranchFilter===b?'selected':''}>${b}</option>`).join("")}
+      </select>
+      <div style="font-size:12px; color:var(--muted);">🏷️ ${t('assetMapLegendAsset')} &nbsp; 🚙 ${t('assetMapLegendVehicle')}</div>
+    </div>
     <div class="banner no-print" style="margin-bottom:14px;">${t('assetMapInstructions')}</div>
     <div class="map-canvas" id="mapCanvas">${dotsHtml || `<div style="padding:40px; text-align:center; color:var(--muted);">${t('assetMapEmpty')}</div>`}</div>
   `;
 
+  document.getElementById("assetMapBranchFilter").onchange = (e)=>{
+    state.assetMapBranchFilter = e.target.value;
+    renderAssetMapPage();
+  };
+
   const canvas = document.getElementById("mapCanvas");
-  let dragEl = null, dragOffsetX = 0, dragOffsetY = 0;
+  let dragEl = null;
   canvas.querySelectorAll(".map-dot").forEach(dot=>{
     dot.addEventListener("pointerdown", (e)=>{
       dragEl = dot;
@@ -5080,8 +5118,9 @@ function renderAssetMapPage(){
     });
     dot.addEventListener("click", (e)=>{
       if(dot.classList.contains("was-dragged")){ dot.classList.remove("was-dragged"); return; }
-      const rec = loadData("assets").find(a=>a.id===dot.dataset.assetid);
-      const mod = MODULES.find(m=>m.key==="assets");
+      const mk = dot.dataset.modulekey;
+      const rec = loadData(mk).find(x=>x.id===dot.dataset.itemid);
+      const mod = MODULES.find(m=>m.key===mk);
       if(rec && mod) openForm(mod, rec, true);
     });
   });
@@ -5098,12 +5137,13 @@ function renderAssetMapPage(){
   });
   canvas.addEventListener("pointerup", (e)=>{
     if(!dragEl) return;
-    const assetId = dragEl.dataset.assetid;
+    const mk = dragEl.dataset.modulekey;
+    const itemId = dragEl.dataset.itemid;
     const xPct = parseFloat(dragEl.style.insetInlineStart);
     const yPct = parseFloat(dragEl.style.top);
-    const arr = loadDataRaw("assets");
-    const idx = arr.findIndex(a=>a.id===assetId);
-    if(idx>=0){ arr[idx].mapX = xPct; arr[idx].mapY = yPct; saveData("assets", arr); cloudPushRecord("assets", arr[idx]); }
+    const arr = loadDataRaw(mk);
+    const idx = arr.findIndex(x=>x.id===itemId);
+    if(idx>=0){ arr[idx].mapX = xPct; arr[idx].mapY = yPct; saveData(mk, arr); cloudPushRecord(mk, arr[idx]); }
     dragEl.classList.remove("dragging");
     dragEl = null;
   });
