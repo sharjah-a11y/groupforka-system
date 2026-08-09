@@ -1081,8 +1081,11 @@ const MODULES = [
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
     {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
-    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
-    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"select",
+      options:["تم الإصلاح بنجاح","تم الإصلاح مؤقتًا","يحتاج متابعة","لم يتم الإصلاح","تم الاستبدال"],
+      alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"photo2",
+      alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
@@ -1391,6 +1394,7 @@ let state = { view:"dashboard", moduleState:{} };
 let isPublicMode = (location.hash === "#public");
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
+let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
 let formViewOnly = false;
 
@@ -2515,11 +2519,14 @@ function openForm(m, existing, viewMode){
   }
 
   formPhotos = (rec.photos && Array.isArray(rec.photos)) ? [...rec.photos] : [];
+  const photo2FieldDef = m.fields.find(f=>f.type==="photo2");
+  formPhotos2 = (photo2FieldDef && Array.isArray(rec[photo2FieldDef.key])) ? [...rec[photo2FieldDef.key]] : [];
   formQuotes = (rec.quotes && Array.isArray(rec.quotes)) ? [...rec.quotes] : [];
   const dis = formViewOnly ? "disabled" : "";
 
   function renderFieldInput(f, val){
     if(f.type==="photo") return `<div id="photoWidget" class="photo-widget"></div><input type="file" id="photoFileInput" accept="image/*,application/pdf,video/*" multiple style="display:none">`;
+    if(f.type==="photo2") return `<div id="photoWidget2" class="photo-widget"></div><input type="file" id="photoFileInput2" accept="image/*,application/pdf" multiple style="display:none">`;
     if(f.type==="quotes") return `<div id="quotesWidget" class="quotes-widget"></div>`;
     if(f.type==="select"){
       const opts = typeof f.options === "function" ? f.options() : f.options;
@@ -2607,6 +2614,7 @@ function openForm(m, existing, viewMode){
   document.getElementById("btnCancel").onclick = closeModal;
   document.getElementById("modalOverlay").onclick = (e)=>{ if(e.target.id==="modalOverlay") closeModal(); };
   if(document.getElementById("photoWidget")) renderPhotoWidget();
+  if(document.getElementById("photoWidget2")) renderPhotoWidget2();
   document.querySelectorAll("[data-voicefield]").forEach(btn=>{
     btn.onclick = ()=> startVoiceInput(btn.dataset.voicefield, btn);
   });
@@ -2682,6 +2690,15 @@ function openForm(m, existing, viewMode){
       const isNonImage = isPdfAttachment(p) || isVideoAttachment(p);
       if(isNonImage && p.storageUrl){
         const { dataUrl, ...rest } = p; // uploaded successfully — drop the heavy local copy, keep the cloud link
+        return { ...rest, dataUrl: null };
+      }
+      return p;
+    });
+    const photo2Field = m.fields.find(f=>f.type==="photo2");
+    if(photo2Field) newRec[photo2Field.key] = formPhotos2.map(p=>{
+      const isNonImage = isPdfAttachment(p);
+      if(isNonImage && p.storageUrl){
+        const { dataUrl, ...rest } = p;
         return { ...rest, dataUrl: null };
       }
       return p;
@@ -2794,7 +2811,7 @@ function autoScheduleNextPM(rec){
   cloudPushRecord("pm", newPm);
   return true;
 }
-function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; formPhotos = []; formQuotes = []; formViewOnly = false; }
+function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; formPhotos = []; formPhotos2 = []; formQuotes = []; formViewOnly = false; }
 function checkForLikelyDuplicate(m, newRec){
   const keyFields = [...new Set([m.branchField, m.freqField, m.contractorField].filter(Boolean))]
     .filter(fk => (newRec[fk]||"").trim());
@@ -3121,22 +3138,24 @@ function resizeImageDataUrl(dataUrl, maxDim){
     }catch(e){ resolve(dataUrl); }
   });
 }
-function anyPhotosUploading(){ return formPhotos.some(p=>p.uploading); }
-function startAttachmentUpload(entry, file){
+function anyPhotosUploading(){ return formPhotos.some(p=>p.uploading) || formPhotos2.some(p=>p.uploading); }
+function startAttachmentUpload(entry, file, targetArr, renderFn){
+  targetArr = targetArr || formPhotos;
+  renderFn = renderFn || renderPhotoWidget;
   entry.uploading = true;
   entry.uploadFailed = false;
   entry.progress = 0;
-  renderPhotoWidget();
+  renderFn();
   uploadAttachmentFile(file, (pct)=>{
-    const found = formPhotos.find(p=>p._tempId===entry._tempId);
-    if(found){ found.progress = pct; renderPhotoWidget(); }
+    const found = targetArr.find(p=>p._tempId===entry._tempId);
+    if(found){ found.progress = pct; renderFn(); }
   }).then(url=>{
-    const found = formPhotos.find(p=>p._tempId===entry._tempId);
+    const found = targetArr.find(p=>p._tempId===entry._tempId);
     if(found){
       found.uploading = false;
       if(url){ found.storageUrl = url; found.uploadFailed = false; }
       else { found.uploadFailed = true; found._retryFile = file; }
-      renderPhotoWidget();
+      renderFn();
     }
   });
 }
@@ -3232,6 +3251,77 @@ function renderPhotoWidget(){
       reader.readAsDataURL(file);
     });
     fi.value = "";
+  };
+}
+function renderPhotoWidget2(){
+  const w = document.getElementById("photoWidget2");
+  if(!w) return;
+  w.innerHTML = formPhotos2.map((p,i)=>{
+    const isPdf = isPdfAttachment(p);
+    const thumbInner = isPdf
+      ? `<div class="pdf-thumb-icon" data-viewphoto2="${i}" style="cursor:zoom-in;">📄<span>PDF</span></div>`
+      : `<img src="${p.dataUrl || p.storageUrl || ''}" alt="${p.name||''}" data-viewphoto2="${i}" style="cursor:zoom-in;">`;
+    const statusBadge = p.uploading
+      ? `<span class="attach-status uploading" title="${t('attachUploading')}" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      : p.uploadFailed
+      ? `<span class="attach-status failed" data-retryupload2="${i}" title="${t('attachUploadFailed')}" style="cursor:pointer;">⚠️</span>`
+      : (p.storageUrl ? `<span class="attach-status linked" title="${t('attachLinked')}">☁️</span>` : "");
+    return `<div class="photo-thumb">${thumbInner}${statusBadge}${formViewOnly?'':`<button class="rm" data-rmphoto2="${i}">✕</button>`}</div>`;
+  }).join("") + (formViewOnly ? (formPhotos2.length? "" : `<div style="font-size:12.5px; color:var(--muted);">${t('photosNone')}</div>`) : `<div class="photo-add-btn" id="photoAddBtn2">+</div>`);
+  document.querySelectorAll("[data-viewphoto2]").forEach(img=>{
+    img.onclick = ()=> openLightbox(formPhotos2, Number(img.dataset.viewphoto2));
+  });
+  document.querySelectorAll("[data-retryupload2]").forEach(b=>{
+    b.onclick = ()=>{
+      const idx = Number(b.dataset.retryupload2);
+      const entry = formPhotos2[idx];
+      if(entry && entry._retryFile){ startAttachmentUpload(entry, entry._retryFile, formPhotos2, renderPhotoWidget2); }
+    };
+  });
+  updateSaveButtonAvailability();
+  if(formViewOnly) return;
+  const addBtn2 = document.getElementById("photoAddBtn2");
+  if(addBtn2) addBtn2.onclick = ()=> document.getElementById("photoFileInput2").click();
+  document.querySelectorAll("[data-rmphoto2]").forEach(b=>{
+    b.onclick = ()=>{ formPhotos2.splice(Number(b.dataset.rmphoto2),1); renderPhotoWidget2(); };
+  });
+  const fi2 = document.getElementById("photoFileInput2");
+  if(fi2) fi2.onchange = (e)=>{
+    const files = Array.from(e.target.files||[]);
+    if(!files.length) return;
+    const willUploadAll = hasAnyUploadServiceConfigured();
+    const LOCAL_ONLY_MAX_BYTES = 3 * 1024 * 1024;
+    const tooLarge = !willUploadAll ? files.filter(f=> !f.type.startsWith("image/") && f.size > LOCAL_ONLY_MAX_BYTES) : [];
+    if(tooLarge.length){
+      alert(t('attachFileTooLargeNoCloud', tooLarge.map(f=>f.name).join(", ")));
+      const okFiles = files.filter(f=> f.type.startsWith("image/") || f.size <= LOCAL_ONLY_MAX_BYTES);
+      if(!okFiles.length){ fi2.value = ""; return; }
+      files.length = 0; files.push(...okFiles);
+    }
+    let remaining = files.length;
+    files.forEach(file=>{
+      const reader = new FileReader();
+      const isImage = file.type.startsWith("image/");
+      reader.onload = ()=>{
+        const originalDataUrl = reader.result;
+        const willUpload = hasAnyUploadServiceConfigured();
+        const entry = {name:file.name, dataUrl:originalDataUrl, uploading: willUpload, _tempId: uid()};
+        formPhotos2.push(entry);
+        remaining--;
+        if(remaining===0){ renderPhotoWidget2(); }
+        if(isImage){
+          resizeImageDataUrl(originalDataUrl, 220).then(smallUrl=>{
+            const found = formPhotos2.find(p=>p._tempId===entry._tempId);
+            if(found){ found.dataUrl = smallUrl; renderPhotoWidget2(); }
+          });
+        }
+        if(willUpload){
+          startAttachmentUpload(entry, file, formPhotos2, renderPhotoWidget2);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    fi2.value = "";
   };
 }
 
