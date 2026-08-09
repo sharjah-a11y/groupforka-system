@@ -529,6 +529,13 @@ const STR = {
     bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
     bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
     bulkCheckSavedToast:(n)=>`✅ تم حفظ فحص ${n} سيارة/سيارات بنجاح`,
+    driverLoadingVehicles:"جاري تحميل قائمة السيارات...", driverPageTitle:"فحص السيارة اليومي",
+    driverSelectVehicle:"اختر سيارتك", driverChooseOption:"— اختر —", driverName:"اسم السائق",
+    driverTires:"حالة الإطارات", driverOil:"مستوى الزيت / تسريبات", driverBrakes:"الفرامل والأنوار",
+    driverAc:"التكييف", driverClean:"نظافة المركبة", driverDocs:"الوثائق سارية",
+    driverOdometer:"عداد الكيلومترات", driverDamage:"خدوش / أضرار جديدة", driverPhotosLabel:"صور (إن وجدت)",
+    driverNotes:"ملاحظات", driverSubmitBtn:"📨 إرسال الفحص", driverMissingVehicle:"من فضلك اختر السيارة أولًا",
+    driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
     bulkCheckMarkAllGood:"✅ تحديد الكل سليم", bulkCheckMarkAllGoodNote:"يعبّي كل السيارات بحالة سليمة افتراضيًا — عدّل بس السيارة اللي فيها مشكلة فعليًا",
     bulkCheckIssueNote:"ملاحظة / مشكلة", bulkCheckIssuePlaceholder:"اكتب هنا لو فيه مشكلة", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
@@ -790,6 +797,13 @@ const STR = {
     bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
     bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
     bulkCheckSavedToast:(n)=>`✅ Saved checks for ${n} vehicle(s) successfully`,
+    driverLoadingVehicles:"Loading vehicle list...", driverPageTitle:"Daily Vehicle Check",
+    driverSelectVehicle:"Select your vehicle", driverChooseOption:"— Choose —", driverName:"Driver Name",
+    driverTires:"Tire Condition", driverOil:"Oil Level / Leaks", driverBrakes:"Brakes & Lights",
+    driverAc:"A/C", driverClean:"Cleanliness", driverDocs:"Docs Valid",
+    driverOdometer:"Odometer", driverDamage:"New Damage", driverPhotosLabel:"Photos (if any)",
+    driverNotes:"Notes", driverSubmitBtn:"📨 Submit Check", driverMissingVehicle:"Please select a vehicle first",
+    driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
     bulkCheckMarkAllGood:"✅ Mark All as Good", bulkCheckMarkAllGoodNote:"Fills every vehicle with a passing default — only edit the vehicle that actually has a problem",
     bulkCheckIssueNote:"Note / Issue", bulkCheckIssuePlaceholder:"Write here if there's a problem", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
@@ -1400,6 +1414,7 @@ const SLA_MINUTES = {"حرج":15,"عالٍ":30,"متوسط":120,"منخفض":144
 /* ---------------- STATE ---------------- */
 let state = { view:"dashboard", moduleState:{} };
 let isPublicMode = (location.hash === "#public");
+let isDriverMode = (location.hash === "#driver");
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
@@ -1691,8 +1706,147 @@ function renderPublicStatusPage(){
     </div>
   `;
 }
+
+/* ---------------- DRIVER MODE: restricted, single-purpose daily vehicle check ---------------- */
+let driverPhotos = [];
+function renderDriverModePage(){
+  const vehicles = loadData("fleet");
+  if(!vehicles.length){
+    document.body.innerHTML = `
+      <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px; font-family:'Tajawal',Arial,sans-serif;" dir="rtl">
+        <div style="text-align:center; color:#7a8699;">
+          <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">GROUP FORKA</div>
+          <div>${t('driverLoadingVehicles')}</div>
+        </div>
+      </div>`;
+    setTimeout(renderDriverModePage, 1500);
+    return;
+  }
+
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="rtl">
+      <div style="max-width:460px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:20px;">
+          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#7a8699; margin-top:2px;">${t('driverPageTitle')}</div>
+        </div>
+        <div id="driverFormCard" style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverSelectVehicle')} *</label>
+            <select id="drvPlate" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+              <option value="">${t('driverChooseOption')}</option>
+              ${vehicles.map(v=>`<option value="${v.plate||v.id}">${escapeHtml(v.carName||'')} — ${escapeHtml(v.plate||'')}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverName')}</label>
+            <input type="text" id="drvDriver" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+          ${[["tires","driverTires",["جيدة","تحتاج فحص","ضعيفة"]],["oil","driverOil",["سليم","يحتاج إضافة","تسريب"]],["brakes","driverBrakes",["سليمة","تحتاج فحص"]],["ac","driverAc",["يعمل","لا يعمل","لا يوجد"]],["clean","driverClean",["نظيفة","تحتاج تنظيف"]],["docs","driverDocs",["سارية","قاربت على الانتهاء","منتهية"]]].map(([key,labelKey,opts])=>`
+            <div class="field" style="margin-bottom:14px;">
+              <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t(labelKey)}</label>
+              <select id="drv_${key}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+                <option value=""></option>
+                ${opts.map(o=>`<option value="${o}">${optLabel(o)}</option>`).join("")}
+              </select>
+            </div>`).join("")}
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverOdometer')}</label>
+            <input type="number" id="drv_odometer" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverDamage')}</label>
+            <input type="text" id="drv_damage" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverPhotosLabel')}</label>
+            <div id="driverPhotoWidget" class="photo-widget"></div>
+            <input type="file" id="driverPhotoInput" accept="image/*" multiple style="display:none">
+          </div>
+          <div class="field" style="margin-bottom:18px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverNotes')}</label>
+            <textarea id="drv_notes" style="width:100%; min-height:70px; padding:10px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+          </div>
+          <button id="btnDriverSubmit" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('driverSubmitBtn')}</button>
+          <div id="driverMsg" style="text-align:center; margin-top:12px; font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  driverPhotos = [];
+  renderDriverPhotoWidget();
+  const fi = document.getElementById("driverPhotoInput");
+  fi.onchange = (e)=>{
+    const files = Array.from(e.target.files||[]);
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const entry = {name:file.name, dataUrl:reader.result, uploading:true, _tempId: uid()};
+        driverPhotos.push(entry);
+        renderDriverPhotoWidget();
+        resizeImageDataUrl(reader.result, 220).then(smallUrl=>{
+          const found = driverPhotos.find(p=>p._tempId===entry._tempId);
+          if(found){ found.dataUrl = smallUrl; renderDriverPhotoWidget(); }
+        });
+        startAttachmentUpload(entry, file, driverPhotos, renderDriverPhotoWidget);
+      };
+      reader.readAsDataURL(file);
+    });
+    fi.value = "";
+  };
+
+  document.getElementById("btnDriverSubmit").onclick = ()=>{
+    const plate = document.getElementById("drvPlate").value;
+    const msgEl = document.getElementById("driverMsg");
+    if(!plate){ msgEl.textContent = t('driverMissingVehicle'); msgEl.style.color = "#c0392b"; return; }
+    if(driverPhotos.some(p=>p.uploading)){ msgEl.textContent = t('driverWaitUpload'); msgEl.style.color = "#c0392b"; return; }
+    const vehicle = vehicles.find(v=>(v.plate||v.id)===plate);
+    const rec = {
+      id: uid(), date: todayStr(), plate: vehicle.plate||"", vType: vehicle.carName||"",
+      driver: document.getElementById("drvDriver").value,
+      tires: document.getElementById("drv_tires").value,
+      oil: document.getElementById("drv_oil").value,
+      brakes: document.getElementById("drv_brakes").value,
+      ac: document.getElementById("drv_ac").value,
+      clean: document.getElementById("drv_clean").value,
+      docs: document.getElementById("drv_docs").value,
+      odometer: document.getElementById("drv_odometer").value,
+      damage: document.getElementById("drv_damage").value,
+      notes: document.getElementById("drv_notes").value,
+      photos: driverPhotos.map(p=>{
+        if(p.storageUrl){ const {dataUrl, ...rest} = p; return {...rest, dataUrl:null}; }
+        return p;
+      }),
+      _updatedAt: Date.now(),
+    };
+    const arr = loadDataRaw("vehcheck");
+    arr.push(rec);
+    saveData("vehcheck", arr);
+    cloudPushRecord("vehcheck", rec);
+    msgEl.style.color = "#1f8a4c";
+    msgEl.textContent = t('driverSubmitSuccess');
+    setTimeout(renderDriverModePage, 1800);
+  };
+}
+function renderDriverPhotoWidget(){
+  const w = document.getElementById("driverPhotoWidget");
+  if(!w) return;
+  w.innerHTML = driverPhotos.map((p,i)=>{
+    const statusBadge = p.uploading
+      ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+    return `<div class="photo-thumb"><img src="${p.dataUrl||p.storageUrl||''}" alt="">${statusBadge}<button class="rm" data-drvrm="${i}">✕</button></div>`;
+  }).join("") + `<div class="photo-add-btn" id="driverPhotoAddBtn">+</div>`;
+  document.getElementById("driverPhotoAddBtn").onclick = ()=> document.getElementById("driverPhotoInput").click();
+  document.querySelectorAll("[data-drvrm]").forEach(b=>{
+    b.onclick = ()=>{ driverPhotos.splice(Number(b.dataset.drvrm),1); renderDriverPhotoWidget(); };
+  });
+}
+
 function renderNav(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
+  if(isDriverMode){ renderDriverModePage(); return; }
   const navRoot = document.getElementById("nav-modules");
   navRoot.innerHTML = MODULES.map(m=>{
     const count = loadData(m.key).length;
@@ -1770,6 +1924,7 @@ function kpiBarClass(pct){ if(pct===null) return ""; if(pct>=90) return ""; if(p
 /* ---------------- DASHBOARD ---------------- */
 function renderDashboard(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
+  if(isDriverMode){ renderDriverModePage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
   document.getElementById("topbarActions").innerHTML = `
@@ -2002,6 +2157,7 @@ function renderAssetsByBranchView(){
 }
 function renderModule(mKey){
   if(isPublicMode){ renderPublicStatusPage(); return; }
+  if(isDriverMode){ renderDriverModePage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -5636,6 +5792,8 @@ updateCloudStatusBadge();
 initCloud();
 if(location.hash === "#public"){
   renderPublicStatusPage();
+} else if(location.hash === "#driver"){
+  renderDriverModePage();
 } else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); }
 </script>
 </body>
