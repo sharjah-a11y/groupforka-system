@@ -1039,6 +1039,10 @@ const OPT_EN = {
   "مدفوعة":"Paid","غير مدفوعة":"Unpaid",
   "سرعة زائدة":"Speeding","وقوف خاطئ":"Illegal Parking","إشارة حمراء":"Red Light",
   "عدم ربط حزام الأمان":"No Seatbelt","استخدام الهاتف أثناء القيادة":"Phone Use While Driving","أخرى":"Other",
+  "تم إيقاف الجهاز عن العمل":"Equipment Shut Down","تم استخدام جهاز بديل":"Backup Equipment Used","تم عزل المنطقة المتضررة":"Area Isolated",
+  "تم إبلاغ المقاول للحضور الفوري":"Contractor Notified for Immediate Response","لم يُتخذ إجراء مؤقت":"No Temporary Action Taken",
+  "تم الإصلاح بنجاح":"Fixed Successfully","تم الإصلاح مؤقتًا":"Temporarily Fixed","يحتاج متابعة":"Needs Follow-up","لم يتم الإصلاح":"Not Fixed","تم الاستبدال":"Replaced",
+  "سوء استخدام":"Misuse","عمر طبيعي / تآكل":"Natural Wear","تركيب أو تصنيع خاطئ":"Improper Installation/Manufacturing","نقص صيانة وقائية":"Lack of Preventive Maintenance","ظروف تشغيل قاسية":"Harsh Operating Conditions","سبب آخر":"Other Cause",
 };
 function optLabel(val){
   if(!val) return "";
@@ -1078,7 +1082,8 @@ const MODULES = [
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
     {key:"contractor", label:"اسم المقاول / الفني", labelEn:"Contractor / Technician", type:"text", master:"contractors"},
     {key:"arrivalDate", label:"تاريخ الوصول", labelEn:"Arrival Date", type:"date"},
-    {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"textarea"},
+    {key:"tempAction", label:"الإجراء المؤقت المتخذ", labelEn:"Temporary Action Taken", type:"select",
+      options:["تم إيقاف الجهاز عن العمل","تم استخدام جهاز بديل","تم عزل المنطقة المتضررة","تم إبلاغ المقاول للحضور الفوري","لم يُتخذ إجراء مؤقت","أخرى"]},
     {key:"quotes", label:"مقارنة عروض الأسعار (٢-٣ عروض)", labelEn:"Quote Comparison (2-3 quotes)", type:"quotes", full:true},
     {key:"approval", label:"حالة موافقة مدير العمليات", labelEn:"Ops Manager Approval", type:"select", options:["معتمد","مرفوض","بانتظار الموافقة","لا ينطبق"]},
     {key:"doneDate", label:"تاريخ التنفيذ الفعلي", labelEn:"Actual Completion Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
