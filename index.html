@@ -126,7 +126,7 @@
   tbody tr:nth-child(even){background:#FAFBFD;}
   tbody tr:hover{background:#F0F4FA;}
   tbody tr.clickable-row{cursor:pointer;}
-  td.desc-cell{max-width:420px; text-align:start; white-space:normal;}
+  td.desc-cell{min-width:320px; max-width:480px; text-align:start; white-space:normal;}
   .row-actions{display:flex; gap:5px; justify-content:center;}
   .empty-row td{padding:40px; color:var(--muted); font-size:14px;}
 
@@ -151,8 +151,9 @@
   .field label{font-size:12.5px; font-weight:700; color:var(--text);}
   .field input, .field select, .field textarea{
     border:1.5px solid var(--line); border-radius:8px; padding:9px 11px; font-family:inherit; font-size:13.5px; background:#fbfcfe;
+    width:100%; box-sizing:border-box;
   }
-  .field textarea{min-height:60px; resize:vertical;}
+  .field textarea{min-height:90px; resize:vertical;}
   .field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--navy);}
   .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid var(--line); padding-top:16px;}
 
