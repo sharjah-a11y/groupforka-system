@@ -536,6 +536,9 @@ const STR = {
     driverOdometer:"عداد الكيلومترات", driverDamage:"خدوش / أضرار جديدة", driverPhotosLabel:"صور (إن وجدت)",
     driverNotes:"ملاحظات", driverSubmitBtn:"📨 إرسال الفحص", driverMissingVehicle:"من فضلك اختر السيارة أولًا",
     driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
+    driverBranch:"الفرع",
+    pushNotifDriverCheckTitle:"🚗 فحص سيارة جديد", pushNotifDriverCheckBody:(v)=>`تم إرسال فحص جديد لسيارة: ${v}`,
+    pushNotifDriverChecksMultiple:(n)=>`تم إرسال ${n} فحوصات سيارات جديدة`,
     bulkCheckMarkAllGood:"✅ تحديد الكل سليم", bulkCheckMarkAllGoodNote:"يعبّي كل السيارات بحالة سليمة افتراضيًا — عدّل بس السيارة اللي فيها مشكلة فعليًا",
     bulkCheckIssueNote:"ملاحظة / مشكلة", bulkCheckIssuePlaceholder:"اكتب هنا لو فيه مشكلة", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
@@ -804,6 +807,9 @@ const STR = {
     driverOdometer:"Odometer", driverDamage:"New Damage", driverPhotosLabel:"Photos (if any)",
     driverNotes:"Notes", driverSubmitBtn:"📨 Submit Check", driverMissingVehicle:"Please select a vehicle first",
     driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
+    driverBranch:"Branch",
+    pushNotifDriverCheckTitle:"🚗 New Vehicle Check", pushNotifDriverCheckBody:(v)=>`A new check was submitted for vehicle: ${v}`,
+    pushNotifDriverChecksMultiple:(n)=>`${n} new vehicle checks were submitted`,
     bulkCheckMarkAllGood:"✅ Mark All as Good", bulkCheckMarkAllGoodNote:"Fills every vehicle with a passing default — only edit the vehicle that actually has a problem",
     bulkCheckIssueNote:"Note / Issue", bulkCheckIssuePlaceholder:"Write here if there's a problem", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
@@ -1713,6 +1719,16 @@ function setLangDriverMode(l){
   LANG = l; localStorage.setItem("forka_lang", l);
   renderDriverModePage();
 }
+function refreshDriverBranchOptions(){
+  const sel = document.getElementById("drvBranch");
+  if(!sel) return;
+  const branches = loadMasters().branches || [];
+  const currentVal = sel.value;
+  const currentCount = sel.options.length - 1; // excluding the blank "choose" option
+  if(branches.length === currentCount) return; // nothing new to add
+  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("");
+  sel.value = currentVal;
+}
 function renderDriverModePage(){
   const vehicles = loadData("fleet");
   const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
@@ -1750,6 +1766,13 @@ function renderDriverModePage(){
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverName')}</label>
             <input type="text" id="drvDriver" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
           </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverBranch')}</label>
+            <select id="drvBranch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+              <option value="">${t('driverChooseOption')}</option>
+              ${(loadMasters().branches||[]).map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("")}
+            </select>
+          </div>
           ${[["tires","driverTires",["جيدة","تحتاج فحص","ضعيفة"]],["oil","driverOil",["سليم","يحتاج إضافة","تسريب"]],["brakes","driverBrakes",["سليمة","تحتاج فحص"]],["ac","driverAc",["يعمل","لا يعمل","لا يوجد"]],["clean","driverClean",["نظيفة","تحتاج تنظيف"]],["docs","driverDocs",["سارية","قاربت على الانتهاء","منتهية"]]].map(([key,labelKey,opts])=>`
             <div class="field" style="margin-bottom:14px;">
               <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t(labelKey)}</label>
@@ -1783,6 +1806,7 @@ function renderDriverModePage(){
   `;
 
   document.getElementById("drvLangBtn").onclick = ()=> setLangDriverMode(LANG==='ar' ? 'en' : 'ar');
+  setTimeout(refreshDriverBranchOptions, 1200);
   driverPhotos = [];
   renderDriverPhotoWidget();
   const fi = document.getElementById("driverPhotoInput");
@@ -1814,6 +1838,7 @@ function renderDriverModePage(){
     const rec = {
       id: uid(), date: todayStr(), plate: vehicle.plate||"", vType: vehicle.carName||"",
       driver: document.getElementById("drvDriver").value,
+      task: document.getElementById("drvBranch").value,
       tires: document.getElementById("drv_tires").value,
       oil: document.getElementById("drv_oil").value,
       brakes: document.getElementById("drv_brakes").value,
@@ -1833,6 +1858,7 @@ function renderDriverModePage(){
     arr.push(rec);
     saveData("vehcheck", arr);
     cloudPushRecord("vehcheck", rec);
+    fireWebhook("driver_check_submitted", { plate: rec.plate, vType: rec.vType, driver: rec.driver, branch: rec.task, date: rec.date });
     msgEl.style.color = "#1f8a4c";
     msgEl.textContent = t('driverSubmitSuccess');
     setTimeout(renderDriverModePage, 1800);
@@ -4264,6 +4290,12 @@ function attachCloudListeners(){
       if(state.view==="masters") renderMastersPage();
     }
   }, err=> console.error("Cloud sync error [masters]:", err));
+  cloudUnsubscribers.settings = cloudDb.collection("forka_meta").doc("settings").onSnapshot(doc=>{
+    if(doc.exists){
+      const data = doc.data();
+      if(data.webhookUrl !== undefined) localStorage.setItem("forka_webhook_url", data.webhookUrl);
+    }
+  }, err=> console.error("Cloud sync error [settings]:", err));
   ["daily","monthly"].forEach(kind=>{
     cloudUnsubscribers["checklist_"+kind] = cloudDb.collection("forka_meta").doc("checklist_"+kind).onSnapshot(doc=>{
       if(doc.exists){
@@ -4901,6 +4933,7 @@ function renderNotificationsPage(){
       if(perm === "granted"){
         setPushNotifEnabled(true);
         seedNotifiedIdsBaseline();
+        seedNotifiedVehCheckBaseline();
         startPushNotifWatcher();
         showToast(t('pushNotifEnabledToast'));
       } else {
@@ -5560,7 +5593,12 @@ function renderBranchComparePage(){
 /* ---------------- SETTINGS / PIN PAGE ---------------- */
 /* ---------------- WEBHOOK INTEGRATION ---------------- */
 function getWebhookUrl(){ return localStorage.getItem("forka_webhook_url") || ""; }
-function saveWebhookUrl(url){ localStorage.setItem("forka_webhook_url", url); }
+function saveWebhookUrl(url){
+  localStorage.setItem("forka_webhook_url", url);
+  if(cloudEnabled && cloudDb){
+    cloudDb.collection("forka_meta").doc("settings").set({webhookUrl:url}, {merge:true}).catch(err=>console.error("Failed to sync webhook URL:",err));
+  }
+}
 function fireWebhook(eventType, data){
   const url = getWebhookUrl();
   if(!url) return Promise.resolve();
@@ -5749,6 +5787,25 @@ function setPushNotifEnabled(on){
 function getNotifiedIds(){ try{ return new Set(JSON.parse(localStorage.getItem("forka_notified_ids"))||[]); }catch(e){ return new Set(); } }
 function saveNotifiedIds(set){ localStorage.setItem("forka_notified_ids", JSON.stringify([...set])); }
 function seedNotifiedIdsBaseline(){ saveNotifiedIds(new Set(gatherCriticalItemsWithIds().map(i=>i.id))); }
+function getNotifiedVehCheckIds(){ try{ return new Set(JSON.parse(localStorage.getItem("forka_notified_vehcheck_ids"))||[]); }catch(e){ return new Set(); } }
+function saveNotifiedVehCheckIds(set){ localStorage.setItem("forka_notified_vehcheck_ids", JSON.stringify([...set])); }
+function seedNotifiedVehCheckBaseline(){ saveNotifiedVehCheckIds(new Set(loadData("vehcheck").map(c=>c.id))); }
+function checkForNewVehCheckSubmissions(){
+  if(!getPushNotifEnabled() || !("Notification" in window) || Notification.permission !== "granted") return;
+  const checks = loadData("vehcheck");
+  const notifiedChecks = getNotifiedVehCheckIds();
+  const newOnes = checks.filter(c=> !notifiedChecks.has(c.id));
+  if(newOnes.length){
+    if(newOnes.length === 1){
+      const label = newOnes[0].vType || newOnes[0].plate || "";
+      showLocalNotification(t('pushNotifDriverCheckTitle'), t('pushNotifDriverCheckBody', label));
+    } else {
+      showLocalNotification(t('pushNotifDriverCheckTitle'), t('pushNotifDriverChecksMultiple', newOnes.length));
+    }
+    newOnes.forEach(c=> notifiedChecks.add(c.id));
+    saveNotifiedVehCheckIds(notifiedChecks);
+  }
+}
 function showLocalNotification(title, body){
   if(!("Notification" in window) || Notification.permission !== "granted") return;
   let fired = false;
@@ -5787,7 +5844,7 @@ function checkForNewCriticalItemsAndNotify(){
 }
 function startPushNotifWatcher(){
   if(pushWatcherInterval) clearInterval(pushWatcherInterval);
-  pushWatcherInterval = setInterval(checkForNewCriticalItemsAndNotify, 45000);
+  pushWatcherInterval = setInterval(()=>{ checkForNewCriticalItemsAndNotify(); checkForNewVehCheckSubmissions(); }, 45000);
 }
 if(getPushNotifEnabled() && "Notification" in window && Notification.permission === "granted"){
   startPushNotifWatcher();
