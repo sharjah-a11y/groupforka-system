@@ -126,7 +126,7 @@
   tbody tr:nth-child(even){background:#FAFBFD;}
   tbody tr:hover{background:#F0F4FA;}
   tbody tr.clickable-row{cursor:pointer;}
-  td.desc-cell{max-width:220px; text-align:start; white-space:normal;}
+  td.desc-cell{max-width:420px; text-align:start; white-space:normal;}
   .row-actions{display:flex; gap:5px; justify-content:center;}
   .empty-row td{padding:40px; color:var(--muted); font-size:14px;}
 
@@ -3538,7 +3538,10 @@ function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
       if(v!==undefined && v!==null){ const len = v.toString().length; if(len>maxLen) maxLen = len; }
     });
     const isExtraCol = i >= headers.length;
-    const colWidth = isExtraCol ? 22 : Math.min(Math.max(maxLen+4, 12), 42);
+    const correspondingField = (!isExtraCol && fields) ? fields[i] : null;
+    const isLongText = correspondingField && (correspondingField.type==="textarea" || correspondingField.full);
+    const capWidth = isLongText ? 70 : 42;
+    const colWidth = isExtraCol ? 22 : Math.min(Math.max(maxLen+4, 12), capWidth);
     sheet.getColumn(i+1).width = colWidth;
   });
 
