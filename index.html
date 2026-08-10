@@ -541,6 +541,7 @@ const STR = {
     driverScanOdometer:"صوّر العداد لقراءة الرقم تلقائيًا",
     driverOcrLoading:"⏳ جاري تجهيز أداة القراءة...", driverOcrReading:"🔍 جاري قراءة الأرقام من الصورة...",
     driverOcrSuccess:"✅ تم قراءة الرقم — تأكد منه قبل الإرسال", driverOcrFailed:"⚠️ تعذّرت القراءة، من فضلك اكتب الرقم يدويًا",
+    driverOdometerPhotoLabel:"صورة العداد",
     pushNotifDriverCheckTitle:"🚗 فحص سيارة جديد", pushNotifDriverCheckBody:(v)=>`تم إرسال فحص جديد لسيارة: ${v}`,
     pushNotifDriverChecksMultiple:(n)=>`تم إرسال ${n} فحوصات سيارات جديدة`,
     bulkCheckMarkAllGood:"✅ تحديد الكل سليم", bulkCheckMarkAllGoodNote:"يعبّي كل السيارات بحالة سليمة افتراضيًا — عدّل بس السيارة اللي فيها مشكلة فعليًا",
@@ -816,6 +817,7 @@ const STR = {
     driverScanOdometer:"Photograph the odometer to read the number automatically",
     driverOcrLoading:"⏳ Preparing reader...", driverOcrReading:"🔍 Reading digits from the photo...",
     driverOcrSuccess:"✅ Number read — please verify before submitting", driverOcrFailed:"⚠️ Could not read it, please type the number manually",
+    driverOdometerPhotoLabel:"Odometer Photo",
     pushNotifDriverCheckTitle:"🚗 New Vehicle Check", pushNotifDriverCheckBody:(v)=>`A new check was submitted for vehicle: ${v}`,
     pushNotifDriverChecksMultiple:(n)=>`${n} new vehicle checks were submitted`,
     bulkCheckMarkAllGood:"✅ Mark All as Good", bulkCheckMarkAllGoodNote:"Fills every vehicle with a passing default — only edit the vehicle that actually has a problem",
@@ -1938,6 +1940,19 @@ async function runOdometerOcr(file){
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+
+    // Save the odometer photo alongside the check's other attachments, regardless of OCR outcome
+    const photoEntry = {name: t('driverOdometerPhotoLabel'), dataUrl, uploading: hasAnyUploadServiceConfigured(), _tempId: uid()};
+    driverPhotos.push(photoEntry);
+    renderDriverPhotoWidget();
+    resizeImageDataUrl(dataUrl, 220).then(smallUrl=>{
+      const found = driverPhotos.find(p=>p._tempId===photoEntry._tempId);
+      if(found){ found.dataUrl = smallUrl; renderDriverPhotoWidget(); }
+    });
+    if(photoEntry.uploading){
+      startAttachmentUpload(photoEntry, file, driverPhotos, renderDriverPhotoWidget);
+    }
+
     const { data } = await window.Tesseract.recognize(dataUrl, "eng", {
       tessedit_char_whitelist: "0123456789",
     });
