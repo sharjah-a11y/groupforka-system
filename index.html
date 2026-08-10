@@ -538,6 +538,9 @@ const STR = {
     driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
     driverBranch:"الفرع",
     driverDate:"تاريخ الفحص", driverFuel:"مستوى الوقود", driverMissingDate:"من فضلك اختر تاريخ الفحص",
+    driverScanOdometer:"صوّر العداد لقراءة الرقم تلقائيًا",
+    driverOcrLoading:"⏳ جاري تجهيز أداة القراءة...", driverOcrReading:"🔍 جاري قراءة الأرقام من الصورة...",
+    driverOcrSuccess:"✅ تم قراءة الرقم — تأكد منه قبل الإرسال", driverOcrFailed:"⚠️ تعذّرت القراءة، من فضلك اكتب الرقم يدويًا",
     pushNotifDriverCheckTitle:"🚗 فحص سيارة جديد", pushNotifDriverCheckBody:(v)=>`تم إرسال فحص جديد لسيارة: ${v}`,
     pushNotifDriverChecksMultiple:(n)=>`تم إرسال ${n} فحوصات سيارات جديدة`,
     bulkCheckMarkAllGood:"✅ تحديد الكل سليم", bulkCheckMarkAllGoodNote:"يعبّي كل السيارات بحالة سليمة افتراضيًا — عدّل بس السيارة اللي فيها مشكلة فعليًا",
@@ -810,6 +813,9 @@ const STR = {
     driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
     driverBranch:"Branch",
     driverDate:"Check Date", driverFuel:"Fuel Level", driverMissingDate:"Please select the check date",
+    driverScanOdometer:"Photograph the odometer to read the number automatically",
+    driverOcrLoading:"⏳ Preparing reader...", driverOcrReading:"🔍 Reading digits from the photo...",
+    driverOcrSuccess:"✅ Number read — please verify before submitting", driverOcrFailed:"⚠️ Could not read it, please type the number manually",
     pushNotifDriverCheckTitle:"🚗 New Vehicle Check", pushNotifDriverCheckBody:(v)=>`A new check was submitted for vehicle: ${v}`,
     pushNotifDriverChecksMultiple:(n)=>`${n} new vehicle checks were submitted`,
     bulkCheckMarkAllGood:"✅ Mark All as Good", bulkCheckMarkAllGoodNote:"Fills every vehicle with a passing default — only edit the vehicle that actually has a problem",
@@ -1791,7 +1797,12 @@ function renderDriverModePage(){
             </div>`).join("")}
           <div class="field" style="margin-bottom:14px;">
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverOdometer')}</label>
-            <input type="number" id="drv_odometer" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <div style="display:flex; gap:8px;">
+              <input type="number" id="drv_odometer" style="flex:1; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+              <button type="button" id="btnOdometerCam" style="background:#1F3864; color:#fff; border:none; border-radius:8px; padding:0 16px; font-size:18px; cursor:pointer;" title="${t('driverScanOdometer')}">📷</button>
+            </div>
+            <input type="file" id="odometerCamInput" accept="image/*" capture="environment" style="display:none">
+            <div id="odometerOcrStatus" style="font-size:11.5px; color:#7a8699; margin-top:5px;"></div>
           </div>
           <div class="field" style="margin-bottom:14px;">
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverFuel')}</label>
@@ -1825,6 +1836,13 @@ function renderDriverModePage(){
   `;
 
   document.getElementById("drvLangBtn").onclick = ()=> setLangDriverMode(LANG==='ar' ? 'en' : 'ar');
+  document.getElementById("btnOdometerCam").onclick = ()=> document.getElementById("odometerCamInput").click();
+  document.getElementById("odometerCamInput").onchange = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    runOdometerOcr(file);
+    e.target.value = "";
+  };
   setTimeout(refreshDriverBranchOptions, 1200);
   driverPhotos = [];
   renderDriverPhotoWidget();
@@ -1892,6 +1910,51 @@ function renderDriverModePage(){
     msgEl.textContent = t('driverSubmitSuccess');
     setTimeout(()=>{ driverSubmitInProgress = false; renderDriverModePage(); }, 500);
   };
+}
+let tesseractLoadPromise = null;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve();
+  if(tesseractLoadPromise) return tesseractLoadPromise;
+  tesseractLoadPromise = new Promise((resolve, reject)=>{
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  return tesseractLoadPromise;
+}
+async function runOdometerOcr(file){
+  const statusEl = document.getElementById("odometerOcrStatus");
+  const inputEl = document.getElementById("drv_odometer");
+  statusEl.style.color = "#7a8699";
+  statusEl.textContent = t('driverOcrLoading');
+  try{
+    await loadTesseract();
+    statusEl.textContent = t('driverOcrReading');
+    const reader = new FileReader();
+    const dataUrl = await new Promise((resolve, reject)=>{
+      reader.onload = ()=> resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const { data } = await window.Tesseract.recognize(dataUrl, "eng", {
+      tessedit_char_whitelist: "0123456789",
+    });
+    const digitsOnly = (data.text || "").replace(/[^\d]/g, "");
+    if(digitsOnly && digitsOnly.length >= 3){
+      inputEl.value = digitsOnly;
+      statusEl.style.color = "#1f8a4c";
+      statusEl.textContent = t('driverOcrSuccess');
+    } else {
+      statusEl.style.color = "#c0392b";
+      statusEl.textContent = t('driverOcrFailed');
+    }
+  } catch(err){
+    console.error("Odometer OCR error:", err);
+    statusEl.style.color = "#c0392b";
+    statusEl.textContent = t('driverOcrFailed');
+  }
 }
 function renderDriverPhotoWidget(){
   const w = document.getElementById("driverPhotoWidget");
