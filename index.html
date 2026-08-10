@@ -1741,6 +1741,22 @@ function refreshDriverBranchOptions(){
   sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("");
   sel.value = currentVal;
 }
+async function refreshDriverVehicleNames(){
+  const sel = document.getElementById("drvPlate");
+  if(!sel) return;
+  const opts = Array.from(sel.options).filter(o=>o.value);
+  for(const opt of opts){
+    const original = opt.dataset.carname;
+    const plate = opt.dataset.plate || "";
+    if(!original || !original.trim()) continue;
+    if(detectTextLang(original) === LANG || !getAutoTranslateEnabled()){
+      opt.textContent = plate ? `${original} — ${plate}` : original; // revert to original text
+      continue;
+    }
+    const translated = await translateText(original, LANG);
+    opt.textContent = plate ? `${translated} — ${plate}` : translated;
+  }
+}
 function renderDriverModePage(){
   const vehicles = loadData("fleet");
   const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
@@ -1775,7 +1791,7 @@ function renderDriverModePage(){
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverSelectVehicle')} *</label>
             <select id="drvPlate" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
               <option value="">${t('driverChooseOption')}</option>
-              ${vehicles.map(v=>`<option value="${v.plate||v.id}">${escapeHtml(v.carName||'')} — ${escapeHtml(v.plate||'')}</option>`).join("")}
+              ${vehicles.map(v=>`<option value="${v.plate||v.id}" data-carname="${escapeAttr(v.carName||'')}" data-plate="${escapeAttr(v.plate||'')}">${escapeHtml(v.carName||'')} — ${escapeHtml(v.plate||'')}</option>`).join("")}
             </select>
           </div>
           <div class="field" style="margin-bottom:14px;">
@@ -1846,6 +1862,7 @@ function renderDriverModePage(){
     e.target.value = "";
   };
   setTimeout(refreshDriverBranchOptions, 1200);
+  setTimeout(refreshDriverVehicleNames, 300);
   driverPhotos = [];
   odometerPhotoEntry = null;
   renderDriverPhotoWidget();
