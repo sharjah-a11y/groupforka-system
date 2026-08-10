@@ -1718,6 +1718,7 @@ function renderPublicStatusPage(){
 
 /* ---------------- DRIVER MODE: restricted, single-purpose daily vehicle check ---------------- */
 let driverPhotos = [];
+let driverSubmitInProgress = false;
 function setLangDriverMode(l){
   LANG = l; localStorage.setItem("forka_lang", l);
   renderDriverModePage();
@@ -1848,12 +1849,18 @@ function renderDriverModePage(){
   };
 
   document.getElementById("btnDriverSubmit").onclick = ()=>{
+    if(driverSubmitInProgress) return; // guard against double-submit (double-tap / double-click)
     const plate = document.getElementById("drvPlate").value;
     const date = document.getElementById("drv_date").value;
     const msgEl = document.getElementById("driverMsg");
     if(!date){ msgEl.textContent = t('driverMissingDate'); msgEl.style.color = "#c0392b"; return; }
     if(!plate){ msgEl.textContent = t('driverMissingVehicle'); msgEl.style.color = "#c0392b"; return; }
     if(driverPhotos.some(p=>p.uploading)){ msgEl.textContent = t('driverWaitUpload'); msgEl.style.color = "#c0392b"; return; }
+    driverSubmitInProgress = true;
+    const submitBtn = document.getElementById("btnDriverSubmit");
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.6";
+    submitBtn.style.cursor = "not-allowed";
     const vehicle = vehicles.find(v=>(v.plate||v.id)===plate);
     const rec = {
       id: uid(), date, plate: vehicle.plate||"", vType: vehicle.carName||"",
@@ -1881,8 +1888,9 @@ function renderDriverModePage(){
     cloudPushRecord("vehcheck", rec);
     fireWebhook("driver_check_submitted", { plate: rec.plate, vType: rec.vType, driver: rec.driver, branch: rec.task, date: rec.date });
     msgEl.style.color = "#1f8a4c";
+    msgEl.style.fontWeight = "800";
     msgEl.textContent = t('driverSubmitSuccess');
-    setTimeout(renderDriverModePage, 1800);
+    setTimeout(()=>{ driverSubmitInProgress = false; renderDriverModePage(); }, 500);
   };
 }
 function renderDriverPhotoWidget(){
