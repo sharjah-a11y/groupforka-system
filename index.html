@@ -538,6 +538,14 @@ const STR = {
     driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
     driverThankYouTitle:"تم إرسال الفحص بنجاح", driverThankYouBody:"شكرًا لك، البيانات وصلت للنظام الرئيسي مباشرة.",
     driverThankYouCloseHint:"تقدر تقفل الصفحة دلوقتي",
+    inspectPageTitle:"تفتيش الفرع اليومي", inspectDate:"تاريخ الجولة", inspectBranch:"الفرع",
+    inspectManager:"اسم مسؤول الفرع", inspectPhone:"رقم التواصل", inspectItemsTitle:"البنود اللي محتاجة صيانة",
+    inspectAddItemBtn:"➕ إضافة بند جديد", inspectItemLabel:"بند", inspectItemName:"اسم الجهاز / البند",
+    inspectFinding:"الملاحظة", inspectSeverity:"درجة الخطورة", inspectAction:"الإجراء المطلوب",
+    inspectAssignee:"المسؤول عن التنفيذ (اختياري)", inspectTargetDate:"الموعد المستهدف (اختياري)",
+    inspectSubmitBtn:"📨 إرسال جولة التفتيش", inspectMissingDate:"من فضلك اختر تاريخ الجولة",
+    inspectMissingBranch:"من فضلك اختر الفرع", inspectMissingItems:"أضف بند واحد على الأقل قبل الإرسال",
+    inspectThankYouTitle:"تم إرسال جولة التفتيش بنجاح", inspectThankYouBody:"شكرًا لك، كل البنود وصلت للنظام الرئيسي مباشرة.",
     driverBranch:"الفرع",
     driverDate:"تاريخ الفحص", driverFuel:"مستوى الوقود", driverMissingDate:"من فضلك اختر تاريخ الفحص",
     driverScanOdometer:"صوّر العداد ليقرأ النظام الرقم تلقائيًا",
@@ -816,6 +824,14 @@ const STR = {
     driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
     driverThankYouTitle:"Check Submitted Successfully", driverThankYouBody:"Thank you, the data has been sent directly to the main system.",
     driverThankYouCloseHint:"You can close this page now",
+    inspectPageTitle:"Daily Branch Inspection", inspectDate:"Round Date", inspectBranch:"Branch",
+    inspectManager:"Branch Manager Name", inspectPhone:"Contact Number", inspectItemsTitle:"Items Needing Maintenance",
+    inspectAddItemBtn:"➕ Add Another Item", inspectItemLabel:"Item", inspectItemName:"Equipment / Item Name",
+    inspectFinding:"Finding", inspectSeverity:"Severity", inspectAction:"Required Action",
+    inspectAssignee:"Assigned To (optional)", inspectTargetDate:"Target Date (optional)",
+    inspectSubmitBtn:"📨 Submit Inspection Round", inspectMissingDate:"Please select the round date",
+    inspectMissingBranch:"Please select the branch", inspectMissingItems:"Add at least one item before submitting",
+    inspectThankYouTitle:"Inspection Round Submitted Successfully", inspectThankYouBody:"Thank you, all items have been sent directly to the main system.",
     driverBranch:"Branch",
     driverDate:"Check Date", driverFuel:"Fuel Level", driverMissingDate:"Please select the check date",
     driverScanOdometer:"Photograph the odometer for the system to read the number automatically",
@@ -1440,6 +1456,7 @@ const SLA_MINUTES = {"حرج":15,"عالٍ":30,"متوسط":120,"منخفض":144
 let state = { view:"dashboard", moduleState:{} };
 let isPublicMode = (location.hash === "#public");
 let isDriverMode = (location.hash === "#driver");
+let isBranchInspectMode = (location.hash === "#inspect");
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
@@ -1949,6 +1966,169 @@ function renderDriverThankYouPage(){
     </div>
   `;
 }
+/* ---------------- BRANCH INSPECTION MODE: restricted, multi-item daily branch check ---------------- */
+let inspectItems = [];
+let inspectSubmitInProgress = false;
+function newInspectItemId(){ return "ii_" + Math.random().toString(36).slice(2,10); }
+function refreshInspectBranchOptions(){
+  const sel = document.getElementById("insp_branch");
+  if(!sel) return;
+  const branches = loadMasters().branches || [];
+  const currentVal = sel.value;
+  const currentCount = sel.options.length - 1;
+  if(branches.length === currentCount) return;
+  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("");
+  sel.value = currentVal;
+}
+function renderBranchInspectPage(){
+  const masters = loadMasters();
+  const branches = masters.branches || [];
+  const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
+
+  if(inspectItems.length === 0) inspectItems.push({ id:newInspectItemId() });
+
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="${dirAttr}">
+      <div style="max-width:520px; margin:0 auto;">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button id="inspLangBtn" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
+        </div>
+        <div style="text-align:center; margin-bottom:20px;">
+          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#7a8699; margin-top:2px;">${t('inspectPageTitle')}</div>
+        </div>
+        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectDate')} *</label>
+            <input type="date" id="insp_date" value="${todayStr()}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectBranch')} *</label>
+            <select id="insp_branch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+              <option value="">${t('driverChooseOption')}</option>
+              ${branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:14px;">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectManager')}</label>
+            <input type="text" id="insp_manager" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+          <div class="field">
+            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectPhone')}</label>
+            <input type="text" id="insp_phone" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+          </div>
+        </div>
+
+        <div style="font-weight:800; font-size:14px; color:#1F3864; margin-bottom:10px;">${t('inspectItemsTitle')}</div>
+        <div id="inspectItemsContainer"></div>
+        <button type="button" id="btnAddInspectItem" style="width:100%; background:#fff; border:2px dashed #1F3864; color:#1F3864; border-radius:10px; padding:12px; font-weight:800; font-size:14px; cursor:pointer; margin-bottom:20px;">${t('inspectAddItemBtn')}</button>
+
+        <button id="btnInspectSubmit" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('inspectSubmitBtn')}</button>
+        <div id="inspectMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#c0392b;"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("inspLangBtn").onclick = ()=>{ LANG = LANG==='ar'?'en':'ar'; localStorage.setItem("forka_lang", LANG); renderBranchInspectPage(); };
+  setTimeout(refreshInspectBranchOptions, 1200);
+  document.getElementById("btnAddInspectItem").onclick = ()=>{ inspectItems.push({ id:newInspectItemId() }); renderInspectItems(); };
+  renderInspectItems();
+
+  document.getElementById("btnInspectSubmit").onclick = ()=>{
+    if(inspectSubmitInProgress) return;
+    const msgEl = document.getElementById("inspectMsg");
+    const date = document.getElementById("insp_date").value;
+    const branch = document.getElementById("insp_branch").value;
+    if(!date){ msgEl.textContent = t('inspectMissingDate'); return; }
+    if(!branch){ msgEl.textContent = t('inspectMissingBranch'); return; }
+
+    const itemRows = Array.from(document.querySelectorAll("[data-itemrow]"));
+    const filledRows = itemRows.filter(row=> row.querySelector("[data-itemfield='item']").value.trim());
+    if(!filledRows.length){ msgEl.textContent = t('inspectMissingItems'); return; }
+
+    inspectSubmitInProgress = true;
+    const submitBtn = document.getElementById("btnInspectSubmit");
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.6";
+
+    const manager = document.getElementById("insp_manager").value;
+    const phone = document.getElementById("insp_phone").value;
+    const arr = loadDataRaw("inspections");
+    filledRows.forEach(row=>{
+      const rec = {
+        id: uid(), date, branch, manager, phone,
+        item: row.querySelector("[data-itemfield='item']").value,
+        finding: row.querySelector("[data-itemfield='finding']").value,
+        severity: row.querySelector("[data-itemfield='severity']").value,
+        action: row.querySelector("[data-itemfield='action']").value,
+        assignee: row.querySelector("[data-itemfield='assignee']").value,
+        targetDate: row.querySelector("[data-itemfield='targetDate']").value,
+        status: "مفتوح",
+        _updatedAt: Date.now(),
+      };
+      arr.push(rec);
+      cloudPushRecord("inspections", rec);
+    });
+    saveData("inspections", arr);
+    fireWebhook("branch_inspection_submitted", { branch, manager, date, itemCount: filledRows.length });
+    renderInspectThankYouPage();
+  };
+}
+function renderInspectItems(){
+  const container = document.getElementById("inspectItemsContainer");
+  if(!container) return;
+  container.innerHTML = inspectItems.map((it,i)=>`
+    <div data-itemrow data-rowid="${it.id}" style="background:#fff; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); position:relative;">
+      ${inspectItems.length>1 ? `<button type="button" data-rmitem="${it.id}" style="position:absolute; top:10px; inset-inline-end:10px; background:#c0392b; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>` : ""}
+      <div style="font-weight:800; font-size:12.5px; color:#1F3864; margin-bottom:10px;">${t('inspectItemLabel')} ${i+1}</div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectItemName')}</label>
+        <input type="text" data-itemfield="item" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectFinding')}</label>
+        <textarea data-itemfield="finding" style="width:100%; min-height:60px; padding:9px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectSeverity')}</label>
+        <select data-itemfield="severity" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+          <option value="منخفض">${optLabel('منخفض')}</option>
+          <option value="متوسط" selected>${optLabel('متوسط')}</option>
+          <option value="عالٍ">${optLabel('عالٍ')}</option>
+          <option value="حرج">${optLabel('حرج')}</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAction')}</label>
+        <textarea data-itemfield="action" style="width:100%; min-height:50px; padding:9px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAssignee')}</label>
+        <input type="text" data-itemfield="assignee" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+      </div>
+      <div class="field">
+        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectTargetDate')}</label>
+        <input type="date" data-itemfield="targetDate" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+      </div>
+    </div>
+  `).join("");
+  document.querySelectorAll("[data-rmitem]").forEach(b=>{
+    b.onclick = ()=>{ inspectItems = inspectItems.filter(it=>it.id!==b.dataset.rmitem); renderInspectItems(); };
+  });
+}
+function renderInspectThankYouPage(){
+  const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="font-size:56px; margin-bottom:16px;">✅</div>
+        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('inspectThankYouTitle')}</div>
+        <div style="font-size:14px; color:#5a6577; line-height:1.7; margin-bottom:24px;">${t('inspectThankYouBody')}</div>
+        <div style="font-size:12px; color:#a0aab8;">${t('driverThankYouCloseHint')}</div>
+      </div>
+    </div>
+  `;
+}
 let odometerPhotoEntry = null;
 let tesseractLoadPromise = null;
 function loadTesseract(){
@@ -2058,6 +2238,7 @@ function renderDriverPhotoWidget(){
 function renderNav(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
+  if(isBranchInspectMode){ renderBranchInspectPage(); return; }
   const navRoot = document.getElementById("nav-modules");
   navRoot.innerHTML = MODULES.map(m=>{
     const count = loadData(m.key).length;
@@ -2136,6 +2317,7 @@ function kpiBarClass(pct){ if(pct===null) return ""; if(pct>=90) return ""; if(p
 function renderDashboard(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
+  if(isBranchInspectMode){ renderBranchInspectPage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
   document.getElementById("topbarActions").innerHTML = `
@@ -2369,6 +2551,7 @@ function renderAssetsByBranchView(){
 function renderModule(mKey){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
+  if(isBranchInspectMode){ renderBranchInspectPage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -6049,6 +6232,8 @@ if(location.hash === "#public"){
   renderPublicStatusPage();
 } else if(location.hash === "#driver"){
   renderDriverModePage();
+} else if(location.hash === "#inspect"){
+  renderBranchInspectPage();
 } else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); }
 </script>
 </body>
