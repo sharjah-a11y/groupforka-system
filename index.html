@@ -536,6 +536,8 @@ const STR = {
     driverOdometer:"عداد الكيلومترات", driverDamage:"خدوش / أضرار جديدة", driverPhotosLabel:"صور (إن وجدت)",
     driverNotes:"ملاحظات", driverSubmitBtn:"📨 إرسال الفحص", driverMissingVehicle:"من فضلك اختر السيارة أولًا",
     driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
+    driverThankYouTitle:"تم إرسال الفحص بنجاح", driverThankYouBody:"شكرًا لك، البيانات وصلت للنظام الرئيسي مباشرة.",
+    driverThankYouCloseHint:"تقدر تقفل الصفحة دلوقتي",
     driverBranch:"الفرع",
     driverDate:"تاريخ الفحص", driverFuel:"مستوى الوقود", driverMissingDate:"من فضلك اختر تاريخ الفحص",
     driverScanOdometer:"صوّر العداد ليقرأ النظام الرقم تلقائيًا",
@@ -812,6 +814,8 @@ const STR = {
     driverOdometer:"Odometer", driverDamage:"New Damage", driverPhotosLabel:"Photos (if any)",
     driverNotes:"Notes", driverSubmitBtn:"📨 Submit Check", driverMissingVehicle:"Please select a vehicle first",
     driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
+    driverThankYouTitle:"Check Submitted Successfully", driverThankYouBody:"Thank you, the data has been sent directly to the main system.",
+    driverThankYouCloseHint:"You can close this page now",
     driverBranch:"Branch",
     driverDate:"Check Date", driverFuel:"Fuel Level", driverMissingDate:"Please select the check date",
     driverScanOdometer:"Photograph the odometer for the system to read the number automatically",
@@ -1109,7 +1113,11 @@ const MODULES = [
     {key:"branch", label:"اسم المطعم / الفرع", labelEn:"Restaurant / Branch", type:"text", required:true, master:"branches"},
     {key:"reporter", label:"اسم المبلّغ", labelEn:"Reported By", type:"text"},
     {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text", datalistId:"assetNames"},
-    {key:"linkedAssetName", label:"🔗 الأصل المرتبط (اختياري، للربط المؤكد)", labelEn:"🔗 Linked Asset (optional, for a guaranteed link)", type:"select", options:()=> [...new Set(loadData("assets").map(a=>a.name).filter(Boolean))]},
+    {key:"linkedAssetName", label:"🔗 الأصل/السيارة المرتبطة (اختياري، للربط المؤكد)", labelEn:"🔗 Linked Asset/Vehicle (optional, for a guaranteed link)", type:"select",
+      options:()=> [
+        ...new Set(loadData("assets").map(a=>a.name).filter(Boolean)),
+        ...new Set(loadData("fleet").map(v=>v.carName).filter(Boolean)),
+      ]},
     {key:"issue", label:"وصف المشكلة", labelEn:"Issue Description", type:"textarea", full:true},
     {key:"severity", label:"درجة الخطورة", labelEn:"Priority", type:"select", options:["حرج","عالٍ","متوسط","منخفض"]},
     {key:"amc", label:"ضمن عقد AMC؟", labelEn:"Under AMC?", type:"select", options:["نعم","لا"]},
@@ -1925,11 +1933,21 @@ function renderDriverModePage(){
     saveData("vehcheck", arr);
     cloudPushRecord("vehcheck", rec);
     fireWebhook("driver_check_submitted", { plate: rec.plate, vType: rec.vType, driver: rec.driver, branch: rec.task, date: rec.date });
-    msgEl.style.color = "#1f8a4c";
-    msgEl.style.fontWeight = "800";
-    msgEl.textContent = t('driverSubmitSuccess');
-    setTimeout(()=>{ driverSubmitInProgress = false; renderDriverModePage(); }, 500);
+    renderDriverThankYouPage();
   };
+}
+function renderDriverThankYouPage(){
+  const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="font-size:56px; margin-bottom:16px;">✅</div>
+        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('driverThankYouTitle')}</div>
+        <div style="font-size:14px; color:#5a6577; line-height:1.7; margin-bottom:24px;">${t('driverThankYouBody')}</div>
+        <div style="font-size:12px; color:#a0aab8;">${t('driverThankYouCloseHint')}</div>
+      </div>
+    </div>
+  `;
 }
 let odometerPhotoEntry = null;
 let tesseractLoadPromise = null;
@@ -3098,12 +3116,17 @@ function openForm(m, existing, viewMode){
     if(m.key==="requests"){
       if(newRec.linkedAssetName){
         const explicitAsset = loadData("assets").find(a=> (a.name||"").trim() === newRec.linkedAssetName.trim());
+        const explicitVehicle = !explicitAsset ? loadData("fleet").find(v=> (v.carName||"").trim() === newRec.linkedAssetName.trim()) : null;
         newRec.linkedAssetId = explicitAsset ? explicitAsset.id : null;
+        newRec.linkedVehicleId = explicitVehicle ? explicitVehicle.id : null;
       } else if(newRec.equipment){
         const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
+        const matchedVehicle = !matchedAsset ? loadData("fleet").find(v=> (v.carName||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase()) : null;
         newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
+        newRec.linkedVehicleId = matchedVehicle ? matchedVehicle.id : null;
       } else {
         newRec.linkedAssetId = null;
+        newRec.linkedVehicleId = null;
       }
     }
     if(m.key==="contractorEval" && m.weights){
