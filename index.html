@@ -5508,13 +5508,21 @@ function renderCalendarPage(){
 /* ---------------- BRANCH COMPARISON PAGE ---------------- */
 /* ---------------- GLOBAL SEARCH PAGE ---------------- */
 if(!state.globalSearchQuery) state.globalSearchQuery = "";
+function normalizeSearchText(text){
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "")               // ignore spacing differences (e.g. plate numbers)
+    .replace(/[أإآ]/g, "ا")             // normalize hamza variants
+    .replace(/ة/g, "ه")                 // normalize ta marbuta / ha
+    .replace(/ى/g, "ي");                // normalize alef maqsura / ya
+}
 function performGlobalSearch(query){
-  const q = query.trim().toLowerCase();
+  const q = normalizeSearchText(query.trim());
   if(!q) return [];
   let results = [];
   MODULES.forEach(m=>{
     loadData(m.key).forEach(r=>{
-      const matchField = Object.entries(r).find(([k,v])=> typeof v==="string" && v.toLowerCase().includes(q));
+      const matchField = Object.entries(r).find(([k,v])=> typeof v==="string" && normalizeSearchText(v).includes(q));
       if(matchField){
         const label = r.branch || r.company || r.reqNo || r.plate || r.name || r.carName || "";
         results.push({ moduleKey:m.key, moduleName:ML(m,"name"), moduleIcon:m.icon, id:r.id, label, matchedText: matchField[1] });
