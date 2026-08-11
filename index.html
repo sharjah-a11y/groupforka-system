@@ -1766,9 +1766,25 @@ function refreshDriverBranchOptions(){
   const branches = loadMasters().branches || [];
   const currentVal = sel.value;
   const currentCount = sel.options.length - 1; // excluding the blank "choose" option
-  if(branches.length === currentCount) return; // nothing new to add
-  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("");
+  if(branches.length === currentCount){ translateBranchOptions("drvBranch"); return; }
+  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("");
   sel.value = currentVal;
+  translateBranchOptions("drvBranch");
+}
+async function translateBranchOptions(selectId){
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const opts = Array.from(sel.options).filter(o=>o.value);
+  for(const opt of opts){
+    const original = opt.dataset.branchname;
+    if(!original || !original.trim()) continue;
+    if(detectTextLang(original) === LANG || !getAutoTranslateEnabled()){
+      opt.textContent = original; // revert to original text
+      continue;
+    }
+    const translated = await translateText(original, LANG);
+    opt.textContent = translated;
+  }
 }
 async function refreshDriverVehicleNames(){
   const sel = document.getElementById("drvPlate");
@@ -1831,7 +1847,7 @@ function renderDriverModePage(){
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverBranch')}</label>
             <select id="drvBranch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
               <option value="">${t('driverChooseOption')}</option>
-              ${(loadMasters().branches||[]).map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("")}
+              ${(loadMasters().branches||[]).map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("")}
             </select>
           </div>
           ${[["tires","driverTires",["جيدة","تحتاج فحص","ضعيفة"]],["oil","driverOil",["سليم","يحتاج إضافة","تسريب"]],["brakes","driverBrakes",["سليمة","تحتاج فحص"]],["ac","driverAc",["يعمل","لا يعمل","لا يوجد"]],["clean","driverClean",["نظيفة","تحتاج تنظيف"]],["docs","driverDocs",["سارية","قاربت على الانتهاء","منتهية"]]].map(([key,labelKey,opts])=>`
@@ -1980,9 +1996,10 @@ function refreshInspectBranchOptions(){
   const branches = loadMasters().branches || [];
   const currentVal = sel.value;
   const currentCount = sel.options.length - 1;
-  if(branches.length === currentCount) return;
-  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("");
+  if(branches.length === currentCount){ translateBranchOptions("insp_branch"); return; }
+  sel.innerHTML = `<option value="">${t('driverChooseOption')}</option>` + branches.map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("");
   sel.value = currentVal;
+  translateBranchOptions("insp_branch");
 }
 function renderBranchInspectPage(){
   const masters = loadMasters();
@@ -2010,7 +2027,7 @@ function renderBranchInspectPage(){
             <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectBranch')} *</label>
             <select id="insp_branch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
               <option value="">${t('driverChooseOption')}</option>
-              ${branches.map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("")}
+              ${branches.map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("")}
             </select>
           </div>
           <div class="field" style="margin-bottom:14px;">
