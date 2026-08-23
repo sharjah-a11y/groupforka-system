@@ -559,6 +559,8 @@ const STR = {
     bulkCheckMarkAllGood:"✅ تحديد الكل سليم", bulkCheckMarkAllGoodNote:"يعبّي كل السيارات بحالة سليمة افتراضيًا — عدّل بس السيارة اللي فيها مشكلة فعليًا",
     bulkCheckIssueNote:"ملاحظة / مشكلة", bulkCheckIssuePlaceholder:"اكتب هنا لو فيه مشكلة", branchCompareTitle:"مقارنة الفروع", branchCompareMeta:"مقارنة أداء كل فرع عبر كل الأقسام",
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
+    bcCostRank:"الترتيب بالتكلفة", bcCostShare:"النسبة من إجمالي التكلفة", bcVsAverage:"مقارنة بمتوسط الفروع",
+    bcCostIndicatorsNote:"الترتيب والنسب محسوبة بناءً على التكلفة الإجمالية لكل فرع مقارنة بباقي الفروع.",
     pmAutoScheduledToast:"✅ تم إنشاء موعد الصيانة القادم تلقائيًا",
     backupTitle:"نسخ احتياطي واستيراد", backupMeta:"احفظ نسخة من بياناتك أو استرجعها",
     backupBanner:"📌 البيانات محفوظة داخل متصفحك فقط (localStorage). إذا مسحت بيانات المتصفح أو غيّرت الجهاز ستفقد البيانات ما لم تأخذ نسخة احتياطية.",
@@ -847,6 +849,8 @@ const STR = {
     bulkCheckMarkAllGood:"✅ Mark All as Good", bulkCheckMarkAllGoodNote:"Fills every vehicle with a passing default — only edit the vehicle that actually has a problem",
     bulkCheckIssueNote:"Note / Issue", bulkCheckIssuePlaceholder:"Write here if there's a problem", branchCompareTitle:"Branch Comparison", branchCompareMeta:"Compare each branch's performance across all sections",
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
+    bcCostRank:"Cost Rank", bcCostShare:"Share of Total Cost", bcVsAverage:"vs Branch Average",
+    bcCostIndicatorsNote:"Rank and percentages are calculated based on each branch's total cost relative to the other branches.",
     pmAutoScheduledToast:"✅ Next maintenance visit auto-scheduled",
     backupTitle:"Backup & Restore", backupMeta:"Save a copy of your data or restore it",
     backupBanner:"📌 Data is stored only in this browser (localStorage). If you clear browser data or switch devices, you'll lose it unless you've taken a backup.",
@@ -6029,14 +6033,17 @@ function renderAssetMapPage(){
 function renderBranchComparePage(){
   document.getElementById("topbarTitle").textContent = t('branchCompareTitle');
   document.getElementById("topbarMeta").textContent = t('branchCompareMeta');
-  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  document.getElementById("topbarActions").innerHTML = `
+    <button class="btn btn-outline" id="btnExportBranchCompare">${t('exportExcel')}</button>
+    ${langSwitcherHtml()}
+  `;
   bindLangSwitcher();
 
   const masters = loadMasters();
   const branches = masters.branches || [];
   const branchModules = MODULES.filter(m=>m.branchField);
 
-  const rows = branches.map(branch=>{
+  let rows = branches.map(branch=>{
     let totalRequests = 0, totalCost = 0, criticalCount = 0, closedCount = 0, totalCount = 0;
     branchModules.forEach(m=>{
       const data = loadData(m.key).filter(r=>(r[m.branchField]||"").trim()===branch.trim());
@@ -6048,13 +6055,23 @@ function renderBranchComparePage(){
     });
     const closureRate = totalCount ? Math.round((closedCount/totalCount)*100) : null;
     return { branch, totalRequests, totalCost, criticalCount, closureRate };
-  }).sort((a,b)=> b.criticalCount - a.criticalCount);
+  }).sort((a,b)=> b.totalCost - a.totalCost);
+
+  const grandTotalCost = rows.reduce((s,r)=> s + r.totalCost, 0);
+  const avgCost = rows.length ? grandTotalCost / rows.length : 0;
+  rows.forEach((r,i)=>{
+    r.costRank = i + 1;
+    r.costShare = grandTotalCost ? Math.round((r.totalCost/grandTotalCost)*100) : 0;
+    r.vsAverage = avgCost ? Math.round(((r.totalCost - avgCost)/avgCost)*100) : 0;
+  });
 
   document.getElementById("content").innerHTML = `
+    <div class="banner no-print" style="margin-bottom:14px;">${t('bcCostIndicatorsNote')}</div>
     <div class="table-wrap">
       <table>
         <thead><tr>
           <th>${t('bcBranch')}</th><th>${t('bcTotalRequests')}</th><th>${t('bcTotalCost')}</th>
+          <th>${t('bcCostRank')}</th><th>${t('bcCostShare')}</th><th>${t('bcVsAverage')}</th>
           <th>${t('bcCritical')}</th><th>${t('bcClosureRate')}</th>
         </tr></thead>
         <tbody>
@@ -6063,13 +6080,38 @@ function renderBranchComparePage(){
             <td><b>${r.branch}</b></td>
             <td>${r.totalRequests}</td>
             <td>${fmtMoney(r.totalCost)}</td>
+            <td><span class="badge badge-muted">${r.costRank} / ${rows.length}</span></td>
+            <td>${r.costShare}%</td>
+            <td><span class="badge ${r.vsAverage>0?'badge-danger':r.vsAverage<0?'badge-success':'badge-muted'}">${r.vsAverage>0?'+':''}${r.vsAverage}%</span></td>
             <td>${r.criticalCount>0? `<span class="badge badge-danger">${r.criticalCount}</span>` : "0"}</td>
             <td>${r.closureRate!==null? `<span class="badge ${r.closureRate>=80?'badge-success':r.closureRate>=50?'badge-warning':'badge-danger'}">${r.closureRate}%</span>` : "—"}</td>
-          </tr>`).join("") : `<tr class="empty-row"><td colspan="5">${t('mastersEmpty')}</td></tr>`}
+          </tr>`).join("") : `<tr class="empty-row"><td colspan="8">${t('mastersEmpty')}</td></tr>`}
         </tbody>
       </table>
     </div>
   `;
+
+  document.getElementById("btnExportBranchCompare").onclick = async ()=>{
+    const workbook = new ExcelJS.Workbook();
+    const headers = [t('bcBranch'), t('bcTotalRequests'), t('bcTotalCost'), t('bcCostRank'), t('bcCostShare'), t('bcVsAverage'), t('bcCritical'), t('bcClosureRate')];
+    const dataRows = rows.map(r=>({
+      [headers[0]]: r.branch,
+      [headers[1]]: r.totalRequests,
+      [headers[2]]: r.totalCost,
+      [headers[3]]: `${r.costRank} / ${rows.length}`,
+      [headers[4]]: `${r.costShare}%`,
+      [headers[5]]: `${r.vsAverage>0?'+':''}${r.vsAverage}%`,
+      [headers[6]]: r.criticalCount,
+      [headers[7]]: r.closureRate!==null ? `${r.closureRate}%` : "—",
+    }));
+    addStyledSheet(workbook, t('branchCompareTitle'), headers, dataRows, {});
+    const buf = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${t('branchCompareTitle')}_${todayStr()}.xlsx`;
+    a.click();
+  };
 }
 
 /* ---------------- SETTINGS / PIN PAGE ---------------- */
