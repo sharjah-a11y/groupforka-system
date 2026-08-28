@@ -1118,6 +1118,7 @@ const OPT_EN = {
   "تم التواصل مع شركة الصيانة":"Maintenance Company Contacted","تم طلب زيارة فنية":"Technical Visit Requested","تم تحديد موعد للصيانة":"Maintenance Appointment Scheduled",
   "تم الإصلاح بنجاح":"Fixed Successfully","تم الإصلاح مؤقتًا":"Temporarily Fixed","يحتاج متابعة":"Needs Follow-up","لم يتم الإصلاح":"Not Fixed","تم الاستبدال":"Replaced",
   "سوء استخدام":"Misuse","عمر طبيعي / تآكل":"Natural Wear","تركيب أو تصنيع خاطئ":"Improper Installation/Manufacturing","نقص صيانة وقائية":"Lack of Preventive Maintenance","ظروف تشغيل قاسية":"Harsh Operating Conditions","سبب آخر":"Other Cause",
+  "أسبوعيًا":"Weekly","كل أسبوعين":"Every 2 Weeks","شهريًا":"Monthly","كل شهرين":"Every 2 Months","كل 3 أشهر":"Every 3 Months","كل 6 أشهر":"Every 6 Months","سنويًا":"Annually",
 };
 function optLabel(val){
   if(!val) return "";
@@ -1226,9 +1227,10 @@ const MODULES = [
     {key:"contractNo", label:"رقم العقد", labelEn:"Contract No.", type:"text"},
     {key:"startDate", label:"تاريخ البداية", labelEn:"Start Date", type:"date"},
     {key:"endDate", label:"تاريخ النهاية", labelEn:"End Date", type:"date"},
-    {key:"scope", label:"نطاق العمل", labelEn:"Scope of Work", type:"textarea"},
+    {key:"scope", label:"نطاق العمل", labelEn:"Scope of Work", type:"textarea", full:true},
     {key:"branches", label:"الفروع / المواقع المشمولة", labelEn:"Covered Branches", type:"text"},
-    {key:"visits", label:"عدد الزيارات شهريًا", labelEn:"Visits per Month", type:"number"},
+    {key:"visits", label:"معدل الزيارات", labelEn:"Visit Frequency", type:"select",
+      options:["أسبوعيًا","كل أسبوعين","شهريًا","كل شهرين","كل 3 أشهر","كل 6 أشهر","سنويًا"]},
     {key:"sla", label:"زمن الاستجابة SLA", labelEn:"SLA Response Time", type:"text"},
     {key:"value", label:"قيمة العقد (د.إ)", labelEn:"Contract Value (AED)", type:"number"},
     {key:"payment", label:"شروط الدفع", labelEn:"Payment Terms", type:"text"},
@@ -3447,8 +3449,9 @@ function openForm(m, existing, viewMode){
         newRec.linkedVehicleId = null;
       }
     }
-    if(m.key==="amc" && newRec.lastVisit && Number(newRec.visits) > 0){
-      const intervalDays = Math.round(30 / Number(newRec.visits));
+    const AMC_FREQUENCY_DAYS = { "أسبوعيًا":7, "كل أسبوعين":14, "شهريًا":30, "كل شهرين":60, "كل 3 أشهر":90, "كل 6 أشهر":180, "سنويًا":365 };
+    if(m.key==="amc" && newRec.lastVisit && AMC_FREQUENCY_DAYS[newRec.visits]){
+      const intervalDays = AMC_FREQUENCY_DAYS[newRec.visits];
       const next = new Date(newRec.lastVisit);
       next.setDate(next.getDate() + intervalDays);
       newRec.nextVisit = next.toISOString().slice(0,10);
@@ -5849,8 +5852,19 @@ function platesMatch(plateA, plateB){
 }
 // Splits a branch field that may contain multiple branch names combined together
 // (e.g. "الفجيرة، عجمان، الشارقة") into an array of individual, trimmed branch names.
+// Detects which registered branches are mentioned inside a (possibly combined) branch field value,
+// regardless of what separator was used between them (comma, space, slash, "و", or any mix).
 function splitBranchNames(value){
-  return (value||"").split(/[،,\/]|\sو\s/).map(s=>s.trim()).filter(Boolean);
+  const text = (value||"").trim();
+  if(!text) return [];
+  const knownBranches = (typeof loadMasters==="function" ? (loadMasters().branches||[]) : []);
+  if(knownBranches.length){
+    const sorted = [...knownBranches].sort((a,b)=> b.length - a.length); // longer/more specific names first
+    const found = sorted.filter(b=> b.trim() && text.includes(b.trim()));
+    if(found.length) return found;
+  }
+  // Fallback (no registered branches matched): naive delimiter split
+  return text.split(/[،,\/\-]|\sو\s/).map(s=>s.trim()).filter(Boolean);
 }
 function performGlobalSearch(query){
   const q = normalizeSearchText(query.trim());
@@ -6102,7 +6116,7 @@ function renderAmcVisitsLogPage(){
                   r.daysLeft === 0 ? `<span class="badge badge-warning">${t('amcVisitsToday')}</span>` :
                   r.daysLeft <= 3 ? `<span class="badge badge-warning">${t('amcVisitsInDays', r.daysLeft)}</span>` :
                   `<span class="badge badge-muted">${t('amcVisitsInDays', r.daysLeft)}</span>`}</td>
-            <td>${r.visits ? t('amcVisitsPerMonth', r.visits) : "—"}</td>
+            <td>${r.visits ? optLabel(r.visits) : "—"}</td>
             <td><button class="btn btn-sm btn-outline" data-viewamc="${r.id}">${t('viewBtn')}</button></td>
           </tr>`).join("") : `<tr class="empty-row"><td colspan="6">${t('amcVisitsEmpty')}</td></tr>`}
         </tbody>
