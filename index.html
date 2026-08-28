@@ -2991,9 +2991,9 @@ function buildFleetLinkedHtml(rec){
   const plate = rec.plate.trim();
   const accidentsM = MODULES.find(x=>x.key==="accidents");
   const vehcheckM = MODULES.find(x=>x.key==="vehcheck");
-  const accidents = loadData("accidents").filter(a=>(a.plate||"").trim()===plate)
+  const accidents = loadData("accidents").filter(a=>platesMatch(a.plate, plate))
     .sort((a,b)=> new Date(b.date||0)-new Date(a.date||0));
-  const checks = loadData("vehcheck").filter(v=>(v.plate||"").trim()===plate)
+  const checks = loadData("vehcheck").filter(v=>platesMatch(v.plate, plate))
     .sort((a,b)=> new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
 
   const fl = (mod,key) => FL(mod.fields.find(f=>f.key===key));
@@ -3409,7 +3409,14 @@ function openForm(m, existing, viewMode){
         if(!confirm(t('syncConflictWarning'))) return;
       }
     }
-    m.fields.forEach(f=>{ if(f.master && newRec[f.key]) addMasterValue(f.master, newRec[f.key]); });
+    m.fields.forEach(f=>{
+      if(!f.master || !newRec[f.key]) return;
+      if(f.master === "branches"){
+        splitBranchNames(newRec[f.key]).forEach(b=> addMasterValue("branches", b));
+      } else {
+        addMasterValue(f.master, newRec[f.key]);
+      }
+    });
     if(m.key==="requests"){
       if(newRec.linkedAssetName){
         const explicitAsset = loadData("assets").find(a=> (a.name||"").trim() === newRec.linkedAssetName.trim());
@@ -5813,6 +5820,18 @@ function normalizeSearchText(text){
     .replace(/ة/g, "ه")                 // normalize ta marbuta / ha
     .replace(/ى/g, "ي");                // normalize alef maqsura / ya
 }
+function normalizePlate(plate){
+  return normalizeSearchText((plate||"").toString());
+}
+function platesMatch(plateA, plateB){
+  if(!plateA || !plateB) return false;
+  return normalizePlate(plateA) === normalizePlate(plateB);
+}
+// Splits a branch field that may contain multiple branch names combined together
+// (e.g. "الفجيرة، عجمان، الشارقة") into an array of individual, trimmed branch names.
+function splitBranchNames(value){
+  return (value||"").split(/[،,\/]|\sو\s/).map(s=>s.trim()).filter(Boolean);
+}
 function performGlobalSearch(query){
   const q = normalizeSearchText(query.trim());
   if(!q) return [];
@@ -5957,7 +5976,7 @@ function renderAssetMapPage(){
       score = computeHealthScore(Number(it.price)||0, totalRepairCost, linkedRequests.length, it.purchaseDate);
     } else {
       const plate = (it.plate||"").trim();
-      const accidents = loadData("accidents").filter(a=>(a.plate||"").trim()===plate);
+      const accidents = loadData("accidents").filter(a=>platesMatch(a.plate, plate));
       const totalAccidentCost = accidents.reduce((s,a)=> s + (Number(a.cost)||0), 0);
       score = computeHealthScore(Number(it.price)||0, totalAccidentCost, accidents.length, it.purchaseDate);
     }
@@ -6046,7 +6065,7 @@ function renderBranchComparePage(){
   let rows = branches.map(branch=>{
     let totalRequests = 0, totalCost = 0, criticalCount = 0, closedCount = 0, totalCount = 0;
     branchModules.forEach(m=>{
-      const data = loadData(m.key).filter(r=>(r[m.branchField]||"").trim()===branch.trim());
+      const data = loadData(m.key).filter(r=> splitBranchNames(r[m.branchField]).includes(branch.trim()));
       totalCount += data.length;
       if(m.key==="requests") totalRequests += data.length;
       if(m.costField) totalCost += data.reduce((s,r)=> s + (Number(r[m.costField])||0), 0);
