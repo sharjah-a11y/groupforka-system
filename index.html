@@ -400,6 +400,7 @@
   <div class="nav-item" data-view="reports"><span class="ic">📈</span><span id="navReportsLabel"></span></div>
   <div class="nav-item" data-view="calendar"><span class="ic">📅</span><span id="navCalendarLabel"></span></div>
   <div class="nav-item" data-view="branchCompare"><span class="ic">🏢</span><span id="navBranchCompareLabel"></span></div>
+  <div class="nav-item" data-view="amcVisitsLog"><span class="ic">🗓️</span><span id="navAmcVisitsLogLabel"></span></div>
   <div class="nav-item" data-view="assetMap"><span class="ic">🗺️</span><span id="navAssetMapLabel"></span></div>
   <div class="nav-item" data-view="trash"><span class="ic">🗑️</span><span id="navTrashLabel"></span></div>
   <div class="nav-item" data-view="globalSearch"><span class="ic">🔍</span><span id="navGlobalSearchLabel"></span></div>
@@ -514,6 +515,12 @@ const STR = {
     calendarToday:"اليوم",
     calendarExportIcs:"📥 تصدير للتقويم (.ics)", calendarNoEventsToExport:"لا توجد مواعيد لتصديرها حاليًا",
     navBranchCompare:"🏢 مقارنة الفروع",
+    navAmcVisitsLog:"🗓️ سجل زيارات العقود", amcVisitsLogTitle:"سجل الزيارات القادمة لعقود AMC", amcVisitsLogMeta:"كل الزيارات القادمة من جميع العقود مجمّعة في مكان واحد",
+    amcVisitsLogNote:"تاريخ الزيارة القادمة يُحسب تلقائيًا من تاريخ آخر زيارة وعدد الزيارات شهريًا — يمكنك تعديله يدويًا لو احتجت.",
+    amcVisitsCompany:"الشركة", amcVisitsBranches:"الفروع المشمولة", amcVisitsNextDate:"تاريخ الزيارة القادمة",
+    amcVisitsDaysLeft:"الوقت المتبقي", amcVisitsFrequency:"التكرار", amcVisitsPerMonth:(n)=>`${n} زيارة/شهر`,
+    amcVisitsOverdue:(n)=>`متأخرة ${n} يوم`, amcVisitsToday:"اليوم", amcVisitsInDays:(n)=>`خلال ${n} يوم`,
+    amcVisitsEmpty:"لا توجد زيارات قادمة مجدولة",
     navAssetMap:"🗺️ خريطة الأصول", assetMapTitle:"الخريطة التفاعلية للأصول", assetMapMeta:"عرض بصري لحالة كل أصل في مكانه",
     assetMapInstructions:"اسحب أي نقطة لوضعها في مكانها الصحيح على الخريطة، ودوس عليها لعرض تفاصيلها. اللون يعكس الحالة الصحية للأصل.",
     assetMapEmpty:"لا توجد أصول مسجّلة بعد لعرضها على الخريطة",
@@ -804,6 +811,12 @@ const STR = {
     calendarToday:"Today",
     calendarExportIcs:"📥 Export to Calendar (.ics)", calendarNoEventsToExport:"No upcoming dates to export right now",
     navBranchCompare:"🏢 Branch Comparison",
+    navAmcVisitsLog:"🗓️ Contract Visits Log", amcVisitsLogTitle:"Upcoming AMC Contract Visits", amcVisitsLogMeta:"All upcoming visits from every contract, gathered in one place",
+    amcVisitsLogNote:"The next visit date is auto-calculated from the last visit date and monthly visit frequency — you can edit it manually if needed.",
+    amcVisitsCompany:"Company", amcVisitsBranches:"Covered Branches", amcVisitsNextDate:"Next Visit Date",
+    amcVisitsDaysLeft:"Time Remaining", amcVisitsFrequency:"Frequency", amcVisitsPerMonth:(n)=>`${n} visit(s)/month`,
+    amcVisitsOverdue:(n)=>`${n} day(s) overdue`, amcVisitsToday:"Today", amcVisitsInDays:(n)=>`In ${n} day(s)`,
+    amcVisitsEmpty:"No upcoming visits scheduled",
     navAssetMap:"🗺️ Asset Map", assetMapTitle:"Interactive Asset Map", assetMapMeta:"Visual view of each asset's condition in its location",
     assetMapInstructions:"Drag any dot to place it in its correct spot on the map, and click it to view details. Color reflects the asset's health condition.",
     assetMapEmpty:"No assets registered yet to show on the map",
@@ -1046,6 +1059,7 @@ function applyStaticText(){
   document.getElementById("navReportsLabel").textContent = t("navReports");
   document.getElementById("navCalendarLabel").textContent = t("navCalendar");
   document.getElementById("navBranchCompareLabel").textContent = t("navBranchCompare");
+  document.getElementById("navAmcVisitsLogLabel").textContent = t("navAmcVisitsLog");
   document.getElementById("navAssetMapLabel").textContent = t("navAssetMap");
   document.getElementById("navTrashLabel").textContent = t("navTrash");
   document.getElementById("navGlobalSearchLabel").textContent = t("navGlobalSearch");
@@ -1214,7 +1228,7 @@ const MODULES = [
     {key:"endDate", label:"تاريخ النهاية", labelEn:"End Date", type:"date"},
     {key:"scope", label:"نطاق العمل", labelEn:"Scope of Work", type:"textarea"},
     {key:"branches", label:"الفروع / المواقع المشمولة", labelEn:"Covered Branches", type:"text"},
-    {key:"visits", label:"عدد الزيارات الدورية", labelEn:"No. of Periodic Visits", type:"text"},
+    {key:"visits", label:"عدد الزيارات شهريًا", labelEn:"Visits per Month", type:"number"},
     {key:"sla", label:"زمن الاستجابة SLA", labelEn:"SLA Response Time", type:"text"},
     {key:"value", label:"قيمة العقد (د.إ)", labelEn:"Contract Value (AED)", type:"number"},
     {key:"payment", label:"شروط الدفع", labelEn:"Payment Terms", type:"text"},
@@ -3432,6 +3446,12 @@ function openForm(m, existing, viewMode){
         newRec.linkedAssetId = null;
         newRec.linkedVehicleId = null;
       }
+    }
+    if(m.key==="amc" && newRec.lastVisit && Number(newRec.visits) > 0){
+      const intervalDays = Math.round(30 / Number(newRec.visits));
+      const next = new Date(newRec.lastVisit);
+      next.setDate(next.getDate() + intervalDays);
+      newRec.nextVisit = next.toISOString().slice(0,10);
     }
     if(m.key==="contractorEval" && m.weights){
       let total = 0;
@@ -6049,6 +6069,54 @@ function renderAssetMapPage(){
   });
 }
 
+function renderAmcVisitsLogPage(){
+  document.getElementById("topbarTitle").textContent = t('amcVisitsLogTitle');
+  document.getElementById("topbarMeta").textContent = t('amcVisitsLogMeta');
+  document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
+  bindLangSwitcher();
+
+  const contracts = loadData("amc").filter(c=> c.nextVisit && (c.status||"").trim()!=="منتهي");
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const rows = contracts.map(c=>{
+    const nextDate = new Date(c.nextVisit);
+    const daysLeft = Math.round((nextDate - today) / (24*60*60*1000));
+    return { ...c, daysLeft };
+  }).sort((a,b)=> new Date(a.nextVisit) - new Date(b.nextVisit));
+
+  document.getElementById("content").innerHTML = `
+    <div class="banner no-print" style="margin-bottom:14px;">${t('amcVisitsLogNote')}</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>${t('amcVisitsCompany')}</th><th>${t('amcVisitsBranches')}</th><th>${t('amcVisitsNextDate')}</th>
+          <th>${t('amcVisitsDaysLeft')}</th><th>${t('amcVisitsFrequency')}</th><th>${t('actions')}</th>
+        </tr></thead>
+        <tbody>
+        ${rows.length ? rows.map(r=>`
+          <tr>
+            <td><b>${escapeHtml(r.company||'')}</b></td>
+            <td>${escapeHtml(r.branches||'')}</td>
+            <td>${r.nextVisit}</td>
+            <td>${r.daysLeft < 0 ? `<span class="badge badge-danger">${t('amcVisitsOverdue', Math.abs(r.daysLeft))}</span>` :
+                  r.daysLeft === 0 ? `<span class="badge badge-warning">${t('amcVisitsToday')}</span>` :
+                  r.daysLeft <= 3 ? `<span class="badge badge-warning">${t('amcVisitsInDays', r.daysLeft)}</span>` :
+                  `<span class="badge badge-muted">${t('amcVisitsInDays', r.daysLeft)}</span>`}</td>
+            <td>${r.visits ? t('amcVisitsPerMonth', r.visits) : "—"}</td>
+            <td><button class="btn btn-sm btn-outline" data-viewamc="${r.id}">${t('viewBtn')}</button></td>
+          </tr>`).join("") : `<tr class="empty-row"><td colspan="6">${t('amcVisitsEmpty')}</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.querySelectorAll("[data-viewamc]").forEach(b=>{
+    b.onclick = ()=>{
+      const rec = loadData("amc").find(c=>c.id===b.dataset.viewamc);
+      const mod = MODULES.find(m=>m.key==="amc");
+      if(rec && mod) openForm(mod, rec, true);
+    };
+  });
+}
 function renderBranchComparePage(){
   document.getElementById("topbarTitle").textContent = t('branchCompareTitle');
   document.getElementById("topbarMeta").textContent = t('branchCompareMeta');
@@ -6274,6 +6342,7 @@ function render(){
   else if(state.view==="reports") renderReportsPage();
   else if(state.view==="calendar") renderCalendarPage();
   else if(state.view==="branchCompare") renderBranchComparePage();
+  else if(state.view==="amcVisitsLog") renderAmcVisitsLogPage();
   else if(state.view==="assetMap") renderAssetMapPage();
   else if(state.view==="trash") renderTrashPage();
   else if(state.view==="globalSearch") renderGlobalSearchPage();
