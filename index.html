@@ -1241,6 +1241,7 @@ const MODULES = [
     {key:"payment", label:"طريقة الدفع", labelEn:"Payment Method", type:"select", options:["دفعة واحدة","دفعات"]},
     {key:"installmentsCount", label:"عدد الدفعات", labelEn:"Number of Installments", type:"number", showIf:{field:"payment",value:"دفعات"}},
     {key:"installmentsPaid", label:"عدد الدفعات المدفوعة", labelEn:"Installments Paid", type:"number", showIf:{field:"payment",value:"دفعات"}},
+    {key:"installmentAmount", label:"قيمة الدفعة الواحدة (محسوبة تلقائيًا)", labelEn:"Amount per Installment (auto-calculated)", type:"number", showIf:{field:"payment",value:"دفعات"}, readOnlyComputed:true},
     {key:"lastVisit", label:"تاريخ آخر زيارة", labelEn:"Last Visit Date", type:"date"},
     {key:"nextVisit", label:"تاريخ الزيارة القادمة", labelEn:"Next Visit Date", type:"date"},
     {key:"contact", label:"مسؤول التواصل", labelEn:"Contact Person", type:"text"},
@@ -3257,6 +3258,9 @@ function openForm(m, existing, viewMode){
       return `<input type="text" data-field="${f.key}" value="${val}" list="dl_${f.datalistId}" autocomplete="off" ${dis} ${atr}>`;
     }
     const atr = (formViewOnly && isTranslatableField(f) && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
+    if(f.readOnlyComputed){
+      return `<input type="${f.type}" data-field="${f.key}" value="${val}" readonly style="background:#f3f4f7; color:var(--muted);" ${atr}>`;
+    }
     return `<input type="${f.type}" data-field="${f.key}" value="${val}" ${dis} ${atr}>`;
   }
 
@@ -3330,6 +3334,22 @@ function openForm(m, existing, viewMode){
   if(formViewOnly) autoTranslateDOM(document.getElementById("modalRoot"));
   if(document.getElementById("quotesWidget")) renderQuotesWidget();
   m.fields.filter(f=>f.type==="branchMultiSelect").forEach(f=> renderBranchMultiWidget(f.key, rec[f.key]||""));
+  if(m.key==="amc"){
+    const recalcInstallment = ()=>{
+      const valueInput = document.querySelector('[data-field="value"]');
+      const countInput = document.querySelector('[data-field="installmentsCount"]');
+      const amountInput = document.querySelector('[data-field="installmentAmount"]');
+      if(!valueInput || !countInput || !amountInput) return;
+      const totalValue = Number(valueInput.value) || 0;
+      const count = Number(countInput.value) || 0;
+      amountInput.value = count > 0 ? (Math.round((totalValue/count)*100)/100) : "";
+    };
+    const valueInput = document.querySelector('[data-field="value"]');
+    const countInput = document.querySelector('[data-field="installmentsCount"]');
+    if(valueInput) valueInput.addEventListener("input", recalcInstallment);
+    if(countInput) countInput.addEventListener("input", recalcInstallment);
+    recalcInstallment();
+  }
 
   const condBlocks = document.querySelectorAll("[data-condtrigger]");
   if(condBlocks.length){
@@ -3466,6 +3486,13 @@ function openForm(m, existing, viewMode){
       const next = new Date(newRec.lastVisit);
       next.setDate(next.getDate() + intervalDays);
       newRec.nextVisit = next.toISOString().slice(0,10);
+    }
+    if(m.key==="amc" && newRec.payment==="دفعات"){
+      const totalValue = Number(newRec.value) || 0;
+      const count = Number(newRec.installmentsCount) || 0;
+      newRec.installmentAmount = count > 0 ? Math.round((totalValue/count)*100)/100 : "";
+    } else if(m.key==="amc"){
+      newRec.installmentAmount = "";
     }
     if(m.key==="contractorEval" && m.weights){
       let total = 0;
