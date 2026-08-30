@@ -126,7 +126,7 @@
   tbody tr:nth-child(even){background:#FAFBFD;}
   tbody tr:hover{background:#F0F4FA;}
   tbody tr.clickable-row{cursor:pointer;}
-  td.desc-cell{min-width:320px; max-width:480px; text-align:start; white-space:normal;}
+  td.desc-cell, th.desc-cell{width:380px; min-width:320px; max-width:480px; text-align:start; white-space:normal;}
   .row-actions{display:flex; gap:5px; justify-content:center;}
   .empty-row td{padding:40px; color:var(--muted); font-size:14px;}
 
@@ -2792,7 +2792,11 @@ function renderModuleRecordsBody(m){
     <div class="table-wrap">
       <table>
         <thead><tr>
-          ${cols.map(c=>`<th class="sortable no-print-sort" data-sort="${c}">${colLabel(c)}${sortArrow(c)}</th>`).join("")}
+          ${cols.map(c=>{
+            const cf = m.fields.find(x=>x.key===c);
+            const wideClass = (cf && cf.type==="textarea") ? "desc-cell" : "";
+            return `<th class="sortable no-print-sort ${wideClass}" data-sort="${c}">${colLabel(c)}${sortArrow(c)}</th>`;
+          }).join("")}
           <th class="no-print">${t('actions')}</th>
         </tr></thead>
         <tbody>
