@@ -571,6 +571,7 @@ const STR = {
     bcBranch:"الفرع", bcTotalRequests:"إجمالي البلاغات", bcTotalCost:"إجمالي التكلفة (د.إ)", bcCritical:"بنود حرجة/متأخرة", bcClosureRate:"نسبة الإغلاق",
     bcCostRank:"الترتيب بالتكلفة", bcCostShare:"النسبة من إجمالي التكلفة", bcVsAverage:"مقارنة بمتوسط الفروع",
     bcCostIndicatorsNote:"الترتيب والنسب محسوبة بناءً على التكلفة الإجمالية لكل فرع مقارنة بباقي الفروع.",
+    bcChartTitle:"📊 مقارنة التكلفة الإجمالية بين الفروع", bcEquipmentCount:"عدد المعدات المسجّلة",
     pmAutoScheduledToast:"✅ تم إنشاء موعد الصيانة القادم تلقائيًا",
     backupTitle:"نسخ احتياطي واستيراد", backupMeta:"احفظ نسخة من بياناتك أو استرجعها",
     backupBanner:"📌 البيانات محفوظة داخل متصفحك فقط (localStorage). إذا مسحت بيانات المتصفح أو غيّرت الجهاز ستفقد البيانات ما لم تأخذ نسخة احتياطية.",
@@ -867,6 +868,7 @@ const STR = {
     bcBranch:"Branch", bcTotalRequests:"Total Requests", bcTotalCost:"Total Cost (AED)", bcCritical:"Critical/Overdue Items", bcClosureRate:"Closure Rate",
     bcCostRank:"Cost Rank", bcCostShare:"Share of Total Cost", bcVsAverage:"vs Branch Average",
     bcCostIndicatorsNote:"Rank and percentages are calculated based on each branch's total cost relative to the other branches.",
+    bcChartTitle:"📊 Total Cost Comparison Across Branches", bcEquipmentCount:"Registered Equipment Count",
     pmAutoScheduledToast:"✅ Next maintenance visit auto-scheduled",
     backupTitle:"Backup & Restore", backupMeta:"Save a copy of your data or restore it",
     backupBanner:"📌 Data is stored only in this browser (localStorage). If you clear browser data or switch devices, you'll lose it unless you've taken a backup.",
@@ -6185,26 +6187,45 @@ function renderBranchComparePage(){
       criticalCount += data.filter(r=> isOverdue(m,r) || (m.alertValues||[]).includes((r[m.statusField]||"").trim())).length;
       if(m.statusField) closedCount += data.filter(r=>["مغلق","منجز في موعده","تم التسليم","مكتمل"].includes((r[m.statusField]||"").trim())).length;
     });
+    const equipmentCount = loadData("assets").filter(a=> splitBranchNames(a.branch).includes(branch.trim())).length
+      + loadData("fleet").filter(v=> splitBranchNames(v.branch).includes(branch.trim())).length;
     const closureRate = totalCount ? Math.round((closedCount/totalCount)*100) : null;
-    return { branch, totalRequests, totalCost, criticalCount, closureRate };
+    return { branch, totalRequests, totalCost, criticalCount, closureRate, equipmentCount };
   }).sort((a,b)=> b.totalCost - a.totalCost);
 
   const grandTotalCost = rows.reduce((s,r)=> s + r.totalCost, 0);
   const avgCost = rows.length ? grandTotalCost / rows.length : 0;
+  const maxCost = rows.length ? Math.max(...rows.map(r=>r.totalCost), 1) : 1;
   rows.forEach((r,i)=>{
     r.costRank = i + 1;
     r.costShare = grandTotalCost ? Math.round((r.totalCost/grandTotalCost)*100) : 0;
     r.vsAverage = avgCost ? Math.round(((r.totalCost - avgCost)/avgCost)*100) : 0;
   });
 
+  const chartHtml = rows.length ? `
+    <div class="section-title">${t('bcChartTitle')}</div>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:22px;">
+      ${rows.map(r=>`
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="min-width:130px; font-size:12.5px; font-weight:700; text-align:end;">${escapeHtml(r.branch)}</div>
+          <div style="flex:1; background:#eef0f4; border-radius:6px; height:22px; overflow:hidden; position:relative;">
+            <div style="width:${Math.max(Math.round((r.totalCost/maxCost)*100),2)}%; background:var(--navy); height:100%; display:flex; align-items:center; padding-inline-start:8px;">
+              <span style="color:#fff; font-size:10.5px; font-weight:800; white-space:nowrap;">${fmtMoney(r.totalCost)}</span>
+            </div>
+          </div>
+        </div>`).join("")}
+    </div>
+  ` : "";
+
   document.getElementById("content").innerHTML = `
     <div class="banner no-print" style="margin-bottom:14px;">${t('bcCostIndicatorsNote')}</div>
+    ${chartHtml}
     <div class="table-wrap">
       <table>
         <thead><tr>
           <th>${t('bcBranch')}</th><th>${t('bcTotalRequests')}</th><th>${t('bcTotalCost')}</th>
           <th>${t('bcCostRank')}</th><th>${t('bcCostShare')}</th><th>${t('bcVsAverage')}</th>
-          <th>${t('bcCritical')}</th><th>${t('bcClosureRate')}</th>
+          <th>${t('bcCritical')}</th><th>${t('bcClosureRate')}</th><th>${t('bcEquipmentCount')}</th>
         </tr></thead>
         <tbody>
         ${rows.length ? rows.map(r=>`
@@ -6217,7 +6238,8 @@ function renderBranchComparePage(){
             <td><span class="badge ${r.vsAverage>0?'badge-danger':r.vsAverage<0?'badge-success':'badge-muted'}">${r.vsAverage>0?'+':''}${r.vsAverage}%</span></td>
             <td>${r.criticalCount>0? `<span class="badge badge-danger">${r.criticalCount}</span>` : "0"}</td>
             <td>${r.closureRate!==null? `<span class="badge ${r.closureRate>=80?'badge-success':r.closureRate>=50?'badge-warning':'badge-danger'}">${r.closureRate}%</span>` : "—"}</td>
-          </tr>`).join("") : `<tr class="empty-row"><td colspan="8">${t('mastersEmpty')}</td></tr>`}
+            <td><span class="badge badge-muted">${r.equipmentCount}</span></td>
+          </tr>`).join("") : `<tr class="empty-row"><td colspan="9">${t('mastersEmpty')}</td></tr>`}
         </tbody>
       </table>
     </div>
@@ -6225,7 +6247,7 @@ function renderBranchComparePage(){
 
   document.getElementById("btnExportBranchCompare").onclick = async ()=>{
     const workbook = new ExcelJS.Workbook();
-    const headers = [t('bcBranch'), t('bcTotalRequests'), t('bcTotalCost'), t('bcCostRank'), t('bcCostShare'), t('bcVsAverage'), t('bcCritical'), t('bcClosureRate')];
+    const headers = [t('bcBranch'), t('bcTotalRequests'), t('bcTotalCost'), t('bcCostRank'), t('bcCostShare'), t('bcVsAverage'), t('bcCritical'), t('bcClosureRate'), t('bcEquipmentCount')];
     const dataRows = rows.map(r=>({
       [headers[0]]: r.branch,
       [headers[1]]: r.totalRequests,
@@ -6235,6 +6257,7 @@ function renderBranchComparePage(){
       [headers[5]]: `${r.vsAverage>0?'+':''}${r.vsAverage}%`,
       [headers[6]]: r.criticalCount,
       [headers[7]]: r.closureRate!==null ? `${r.closureRate}%` : "—",
+      [headers[8]]: r.equipmentCount,
     }));
     addStyledSheet(workbook, t('branchCompareTitle'), headers, dataRows, {});
     const buf = await workbook.xlsx.writeBuffer();
