@@ -1154,10 +1154,10 @@ const MODULES = [
   fields:[
     {key:"reqNo", label:"رقم الطلب", labelEn:"Request No.", type:"text"},
     {key:"reportDate", label:"تاريخ ووقت البلاغ", labelEn:"Report Date/Time", type:"datetime-local"},
-    {key:"branch", label:"اسم المطعم / الفرع (يمكن اختيار أكثر من فرع)", labelEn:"Restaurant / Branch (multiple allowed)", type:"branchMultiSelect", required:true, full:true},
+    {key:"branch", label:"اسم المطعم / الفرع", labelEn:"Restaurant / Branch", type:"branchMultiSelect", required:true, full:true},
     {key:"reporter", label:"اسم المبلّغ", labelEn:"Reported By", type:"text"},
     {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text", datalistId:"assetNames"},
-    {key:"linkedAssetName", label:"🔗 الأصل/السيارة المرتبطة (اختياري، للربط المؤكد)", labelEn:"🔗 Linked Asset/Vehicle (optional, for a guaranteed link)", type:"select",
+    {key:"linkedAssetName", label:"🔗 الأصل/السيارة المرتبطة", labelEn:"🔗 Linked Asset/Vehicle", type:"select",
       options:()=> [
         ...new Set(loadData("assets").map(a=>a.name).filter(Boolean)),
         ...new Set(loadData("fleet").map(v=>v.carName).filter(Boolean)),
@@ -1241,7 +1241,7 @@ const MODULES = [
     {key:"payment", label:"طريقة الدفع", labelEn:"Payment Method", type:"select", options:["دفعة واحدة","دفعات"]},
     {key:"installmentsCount", label:"عدد الدفعات", labelEn:"Number of Installments", type:"number", showIf:{field:"payment",value:"دفعات"}},
     {key:"installmentsPaid", label:"عدد الدفعات المدفوعة", labelEn:"Installments Paid", type:"number", showIf:{field:"payment",value:"دفعات"}},
-    {key:"installmentAmount", label:"قيمة الدفعة الواحدة (محسوبة تلقائيًا)", labelEn:"Amount per Installment (auto-calculated)", type:"number", showIf:{field:"payment",value:"دفعات"}, readOnlyComputed:true},
+    {key:"installmentAmount", label:"قيمة الدفعة الواحدة", labelEn:"Amount per Installment", type:"number", showIf:{field:"payment",value:"دفعات"}, readOnlyComputed:true},
     {key:"lastVisit", label:"تاريخ آخر زيارة", labelEn:"Last Visit Date", type:"date"},
     {key:"nextVisit", label:"تاريخ الزيارة القادمة", labelEn:"Next Visit Date", type:"date"},
     {key:"contact", label:"مسؤول التواصل", labelEn:"Contact Person", type:"text"},
