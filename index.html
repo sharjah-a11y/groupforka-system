@@ -736,6 +736,7 @@ const STR = {
     tabRecords:"📋 السجلات", tabReport:"📊 تقرير القسم", tabByBranch:"🏢 حسب الفروع",
     assetsExportType:"النوع", assetsExportName:"الاسم", assetsExportDetails:"التفاصيل",
     assetsExportTypeAsset:"🏷️ أصل", assetsExportTypeVehicle:"🚙 سيارة",
+    assetsMaintCount:"عدد البلاغات", assetsMaintCost:"تكلفة الصيانة (د.إ)", assetsMaintLast:"آخر صيانة",
     assetsNoBranch:"بدون فرع محدد", assetsBranchCount:(n)=>`${n} عنصر`, assetsNoDataForBranches:"لا توجد أصول أو سيارات مسجّلة بعد",
     mrPeriod:"الفترة", mrToday:"اليوم", mrWeek:"آخر 7 أيام", mrMonth:"آخر 30 يوم", mrCustom:"مخصص",
     dateRangeAll:"كل التواريخ",
@@ -1041,6 +1042,7 @@ const STR = {
     tabRecords:"📋 Records", tabReport:"📊 Section Report", tabByBranch:"🏢 By Branch",
     assetsExportType:"Type", assetsExportName:"Name", assetsExportDetails:"Details",
     assetsExportTypeAsset:"🏷️ Asset", assetsExportTypeVehicle:"🚙 Vehicle",
+    assetsMaintCount:"Request Count", assetsMaintCost:"Maintenance Cost (AED)", assetsMaintLast:"Last Maintenance",
     assetsNoBranch:"No Branch Assigned", assetsBranchCount:(n)=>`${n} items`, assetsNoDataForBranches:"No assets or vehicles registered yet",
     mrPeriod:"Period", mrToday:"Today", mrWeek:"Last 7 Days", mrMonth:"Last 30 Days", mrCustom:"Custom",
     dateRangeAll:"All Dates",
@@ -2650,15 +2652,17 @@ async function exportAssetsByBranchExcel(){
   assets.forEach(a=>{
     const matched = splitBranchNames(a.branch).find(b=> groups[b]);
     const key = matched || noBranchLabel;
-    groups[key].push({ type:t('assetsExportTypeAsset'), name:a.name||"", details:a.category||"", status:a.condition||"" });
+    const maint = computeMaintenanceStats(a.id, false);
+    groups[key].push({ type:t('assetsExportTypeAsset'), name:a.name||"", details:a.category||"", status:a.condition||"", maint });
   });
   vehicles.forEach(v=>{
     const matched = splitBranchNames(v.branch).find(b=> groups[b]);
     const key = matched || noBranchLabel;
-    groups[key].push({ type:t('assetsExportTypeVehicle'), name:v.carName||"", details:v.plate||"", status:v.status||"" });
+    const maint = computeMaintenanceStats(v.id, true);
+    groups[key].push({ type:t('assetsExportTypeVehicle'), name:v.carName||"", details:v.plate||"", status:v.status||"", maint });
   });
 
-  const headers = [t('bcBranch'), t('assetsExportType'), t('assetsExportName'), t('assetsExportDetails'), t('thStatus')];
+  const headers = [t('bcBranch'), t('assetsExportType'), t('assetsExportName'), t('assetsExportDetails'), t('thStatus'), t('assetsMaintCount'), t('assetsMaintCost'), t('assetsMaintLast')];
   const rows = [];
   [...branches, noBranchLabel].forEach(branch=>{
     groups[branch].forEach(item=>{
@@ -2668,6 +2672,9 @@ async function exportAssetsByBranchExcel(){
         [headers[2]]: item.name,
         [headers[3]]: item.details,
         [headers[4]]: item.status,
+        [headers[5]]: item.maint.count,
+        [headers[6]]: item.maint.totalCost,
+        [headers[7]]: item.maint.lastDate || "",
       });
     });
   });
@@ -2680,6 +2687,14 @@ async function exportAssetsByBranchExcel(){
   a.href = URL.createObjectURL(blob);
   a.download = `${t('tabByBranch')}_${todayStr()}.xlsx`;
   a.click();
+}
+function computeMaintenanceStats(itemId, isVehicle){
+  const linked = loadData("requests").filter(r=> isVehicle ? r.linkedVehicleId===itemId : r.linkedAssetId===itemId);
+  const count = linked.length;
+  const totalCost = linked.reduce((s,r)=> s + (Number(r.cost)||0), 0);
+  const dates = linked.map(r=>r.reportDate).filter(Boolean).sort();
+  const lastDate = dates.length ? dates[dates.length-1].slice(0,10) : "";
+  return { count, totalCost, lastDate };
 }
 function renderAssetsByBranchView(){
   const assetsM = MODULES.find(m=>m.key==="assets");
@@ -2712,8 +2727,8 @@ function renderAssetsByBranchView(){
     const g = groups[branch];
     const total = g.assets.length + g.vehicles.length;
     const rows = [
-      ...g.assets.map(a=>({icon:"🏷️", name:a.name, sub:a.category||"", moduleKey:"assets", id:a.id, condition:a.condition||""})),
-      ...g.vehicles.map(v=>({icon:"🚙", name:v.carName, sub:v.plate||"", moduleKey:"fleet", id:v.id, condition:v.status||""})),
+      ...g.assets.map(a=>({icon:"🏷️", name:a.name, sub:a.category||"", moduleKey:"assets", id:a.id, condition:a.condition||"", maint:computeMaintenanceStats(a.id, false)})),
+      ...g.vehicles.map(v=>({icon:"🚙", name:v.carName, sub:v.plate||"", moduleKey:"fleet", id:v.id, condition:v.status||"", maint:computeMaintenanceStats(v.id, true)})),
     ];
     return `
       <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
@@ -2722,7 +2737,7 @@ function renderAssetsByBranchView(){
       </div>
       <div class="table-wrap" style="margin-bottom:18px;">
         <table>
-          <thead><tr><th></th><th>${LANG==='ar'?'الاسم':'Name'}</th><th>${LANG==='ar'?'التفاصيل':'Details'}</th><th>${t('thStatus')}</th><th>${t('actions')}</th></tr></thead>
+          <thead><tr><th></th><th>${LANG==='ar'?'الاسم':'Name'}</th><th>${LANG==='ar'?'التفاصيل':'Details'}</th><th>${t('thStatus')}</th><th>${t('assetsMaintCount')}</th><th>${t('assetsMaintCost')}</th><th>${t('assetsMaintLast')}</th><th>${t('actions')}</th></tr></thead>
           <tbody>
             ${rows.map(r=>`
               <tr>
@@ -2730,6 +2745,9 @@ function renderAssetsByBranchView(){
                 <td><b>${escapeHtml(r.name||'')}</b></td>
                 <td>${escapeHtml(r.sub||'')}</td>
                 <td>${badge(r.condition)}</td>
+                <td>${r.maint.count>0 ? `<span class="badge ${r.maint.count>=3?'badge-danger':'badge-muted'}">${r.maint.count}</span>` : "0"}</td>
+                <td>${r.maint.totalCost>0 ? fmtMoney(r.maint.totalCost) : "—"}</td>
+                <td>${r.maint.lastDate || "—"}</td>
                 <td><button class="btn btn-sm btn-outline" data-branchview="${r.moduleKey}::${r.id}">${t('viewBtn')}</button></td>
               </tr>`).join("")}
           </tbody>
