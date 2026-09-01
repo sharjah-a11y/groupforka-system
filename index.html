@@ -535,6 +535,12 @@ const STR = {
     renumberModuleLabel:"اختر القسم", renumberBtn:"إعادة الترقيم الآن",
     renumberConfirm:"هيتم تغيير أرقام كل السجلات النشطة في هذا القسم لترتيب صحيح تسلسلي. هل تريد المتابعة؟",
     renumberDoneToast:(n)=>`✅ تم إعادة ترقيم ${n} سجل بنجاح`,
+    bulkAssetImportTitle:"📋 استيراد أصول جماعي", bulkAssetImportSub:"أضف عدد كبير من الأصول دفعة واحدة (مفيد بعد جرد المعدات)",
+    bulkAssetImportBtn:"فتح أداة الاستيراد", bulkAssetImportModalSub:"راجع وعدّل البيانات قبل الاستيراد النهائي — الأعمدة الفاضية اكتب فيها التفاصيل وأنت شايف الورقة الأصلية.",
+    bulkAssetImportBranch:"الفرع (يُطبّق على كل الصفوف)", bulkAssetImportCode:"الكود", bulkAssetImportName:"اسم المعدة",
+    bulkAssetImportBrand:"الموديل/الطراز", bulkAssetImportSection:"القسم", bulkAssetImportNamePlaceholder:"اكتب اسم المعدة هنا",
+    bulkAssetImportAddRow:"➕ إضافة صف", bulkAssetImportConfirmBtn:"استيراد الكل الآن", bulkAssetImportNothing:"مفيش صفوف فيها بيانات",
+    bulkAssetImportDoneToast:(n)=>`✅ تم استيراد ${n} أصل بنجاح`,
     bulkCheckBtn:"📋 فحص يومي شامل", bulkCheckTitle:"الفحص اليومي الشامل لكل السيارات", bulkCheckSub:"عبّي الأعمدة اللي تحتاجها لكل سيارة، والسيارات اللي متلمسهاش مش هتتحفظ.",
     bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
     bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
@@ -832,6 +838,12 @@ const STR = {
     renumberModuleLabel:"Choose Module", renumberBtn:"Renumber Now",
     renumberConfirm:"This will change the numbers of all active records in this module to a correct sequential order. Continue?",
     renumberDoneToast:(n)=>`✅ Successfully renumbered ${n} records`,
+    bulkAssetImportTitle:"📋 Bulk Asset Import", bulkAssetImportSub:"Add a large number of assets at once (useful after an equipment audit)",
+    bulkAssetImportBtn:"Open Import Tool", bulkAssetImportModalSub:"Review and edit the data before final import — fill in blank cells while looking at the original sheet.",
+    bulkAssetImportBranch:"Branch (applies to all rows)", bulkAssetImportCode:"Code", bulkAssetImportName:"Equipment Name",
+    bulkAssetImportBrand:"Model/Brand", bulkAssetImportSection:"Section", bulkAssetImportNamePlaceholder:"Type the equipment name here",
+    bulkAssetImportAddRow:"➕ Add Row", bulkAssetImportConfirmBtn:"Import All Now", bulkAssetImportNothing:"No rows have data",
+    bulkAssetImportDoneToast:(n)=>`✅ Successfully imported ${n} assets`,
     bulkCheckBtn:"📋 Bulk Daily Check", bulkCheckTitle:"Bulk Daily Check for All Vehicles", bulkCheckSub:"Fill in the columns you need for each vehicle — vehicles you don't touch won't be saved.",
     bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
     bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
@@ -6320,6 +6332,145 @@ function fireWebhook(eventType, data){
     body: JSON.stringify({ source:"GROUP_FORKA", event: eventType, timestamp: new Date().toISOString(), data })
   }).catch(err=>{ console.error("Webhook delivery failed:", err); throw err; });
 }
+/* ---------------- BULK ASSET IMPORT ---------------- */
+const BULK_ASSET_IMPORT_DRAFT = [
+  {code:"GR101", name:"تلاجة شيلر الجبل 3 باب", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR102", name:"جبل مشاوي", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR103", name:"مفرمة لحوم", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR104", name:"فلاية مرشة موازين", category:"china", location:"الشوايات (GR)"},
+  {code:"GR105", name:"طاولة ستانلس عمل الفرشة مع أدراج", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR106", name:"طاولة ستانلس تبريد الجبل", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR107", name:"طاولة ستانلس تقطير الجبل", category:"handmade", location:"الشوايات (GR)"},
+  {code:"GR108", name:"مقصلة الجبل", category:"handmade", location:"الشوايات (GR)"},
+  {code:"DA101", name:"", category:"Sharp", location:"قسم DA"},
+  {code:"DA102", name:"", category:"handmade", location:"قسم DA"},
+  {code:"DA103", name:"طاولة ستانلس تبريد", category:"handmade", location:"قسم DA"},
+  {code:"DA104", name:"", category:"handmade", location:"قسم DA"},
+  {code:"DA105", name:"طاولة ستانلس تبريد", category:"handmade", location:"قسم DA"},
+  {code:"DA106", name:"", category:"handmade", location:"قسم DA"},
+  {code:"MK101", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK102", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK103", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK104", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK105", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK106", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK107", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK108", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK109", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK1011", name:"", category:"handmade", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK1012", name:"(Rated RPM 28000)", category:"", location:"المطبخ الرئيسي (MK)"},
+  {code:"MK1013", name:"كماشة مسكات القدور", category:"china", location:"المطبخ الرئيسي (MK)"},
+  {code:"SS101", name:"", category:"", location:"قسم SS"},
+  {code:"SS102", name:"", category:"", location:"قسم SS"},
+  {code:"SS103", name:"", category:"", location:"قسم SS"},
+  {code:"SS104", name:"", category:"", location:"قسم SS"},
+  {code:"SS105", name:"", category:"", location:"قسم SS"},
+  {code:"SS106", name:"", category:"", location:"قسم SS"},
+  {code:"SS107", name:"", category:"", location:"قسم SS"},
+  {code:"SS108", name:"", category:"", location:"قسم SS"},
+  {code:"DB101", name:"", category:"china", location:"قسم DB"},
+  {code:"DB102", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB103", name:"", category:"SAMSUNG", location:"قسم DB"},
+  {code:"DB104", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB105", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB106", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB107", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB108", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB109", name:"", category:"handmade", location:"قسم DB"},
+  {code:"DB1010", name:"", category:"SUPER GENERAL", location:"قسم DB"},
+  {code:"DB1011", name:"", category:"handmade", location:"قسم DB"},
+];
+function openBulkAssetImportModal(){
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay" id="bulkImportOverlay">
+      <div class="modal" style="max-width:96vw; width:1100px;">
+        <h2>${t('bulkAssetImportTitle')}</h2>
+        <div class="modal-sub">${t('bulkAssetImportModalSub')}</div>
+        <div class="field" style="max-width:260px; margin-bottom:14px;">
+          <label>${t('bulkAssetImportBranch')}</label>
+          <select id="bulkImportBranch">
+            <option value="">${t('driverChooseOption')}</option>
+            ${(loadMasters().branches||[]).map(b=>`<option value="${b}">${escapeHtml(b)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="table-wrap" style="max-height:55vh; overflow-y:auto;">
+          <table>
+            <thead><tr>
+              <th style="width:90px;">${t('bulkAssetImportCode')}</th>
+              <th>${t('bulkAssetImportName')}</th>
+              <th style="width:130px;">${t('bulkAssetImportBrand')}</th>
+              <th style="width:150px;">${t('bulkAssetImportSection')}</th>
+              <th style="width:40px;"></th>
+            </tr></thead>
+            <tbody id="bulkImportRows">
+              ${BULK_ASSET_IMPORT_DRAFT.map((it,i)=>`
+                <tr data-bulkimportrow="${i}">
+                  <td><input type="text" data-bi="code" value="${escapeAttr(it.code)}" style="width:85px;"></td>
+                  <td><input type="text" data-bi="name" value="${escapeAttr(it.name)}" style="width:100%;" placeholder="${t('bulkAssetImportNamePlaceholder')}"></td>
+                  <td><input type="text" data-bi="category" value="${escapeAttr(it.category)}" style="width:120px;"></td>
+                  <td><input type="text" data-bi="location" value="${escapeAttr(it.location)}" style="width:140px;"></td>
+                  <td><button class="rm" data-rmbulkrow="${i}">✕</button></td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+        <button type="button" id="btnAddBulkImportRow" style="margin-top:10px;" class="btn btn-outline btn-sm">${t('bulkAssetImportAddRow')}</button>
+        <div class="modal-actions">
+          <button class="btn btn-outline" id="btnBulkImportCancel">${t('cancel')}</button>
+          <button class="btn btn-primary" id="btnBulkImportConfirm">${t('bulkAssetImportConfirmBtn')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnBulkImportCancel").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("bulkImportOverlay").onclick = (e)=>{ if(e.target.id==="bulkImportOverlay") root.innerHTML = ""; };
+  document.getElementById("btnAddBulkImportRow").onclick = ()=>{
+    const tbody = document.getElementById("bulkImportRows");
+    const idx = tbody.children.length;
+    const tr = document.createElement("tr");
+    tr.dataset.bulkimportrow = idx;
+    tr.innerHTML = `
+      <td><input type="text" data-bi="code" style="width:85px;"></td>
+      <td><input type="text" data-bi="name" style="width:100%;"></td>
+      <td><input type="text" data-bi="category" style="width:120px;"></td>
+      <td><input type="text" data-bi="location" style="width:140px;"></td>
+      <td><button class="rm" data-rmbulkrow="${idx}">✕</button></td>`;
+    tbody.appendChild(tr);
+    tr.querySelector("[data-rmbulkrow]").onclick = ()=> tr.remove();
+  };
+  document.querySelectorAll("[data-rmbulkrow]").forEach(b=>{
+    b.onclick = ()=> b.closest("tr").remove();
+  });
+  document.getElementById("btnBulkImportConfirm").onclick = ()=>{
+    const branch = document.getElementById("bulkImportBranch").value;
+    const rows = Array.from(document.querySelectorAll("#bulkImportRows tr"));
+    const arr = loadDataRaw("assets");
+    let count = 0;
+    rows.forEach(row=>{
+      const code = row.querySelector('[data-bi="code"]').value.trim();
+      const name = row.querySelector('[data-bi="name"]').value.trim();
+      if(!code && !name) return;
+      const rec = {
+        id: uid(),
+        code,
+        name: name || code,
+        category: row.querySelector('[data-bi="category"]').value.trim(),
+        location: row.querySelector('[data-bi="location"]').value.trim(),
+        branch,
+        _updatedAt: Date.now(),
+      };
+      arr.push(rec);
+      cloudPushRecord("assets", rec);
+      count++;
+    });
+    if(count===0){ alert(t('bulkAssetImportNothing')); return; }
+    saveData("assets", arr);
+    root.innerHTML = "";
+    showToast(t('bulkAssetImportDoneToast', count));
+    render();
+  };
+}
 function renderSettingsPage(){
   document.getElementById("topbarTitle").textContent = t('settingsTitle');
   document.getElementById("topbarMeta").textContent = t('settingsMeta');
@@ -6378,6 +6529,11 @@ function renderSettingsPage(){
         </div>
         <button class="btn btn-danger btn-sm" id="btnRenumberFix">${t('renumberBtn')}</button>
       </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px;">${t('bulkAssetImportTitle')}</div>
+        <div class="sub" style="margin-bottom:16px;">${t('bulkAssetImportSub')}</div>
+        <button class="btn btn-primary btn-sm" id="btnOpenBulkAssetImport">${t('bulkAssetImportBtn')}</button>
+      </div>
     </div>
   `;
   if(document.getElementById("btnLockNow")) document.getElementById("btnLockNow").onclick = lockNow;
@@ -6431,6 +6587,7 @@ function renderSettingsPage(){
     const count = renumberAllRecords(mk);
     showToast(t('renumberDoneToast', count));
   };
+  document.getElementById("btnOpenBulkAssetImport").onclick = openBulkAssetImportModal;
 }
 
 /* ---------------- HELP ---------------- */
