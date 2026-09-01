@@ -19,7 +19,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js'; document.head.appendChild(s);"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -2647,13 +2647,13 @@ function renderAssetsByBranchView(){
   groups[noBranchLabel] = { assets:[], vehicles:[] };
 
   assets.forEach(a=>{
-    const b = (a.branch||"").trim();
-    const key = (b && groups[b]) ? b : noBranchLabel;
+    const matched = splitBranchNames(a.branch).find(b=> groups[b]);
+    const key = matched || noBranchLabel;
     groups[key].assets.push(a);
   });
   vehicles.forEach(v=>{
-    const b = (v.branch||"").trim();
-    const key = (b && groups[b]) ? b : noBranchLabel;
+    const matched = splitBranchNames(v.branch).find(b=> groups[b]);
+    const key = matched || noBranchLabel;
     groups[key].vehicles.push(v);
   });
 
@@ -3732,8 +3732,13 @@ function closeLightbox(){
 
 /* ---------------- QR CODE: generate + scan ---------------- */
 function qrCodeValueFor(m, rec){ return `FORKA::${m.key}::${rec.id}`; }
-function openQrGenerateModal(m, rec){
-  if(!window.QRCode){ alert(t('qrCameraError')); return; }
+function openQrGenerateModal(m, rec, retriesLeft){
+  if(retriesLeft === undefined) retriesLeft = 6;
+  if(!window.QRCode){
+    if(retriesLeft > 0){ setTimeout(()=> openQrGenerateModal(m, rec, retriesLeft-1), 400); return; }
+    alert(t('qrCameraError'));
+    return;
+  }
   const root = document.getElementById("qrRoot");
   const title = rec.name || rec.carName || rec.code || ML(m,"singular");
   root.innerHTML = `
