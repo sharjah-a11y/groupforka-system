@@ -734,6 +734,8 @@ const STR = {
     noFleetAlerts:"لا توجد سيارات قريبة من انتهاء التأمين أو الترخيص حاليًا 👍",
     viewBtn:"👁️ عرض", viewTitle:"عرض ", closeBtn:"إغلاق", photosNone:"لا توجد صور مرفقة",
     tabRecords:"📋 السجلات", tabReport:"📊 تقرير القسم", tabByBranch:"🏢 حسب الفروع",
+    assetsExportType:"النوع", assetsExportName:"الاسم", assetsExportDetails:"التفاصيل",
+    assetsExportTypeAsset:"🏷️ أصل", assetsExportTypeVehicle:"🚙 سيارة",
     assetsNoBranch:"بدون فرع محدد", assetsBranchCount:(n)=>`${n} عنصر`, assetsNoDataForBranches:"لا توجد أصول أو سيارات مسجّلة بعد",
     mrPeriod:"الفترة", mrToday:"اليوم", mrWeek:"آخر 7 أيام", mrMonth:"آخر 30 يوم", mrCustom:"مخصص",
     dateRangeAll:"كل التواريخ",
@@ -1037,6 +1039,8 @@ const STR = {
     noFleetAlerts:"No vehicles nearing insurance or license expiry right now 👍",
     viewBtn:"👁️ View", viewTitle:"View ", closeBtn:"Close", photosNone:"No photos attached",
     tabRecords:"📋 Records", tabReport:"📊 Section Report", tabByBranch:"🏢 By Branch",
+    assetsExportType:"Type", assetsExportName:"Name", assetsExportDetails:"Details",
+    assetsExportTypeAsset:"🏷️ Asset", assetsExportTypeVehicle:"🚙 Vehicle",
     assetsNoBranch:"No Branch Assigned", assetsBranchCount:(n)=>`${n} items`, assetsNoDataForBranches:"No assets or vehicles registered yet",
     mrPeriod:"Period", mrToday:"Today", mrWeek:"Last 7 Days", mrMonth:"Last 30 Days", mrCustom:"Custom",
     dateRangeAll:"All Dates",
@@ -2632,6 +2636,51 @@ function getFilteredData(m){
   return data;
 }
 
+async function exportAssetsByBranchExcel(){
+  const masters = loadMasters();
+  const branches = masters.branches || [];
+  const assets = loadData("assets");
+  const vehicles = loadData("fleet");
+  const noBranchLabel = t('assetsNoBranch');
+
+  const groups = {};
+  branches.forEach(b=> groups[b] = []);
+  groups[noBranchLabel] = [];
+
+  assets.forEach(a=>{
+    const matched = splitBranchNames(a.branch).find(b=> groups[b]);
+    const key = matched || noBranchLabel;
+    groups[key].push({ type:t('assetsExportTypeAsset'), name:a.name||"", details:a.category||"", status:a.condition||"" });
+  });
+  vehicles.forEach(v=>{
+    const matched = splitBranchNames(v.branch).find(b=> groups[b]);
+    const key = matched || noBranchLabel;
+    groups[key].push({ type:t('assetsExportTypeVehicle'), name:v.carName||"", details:v.plate||"", status:v.status||"" });
+  });
+
+  const headers = [t('bcBranch'), t('assetsExportType'), t('assetsExportName'), t('assetsExportDetails'), t('thStatus')];
+  const rows = [];
+  [...branches, noBranchLabel].forEach(branch=>{
+    groups[branch].forEach(item=>{
+      rows.push({
+        [headers[0]]: branch,
+        [headers[1]]: item.type,
+        [headers[2]]: item.name,
+        [headers[3]]: item.details,
+        [headers[4]]: item.status,
+      });
+    });
+  });
+
+  const workbook = new ExcelJS.Workbook();
+  addStyledSheet(workbook, t('tabByBranch'), headers, rows, {});
+  const buf = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${t('tabByBranch')}_${todayStr()}.xlsx`;
+  a.click();
+}
 function renderAssetsByBranchView(){
   const assetsM = MODULES.find(m=>m.key==="assets");
   const fleetM = MODULES.find(m=>m.key==="fleet");
@@ -2710,8 +2759,9 @@ function renderModule(mKey){
     ${m.qrEnabled ? `<button class="btn btn-outline" id="btnQrScan">${t("qrScan")}</button>` : ""}
     ${m.bulkCheckEnabled ? `<button class="btn btn-gold" id="btnBulkCheck">${t("bulkCheckBtn")}</button>` : ""}
     <button class="btn btn-outline" id="btnPrint">${t("print")}</button>
+    ${ms.activeTab==="byBranch" ? `<button class="btn btn-outline" id="btnExportByBranch">${t("exportExcel")}</button>` : `
     <button class="btn btn-outline" id="btnExportPdf">${t("exportPDF")}</button>
-    <button class="btn btn-outline" id="btnExport">${t("exportExcel")}</button>
+    <button class="btn btn-outline" id="btnExport">${t("exportExcel")}</button>`}
     <button class="btn btn-primary" id="btnAdd">${t("add")}${ML(m,"singular")}</button>
     ${langSwitcherHtml()}
   `;
@@ -2728,6 +2778,8 @@ function renderModule(mKey){
   if(btnExportPdfTop) btnExportPdfTop.onclick = ()=> exportModulePDF(m);
   const btnExportTop = document.getElementById("btnExport");
   if(btnExportTop) btnExportTop.onclick = ()=> exportModuleExcel(m);
+  const btnExportByBranchTop = document.getElementById("btnExportByBranch");
+  if(btnExportByBranchTop) btnExportByBranchTop.onclick = exportAssetsByBranchExcel;
 
   const tabsHtml = `
     <div class="toolbar no-print" style="margin-bottom:10px; gap:6px;">
