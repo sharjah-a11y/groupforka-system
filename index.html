@@ -1745,6 +1745,7 @@ function renderLockScreen(){
       applyStaticText(); render();
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
+      navigateToQrDeepLinkIfPresent();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -3801,7 +3802,9 @@ function closeLightbox(){
 }
 
 /* ---------------- QR CODE: generate + scan ---------------- */
-function qrCodeValueFor(m, rec){ return `FORKA::${m.key}::${rec.id}`; }
+function qrCodeValueFor(m, rec){
+  return `${location.origin}${location.pathname}#qr-${m.key}-${rec.id}`;
+}
 function openQrGenerateModal(m, rec, retriesLeft){
   if(retriesLeft === undefined) retriesLeft = 6;
   if(!window.QRCode){
@@ -3968,19 +3971,36 @@ function closeQrScan(){
 }
 function handleQrScanResult(data){
   closeQrScan();
-  const parts = (data||"").split("::");
-  if(parts.length===3 && parts[0]==="FORKA"){
-    const [, moduleKey, recId] = parts;
-    const mod = MODULES.find(x=>x.key===moduleKey);
-    const rec = mod ? loadData(moduleKey).find(r=>r.id===recId) : null;
+  const parsed = parseQrScanData(data);
+  if(parsed){
+    const mod = MODULES.find(x=>x.key===parsed.moduleKey);
+    const rec = mod ? loadData(parsed.moduleKey).find(r=>r.id===parsed.recId) : null;
     if(mod && rec){
-      state.view = moduleKey;
+      state.view = parsed.moduleKey;
       render();
       setTimeout(()=> openForm(mod, rec, true), 50);
       return;
     }
   }
   alert(t('qrNotFound'));
+}
+function parseQrScanData(data){
+  data = (data||"").trim();
+  // New format: a full URL ending in #qr-<moduleKey>-<recId>
+  const hashIdx = data.indexOf("#qr-");
+  if(hashIdx >= 0){
+    const rest = data.slice(hashIdx + 4); // after "#qr-"
+    const firstDash = rest.indexOf("-");
+    if(firstDash > 0){
+      return { moduleKey: rest.slice(0, firstDash), recId: rest.slice(firstDash+1) };
+    }
+  }
+  // Old format (backward compatibility with previously printed codes): FORKA::module::id
+  const parts = data.split("::");
+  if(parts.length===3 && parts[0]==="FORKA"){
+    return { moduleKey: parts[1], recId: parts[2] };
+  }
+  return null;
 }
 
 function isPdfAttachment(p){ return p && ((p.dataUrl||"").startsWith("data:application/pdf") || /\.pdf$/i.test(p.name||"")); }
@@ -6800,6 +6820,20 @@ purgeExpiredTrash();
 applyStaticText();
 setupServiceWorker();
 initEmailJsIfConfigured();
+function navigateToQrDeepLinkIfPresent(){
+  const parsed = parseQrScanData(location.hash);
+  if(!parsed) return;
+  const mod = MODULES.find(x=>x.key===parsed.moduleKey);
+  const rec = mod ? loadData(parsed.moduleKey).find(r=>r.id===parsed.recId) : null;
+  history.replaceState(null, "", location.pathname); // clear the hash so refresh doesn't repeat
+  if(mod && rec){
+    state.view = parsed.moduleKey;
+    render();
+    setTimeout(()=> openForm(mod, rec, true), 50);
+  } else {
+    alert(t('qrNotFound'));
+  }
+}
 updateCloudStatusBadge();
 initCloud();
 if(location.hash === "#public"){
@@ -6808,7 +6842,7 @@ if(location.hash === "#public"){
   renderDriverModePage();
 } else if(location.hash === "#inspect"){
   renderBranchInspectPage();
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); }
 </script>
 </body>
 </html>
