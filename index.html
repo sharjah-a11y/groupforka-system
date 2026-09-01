@@ -5042,6 +5042,8 @@ function attachCloudListeners(){
       snap.forEach(doc=> arr.push(doc.data()));
       localStorage.setItem("forka_"+m.key, JSON.stringify(arr));
       setLastSyncNow();
+      if(isDriverMode || isBranchInspectMode || isPublicMode) return; // standalone pages manage their own rendering
+      if(isAssetViewMode){ if(m.key==="assets" || m.key==="fleet" || m.key==="requests") renderAssetViewPage(); return; }
       if(state.view===m.key) renderModule(m.key);
       if(state.view==="dashboard") renderDashboard();
       renderNav();
