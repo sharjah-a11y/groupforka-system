@@ -737,6 +737,8 @@ const STR = {
     assetsExportType:"النوع", assetsExportName:"الاسم", assetsExportDetails:"التفاصيل",
     assetsExportTypeAsset:"🏷️ أصل", assetsExportTypeVehicle:"🚙 سيارة",
     assetsMaintCount:"عدد البلاغات", assetsMaintCost:"تكلفة الصيانة (د.إ)", assetsMaintLast:"آخر صيانة",
+    assetViewPlate:"رقم اللوحة", assetViewBranch:"الفرع", assetViewCondition:"الحالة", assetViewModel:"الموديل",
+    assetViewCode:"الكود", assetViewCategory:"الفئة", assetViewLocation:"الموقع", assetViewMaintTitle:"📋 سجل الصيانة",
     assetsNoBranch:"بدون فرع محدد", assetsBranchCount:(n)=>`${n} عنصر`, assetsNoDataForBranches:"لا توجد أصول أو سيارات مسجّلة بعد",
     mrPeriod:"الفترة", mrToday:"اليوم", mrWeek:"آخر 7 أيام", mrMonth:"آخر 30 يوم", mrCustom:"مخصص",
     dateRangeAll:"كل التواريخ",
@@ -1043,6 +1045,8 @@ const STR = {
     assetsExportType:"Type", assetsExportName:"Name", assetsExportDetails:"Details",
     assetsExportTypeAsset:"🏷️ Asset", assetsExportTypeVehicle:"🚙 Vehicle",
     assetsMaintCount:"Request Count", assetsMaintCost:"Maintenance Cost (AED)", assetsMaintLast:"Last Maintenance",
+    assetViewPlate:"Plate Number", assetViewBranch:"Branch", assetViewCondition:"Condition", assetViewModel:"Model",
+    assetViewCode:"Code", assetViewCategory:"Category", assetViewLocation:"Location", assetViewMaintTitle:"📋 Maintenance History",
     assetsNoBranch:"No Branch Assigned", assetsBranchCount:(n)=>`${n} items`, assetsNoDataForBranches:"No assets or vehicles registered yet",
     mrPeriod:"Period", mrToday:"Today", mrWeek:"Last 7 Days", mrMonth:"Last 30 Days", mrCustom:"Custom",
     dateRangeAll:"All Dates",
@@ -1507,6 +1511,7 @@ let state = { view:"dashboard", moduleState:{} };
 let isPublicMode = (location.hash === "#public");
 let isDriverMode = (location.hash === "#driver");
 let isBranchInspectMode = (location.hash === "#inspect");
+let isAssetViewMode = /^#asset-/.test(location.hash);
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
@@ -2049,6 +2054,71 @@ function refreshInspectBranchOptions(){
   sel.value = currentVal;
   translateBranchOptions("insp_branch");
 }
+/* ---------------- STANDALONE ASSET INFO PAGE (barcode scan target) ---------------- */
+function renderAssetViewPage(){
+  const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
+  const hashMatch = location.hash.match(/^#asset-([a-zA-Z]+)-(.+)$/);
+  const moduleKey = hashMatch ? hashMatch[1] : null;
+  const recId = hashMatch ? hashMatch[2] : null;
+  const mod = moduleKey ? MODULES.find(x=>x.key===moduleKey) : null;
+  const rec = (mod && recId) ? loadData(moduleKey).find(r=>r.id===recId) : null;
+
+  if(!mod || !rec){
+    document.body.innerHTML = `
+      <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+        <div style="max-width:380px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+          <div style="font-size:44px; margin-bottom:12px;">⚠️</div>
+          <div style="font-size:16px; font-weight:800; color:#1F3864;">${t('qrNotFound')}</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const isVehicle = moduleKey === "fleet";
+  const title = rec.name || rec.carName || rec.code || "";
+  const maint = computeMaintenanceStats(rec.id, isVehicle);
+
+  const infoRows = isVehicle ? [
+    [t('assetViewPlate'), rec.plate],
+    [t('assetViewBranch'), rec.branch],
+    [t('assetViewCondition'), rec.status],
+    [t('assetViewModel'), rec.model],
+  ] : [
+    [t('assetViewCode'), rec.code],
+    [t('assetViewCategory'), rec.category],
+    [t('assetViewBranch'), rec.branch],
+    [t('assetViewLocation'), rec.location],
+    [t('assetViewCondition'), rec.condition],
+  ];
+
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 40px;" dir="${dirAttr}">
+      <div style="max-width:440px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="font-size:18px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+        </div>
+        <div style="background:#fff; border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          <div style="font-size:34px; text-align:center; margin-bottom:6px;">${isVehicle ? '🚙' : '🏷️'}</div>
+          <div style="font-size:18px; font-weight:900; color:#1F3864; text-align:center; margin-bottom:4px;">${escapeHtml(title)}</div>
+          <div style="font-size:12px; color:#7a8699; text-align:center; margin-bottom:18px;">${ML(mod,"name")}</div>
+          ${infoRows.filter(([,v])=>v).map(([label,val])=>`
+            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eef0f4; font-size:13.5px;">
+              <span style="color:#7a8699; font-weight:700;">${label}</span>
+              <span style="font-weight:800; color:#1F3864;">${escapeHtml(val)}</span>
+            </div>`).join("")}
+        </div>
+        <div style="background:#fff; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
+          <div style="font-weight:800; font-size:13.5px; color:#1F3864; margin-bottom:12px;">${t('assetViewMaintTitle')}</div>
+          <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
+            <span style="color:#7a8699;">${t('assetsMaintCount')}</span><span style="font-weight:800;">${maint.count}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
+            <span style="color:#7a8699;">${t('assetsMaintLast')}</span><span style="font-weight:800;">${maint.lastDate || "—"}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 function renderBranchInspectPage(){
   const masters = loadMasters();
   const branches = masters.branches || [];
@@ -2396,6 +2466,7 @@ function renderNav(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isAssetViewMode){ renderAssetViewPage(); return; }
   const navRoot = document.getElementById("nav-modules");
   navRoot.innerHTML = MODULES.map(m=>{
     const count = loadData(m.key).length;
@@ -2475,6 +2546,7 @@ function renderDashboard(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isAssetViewMode){ renderAssetViewPage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
   document.getElementById("topbarActions").innerHTML = `
@@ -2770,6 +2842,7 @@ function renderModule(mKey){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isAssetViewMode){ renderAssetViewPage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -3803,7 +3876,7 @@ function closeLightbox(){
 
 /* ---------------- QR CODE: generate + scan ---------------- */
 function qrCodeValueFor(m, rec){
-  return `${location.origin}${location.pathname}#qr-${m.key}-${rec.id}`;
+  return `${location.origin}${location.pathname}#asset-${m.key}-${rec.id}`;
 }
 function openQrGenerateModal(m, rec, retriesLeft){
   if(retriesLeft === undefined) retriesLeft = 6;
@@ -3986,16 +4059,25 @@ function handleQrScanResult(data){
 }
 function parseQrScanData(data){
   data = (data||"").trim();
-  // New format: a full URL ending in #qr-<moduleKey>-<recId>
-  const hashIdx = data.indexOf("#qr-");
+  // New format: a full URL ending in #asset-<moduleKey>-<recId> (used by printed labels)
+  let hashIdx = data.indexOf("#asset-");
   if(hashIdx >= 0){
-    const rest = data.slice(hashIdx + 4); // after "#qr-"
+    const rest = data.slice(hashIdx + 7); // after "#asset-"
     const firstDash = rest.indexOf("-");
     if(firstDash > 0){
       return { moduleKey: rest.slice(0, firstDash), recId: rest.slice(firstDash+1) };
     }
   }
-  // Old format (backward compatibility with previously printed codes): FORKA::module::id
+  // Previous format (backward compatibility): #qr-<moduleKey>-<recId>
+  hashIdx = data.indexOf("#qr-");
+  if(hashIdx >= 0){
+    const rest = data.slice(hashIdx + 4);
+    const firstDash = rest.indexOf("-");
+    if(firstDash > 0){
+      return { moduleKey: rest.slice(0, firstDash), recId: rest.slice(firstDash+1) };
+    }
+  }
+  // Oldest format (backward compatibility): FORKA::module::id
   const parts = data.split("::");
   if(parts.length===3 && parts[0]==="FORKA"){
     return { moduleKey: parts[1], recId: parts[2] };
@@ -6842,6 +6924,8 @@ if(location.hash === "#public"){
   renderDriverModePage();
 } else if(location.hash === "#inspect"){
   renderBranchInspectPage();
+} else if(isAssetViewMode){
+  setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
 } else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); }
 </script>
 </body>
