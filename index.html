@@ -1112,7 +1112,8 @@ const STATUS_COLORS = {
   "تم التسليم":"badge-success","فشل":"badge-danger","نعم":"badge-success","لا":"badge-muted",
   "قيد الإصلاح":"badge-warning","مصلح":"badge-success",
   "مكتملة":"badge-success","ناقصة":"badge-warning","منتهية":"badge-danger","نشطة":"badge-success",
-  "مدفوعة":"badge-success","غير مدفوعة":"badge-danger"
+  "مدفوعة":"badge-success","غير مدفوعة":"badge-danger",
+  "تم الدفع":"badge-success","لم يتم الدفع":"badge-danger"
 };
 /* canonical Arabic value -> English display label (values are ALWAYS stored in Arabic for consistent filtering/coloring) */
 const OPT_EN = {
@@ -1146,6 +1147,7 @@ const OPT_EN = {
   "تم الإصلاح بنجاح":"Fixed Successfully","تم الإصلاح مؤقتًا":"Temporarily Fixed","يحتاج متابعة":"Needs Follow-up","لم يتم الإصلاح":"Not Fixed","تم الاستبدال":"Replaced",
   "سوء استخدام":"Misuse","عمر طبيعي / تآكل":"Natural Wear","تركيب أو تصنيع خاطئ":"Improper Installation/Manufacturing","نقص صيانة وقائية":"Lack of Preventive Maintenance","ظروف تشغيل قاسية":"Harsh Operating Conditions","سبب آخر":"Other Cause",
   "أسبوعيًا":"Weekly","كل أسبوعين":"Every 2 Weeks","شهريًا":"Monthly","كل شهرين":"Every 2 Months","كل 3 أشهر":"Every 3 Months","كل 6 أشهر":"Every 6 Months","سنويًا":"Annually",
+  "تم الدفع":"Paid","لم يتم الدفع":"Not Paid",
 };
 function optLabel(val){
   if(!val) return "";
@@ -1200,6 +1202,8 @@ const MODULES = [
     {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"photo2",
       alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
+    {key:"paymentStatus", label:"هل تم الدفع؟", labelEn:"Payment Made?", type:"select", options:["تم الدفع","لم يتم الدفع"],
+      alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"warranty", label:"ضمان قطع الغيار", labelEn:"Parts Warranty", type:"text", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"closeDate", label:"تاريخ الإغلاق", labelEn:"Closing Date", type:"date", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"rootCause", label:"السبب الجذري للعطل", labelEn:"Root Cause of Failure", type:"select", required:true,
