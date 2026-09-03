@@ -1735,6 +1735,22 @@ function setPinValue(pin){ localStorage.setItem("forka_pin", pin); }
 function removePinValue(){ localStorage.removeItem("forka_pin"); }
 let unlockedThisSession = false;
 function needsLock(){ return !!getPin() && !unlockedThisSession; }
+function migratePaymentStatusDefaults(){
+  if(localStorage.getItem("forka_migrated_paymentstatus_v1")) return;
+  const arr = loadDataRaw("requests");
+  let changed = false;
+  arr.forEach(r=>{
+    if((r.status||"").trim()==="مغلق" && !r.paymentStatus){
+      r.paymentStatus = "تم الدفع";
+      r._updatedAt = Date.now();
+      changed = true;
+      cloudPushRecord("requests", r);
+    }
+  });
+  if(changed) saveData("requests", arr);
+  localStorage.setItem("forka_migrated_paymentstatus_v1", "1");
+  if(changed && state.view==="requests") renderModule("requests");
+}
 function renderLockScreen(){
   document.getElementById("lockRoot").innerHTML = `
     <div class="lock-screen">
@@ -1755,6 +1771,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
+      setTimeout(migratePaymentStatusDefaults, 2500);
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -6929,7 +6946,7 @@ if(location.hash === "#public"){
   renderBranchInspectPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migratePaymentStatusDefaults, 2500); }
 </script>
 </body>
 </html>
