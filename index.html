@@ -5026,6 +5026,7 @@ function hasAnyUploadServiceConfigured(){
   return !!(c && c.cloudName && c.uploadPreset) || (cloudEnabled && !!window.firebase && !!firebase.storage);
 }
 
+const cloudFirstSyncReceived = {};
 function initCloud(onDone){
   const cfg = getCloudConfig();
   if(!cfg || !cfg.apiKey || !window.firebase){ if(onDone) onDone(false); return; }
@@ -5058,6 +5059,19 @@ function attachCloudListeners(){
     cloudUnsubscribers[m.key] = cloudDb.collection("forka_"+m.key).onSnapshot(snap=>{
       const arr = [];
       snap.forEach(doc=> arr.push(doc.data()));
+      const existingRaw = localStorage.getItem("forka_"+m.key);
+      const existing = existingRaw ? JSON.parse(existingRaw) : [];
+      const isFirstSync = !cloudFirstSyncReceived[m.key];
+      cloudFirstSyncReceived[m.key] = true;
+      // Safety guard: Firestore can return an empty/stale cached snapshot BEFORE the real data
+      // arrives (e.g. slow connection or briefly offline right at page load). Blindly overwriting
+      // localStorage in that moment would silently wipe real data. Only guard the FIRST snapshot;
+      // once a real connection is established, genuine deletions still sync normally afterward.
+      if(isFirstSync && arr.length === 0 && existing.length > 0){
+        console.warn("Ignoring empty first cloud snapshot for ["+m.key+"] to protect "+existing.length+" existing local record(s)");
+        setLastSyncNow();
+        return;
+      }
       localStorage.setItem("forka_"+m.key, JSON.stringify(arr));
       setLastSyncNow();
       if(isDriverMode || isBranchInspectMode || isPublicMode) return; // standalone pages manage their own rendering
