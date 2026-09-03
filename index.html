@@ -2078,18 +2078,15 @@ function renderAssetViewPage(){
   const title = rec.name || rec.carName || rec.code || "";
   const maint = computeMaintenanceStats(rec.id, isVehicle);
 
-  const infoRows = isVehicle ? [
-    [t('assetViewPlate'), rec.plate],
-    [t('assetViewBranch'), rec.branch],
-    [t('assetViewCondition'), rec.status],
-    [t('assetViewModel'), rec.model],
-  ] : [
-    [t('assetViewCode'), rec.code],
-    [t('assetViewCategory'), rec.category],
-    [t('assetViewBranch'), rec.branch],
-    [t('assetViewLocation'), rec.location],
-    [t('assetViewCondition'), rec.condition],
-  ];
+  const skipTypes = ["photo","photo2","quotes","branchMultiSelect"];
+  const skipKeys = ["id","_updatedAt","_deleted","photos","name","carName"];
+  const infoRows = mod.fields
+    .filter(f=> !skipTypes.includes(f.type) && !skipKeys.includes(f.key) && rec[f.key])
+    .map(f=>{
+      let val = rec[f.key];
+      if(f.type==="select") val = optLabel(val);
+      return [FL(f), val];
+    });
 
   document.body.innerHTML = `
     <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 40px;" dir="${dirAttr}">
@@ -2101,10 +2098,10 @@ function renderAssetViewPage(){
           <div style="font-size:34px; text-align:center; margin-bottom:6px;">${isVehicle ? '🚙' : '🏷️'}</div>
           <div style="font-size:18px; font-weight:900; color:#1F3864; text-align:center; margin-bottom:4px;">${escapeHtml(title)}</div>
           <div style="font-size:12px; color:#7a8699; text-align:center; margin-bottom:18px;">${ML(mod,"name")}</div>
-          ${infoRows.filter(([,v])=>v).map(([label,val])=>`
-            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eef0f4; font-size:13.5px;">
-              <span style="color:#7a8699; font-weight:700;">${label}</span>
-              <span style="font-weight:800; color:#1F3864;">${escapeHtml(val)}</span>
+          ${infoRows.map(([label,val])=>`
+            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eef0f4; font-size:13.5px; gap:12px;">
+              <span style="color:#7a8699; font-weight:700; flex-shrink:0;">${escapeHtml(label)}</span>
+              <span style="font-weight:800; color:#1F3864; text-align:end;">${escapeHtml(String(val))}</span>
             </div>`).join("")}
         </div>
         <div style="background:#fff; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
