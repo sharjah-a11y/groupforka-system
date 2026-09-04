@@ -541,6 +541,14 @@ const STR = {
     bulkAssetImportBrand:"الموديل/الطراز", bulkAssetImportSection:"القسم", bulkAssetImportNamePlaceholder:"اكتب اسم المعدة هنا",
     bulkAssetImportAddRow:"➕ إضافة صف", bulkAssetImportConfirmBtn:"استيراد الكل الآن", bulkAssetImportNothing:"مفيش صفوف فيها بيانات",
     bulkAssetImportDoneToast:(n)=>`✅ تم استيراد ${n} أصل بنجاح`,
+    convertToPmBtn:"تحويل لصيانة وقائية", convertToPmTitle:"🔧 تحويل إلى صيانة وقائية",
+    convertToPmSub:"راجع وعدّل البيانات قبل التحويل — هيتسجّل كسجل جديد في الصيانة الوقائية.",
+    convertToPmBranch:"الفرع", convertToPmEquipment:"الجهاز / المعدة", convertToPmServiceType:"نوع الخدمة",
+    convertToPmFrequency:"التكرار", convertToPmContractor:"المقاول المسؤول", convertToPmCost:"التكلفة (د.إ)",
+    convertToPmDeleteOriginal:"احذف البلاغ الأصلي بعد التحويل (سيُنقل لسلة المحذوفات)",
+    convertToPmAmcFound:(names)=>`💡 لاحظنا عقد AMC قائم يخص نفس الفرع/الخدمة: ${names}`,
+    convertToPmConfirmBtn:"تحويل الآن", convertToPmDoneToast:"✅ تم التحويل لصيانة وقائية بنجاح",
+    convertToPmOriginTag:(ref)=>`تم تحويله من بلاغ صيانة رقم ${ref}`,
     bulkCheckBtn:"📋 فحص يومي شامل", bulkCheckTitle:"الفحص اليومي الشامل لكل السيارات", bulkCheckSub:"عبّي الأعمدة اللي تحتاجها لكل سيارة، والسيارات اللي متلمسهاش مش هتتحفظ.",
     bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
     bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
@@ -849,6 +857,14 @@ const STR = {
     bulkAssetImportBrand:"Model/Brand", bulkAssetImportSection:"Section", bulkAssetImportNamePlaceholder:"Type the equipment name here",
     bulkAssetImportAddRow:"➕ Add Row", bulkAssetImportConfirmBtn:"Import All Now", bulkAssetImportNothing:"No rows have data",
     bulkAssetImportDoneToast:(n)=>`✅ Successfully imported ${n} assets`,
+    convertToPmBtn:"Convert to Preventive Maintenance", convertToPmTitle:"🔧 Convert to Preventive Maintenance",
+    convertToPmSub:"Review and edit the data before converting — it will be saved as a new Preventive Maintenance record.",
+    convertToPmBranch:"Branch", convertToPmEquipment:"Equipment", convertToPmServiceType:"Service Type",
+    convertToPmFrequency:"Frequency", convertToPmContractor:"Responsible Contractor", convertToPmCost:"Cost (AED)",
+    convertToPmDeleteOriginal:"Delete the original request after converting (moves to recycle bin)",
+    convertToPmAmcFound:(names)=>`💡 We noticed an existing AMC contract for the same branch/service: ${names}`,
+    convertToPmConfirmBtn:"Convert Now", convertToPmDoneToast:"✅ Successfully converted to Preventive Maintenance",
+    convertToPmOriginTag:(ref)=>`Converted from maintenance request #${ref}`,
     bulkCheckBtn:"📋 Bulk Daily Check", bulkCheckTitle:"Bulk Daily Check for All Vehicles", bulkCheckSub:"Fill in the columns you need for each vehicle — vehicles you don't touch won't be saved.",
     bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
     bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
@@ -3003,6 +3019,7 @@ function renderModuleRecordsBody(m){
               ${photoCount? `<span class="photo-count-chip" data-photorow="${r.id}" style="cursor:zoom-in;">📷${photoCount}</span>`:""}
               ${photo2Count? `<span class="photo-count-chip" data-photorow2="${r.id}" style="cursor:zoom-in;" title="${FL(photo2Field)}">📎${photo2Count}</span>`:""}
               ${m.qrEnabled? `<button class="btn btn-sm btn-outline" data-qrgen="${r.id}">🔖</button>`:""}
+              ${m.key==="requests"? `<button class="btn btn-sm btn-outline" data-convertpm="${r.id}" title="${t('convertToPmBtn')}">🔧➡️</button>`:""}
               <button class="btn btn-sm btn-outline" data-viewrec="${r.id}">${t('viewBtn')}</button>
               <button class="btn btn-sm btn-outline" data-edit="${r.id}">${t('edit')}</button>
               <button class="btn btn-sm btn-danger" data-del="${r.id}">${t('delete')}</button>
@@ -3105,6 +3122,12 @@ function renderModuleRecordsBody(m){
     b.onclick = ()=>{
       const rec = loadData(m.key).find(x=>x.id===b.dataset.qrgen);
       if(rec) openQrGenerateModal(m, rec);
+    };
+  });
+  document.querySelectorAll("[data-convertpm]").forEach(b=>{
+    b.onclick = ()=>{
+      const rec = loadData("requests").find(x=>x.id===b.dataset.convertpm);
+      if(rec) openConvertToPmModal(rec);
     };
   });
   document.querySelectorAll("[data-viewrec]").forEach(b=>{
@@ -3895,6 +3918,97 @@ function closeLightbox(){
 /* ---------------- QR CODE: generate + scan ---------------- */
 function qrCodeValueFor(m, rec){
   return `${location.origin}${location.pathname}#asset-${m.key}-${rec.id}`;
+}
+function openConvertToPmModal(rec){
+  const root = document.getElementById("modalRoot");
+  const amcMatches = loadData("amc").filter(a=> splitBranchNames(a.branches).includes((rec.branch||"").split(/[،,]/)[0].trim()) || (a.scope||"").includes(rec.equipment||""));
+  root.innerHTML = `
+    <div class="modal-overlay" id="convertPmOverlay">
+      <div class="modal" style="max-width:640px;">
+        <h2>${t('convertToPmTitle')}</h2>
+        <div class="modal-sub">${t('convertToPmSub')}</div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmBranch')}</label>
+          <input type="text" id="cvBranch" value="${escapeAttr(rec.branch||'')}">
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmEquipment')}</label>
+          <input type="text" id="cvEquipment" value="${escapeAttr(rec.equipment||'')}">
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmServiceType')}</label>
+          <input type="text" id="cvServiceType" value="${escapeAttr(rec.issue||'')}">
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmFrequency')}</label>
+          <select id="cvFrequency">
+            <option value=""></option>
+            <option value="يومي">${optLabel('يومي')}</option>
+            <option value="أسبوعي">${optLabel('أسبوعي')}</option>
+            <option value="شهري">${optLabel('شهري')}</option>
+            <option value="ربع سنوي">${optLabel('ربع سنوي')}</option>
+            <option value="نصف سنوي">${optLabel('نصف سنوي')}</option>
+            <option value="سنوي">${optLabel('سنوي')}</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmContractor')}</label>
+          <input type="text" id="cvContractor" value="${escapeAttr(rec.contractor||(amcMatches[0]?amcMatches[0].company:'')||'')}" list="dl_contractors">
+        </div>
+        ${amcMatches.length ? `<div class="banner" style="margin-bottom:12px;">${t('convertToPmAmcFound', amcMatches.map(a=>a.company).join('، '))}</div>` : ""}
+        <div class="field" style="margin-bottom:12px;">
+          <label>${t('convertToPmCost')}</label>
+          <input type="number" id="cvCost" value="${rec.cost||''}">
+        </div>
+        <div class="field" style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="cvDeleteOriginal" style="width:18px; height:18px;">
+          <label for="cvDeleteOriginal" style="margin:0;">${t('convertToPmDeleteOriginal')}</label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" id="btnCvCancel">${t('cancel')}</button>
+          <button class="btn btn-primary" id="btnCvConfirm">${t('convertToPmConfirmBtn')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnCvCancel").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("convertPmOverlay").onclick = (e)=>{ if(e.target.id==="convertPmOverlay") root.innerHTML = ""; };
+  document.getElementById("btnCvConfirm").onclick = ()=>{
+    const newPm = {
+      id: uid(),
+      branch: document.getElementById("cvBranch").value,
+      equipment: document.getElementById("cvEquipment").value,
+      serviceType: document.getElementById("cvServiceType").value,
+      frequency: document.getElementById("cvFrequency").value,
+      contractor: document.getElementById("cvContractor").value,
+      lastVisit: (rec.reportDate||"").slice(0,10),
+      cost: document.getElementById("cvCost").value,
+      work: rec.issue || "",
+      status: "منجز في موعده",
+      notes: t('convertToPmOriginTag', rec.reqNo||rec.id),
+      _updatedAt: Date.now(),
+    };
+    const pmArr = loadDataRaw("pm");
+    pmArr.push(newPm);
+    saveData("pm", pmArr);
+    cloudPushRecord("pm", newPm);
+    if(document.getElementById("cvDeleteOriginal").checked){
+      const mReq = MODULES.find(x=>x.key==="requests");
+      const raw = loadDataRaw("requests");
+      const idx = raw.findIndex(x=>x.id===rec.id);
+      if(idx>=0){
+        raw[idx]._deleted = true;
+        raw[idx]._deletedAt = Date.now();
+        saveData("requests", raw);
+        cloudPushRecord("requests", raw[idx]);
+        renumberAfterDelete(mReq, raw[idx]);
+      }
+    }
+    root.innerHTML = "";
+    showToast(t('convertToPmDoneToast'));
+    if(state.view==="requests") renderModule("requests");
+    if(state.view==="pm") renderModule("pm");
+  };
 }
 function openQrGenerateModal(m, rec, retriesLeft){
   if(retriesLeft === undefined) retriesLeft = 6;
