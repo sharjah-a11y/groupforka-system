@@ -549,6 +549,9 @@ const STR = {
     convertToPmAmcFound:(names)=>`💡 لاحظنا عقد AMC قائم يخص نفس الفرع/الخدمة: ${names}`,
     convertToPmConfirmBtn:"تحويل الآن", convertToPmDoneToast:"✅ تم التحويل لصيانة وقائية بنجاح",
     convertToPmOriginTag:(ref)=>`تم تحويله من بلاغ صيانة رقم ${ref}`,
+    exportSelectTitle:"📤 اختر الأقسام للتصدير", exportSelectSub:"حدد الأقسام اللي عايز تصدّرها فقط في ملف الإكسل.",
+    exportSelectAll:"تحديد الكل", exportSelectNone:"إلغاء التحديد", exportSelectConfirmBtn:"تصدير المحدد",
+    exportSelectNothing:"اختر قسم واحد على الأقل",
     bulkCheckBtn:"📋 فحص يومي شامل", bulkCheckTitle:"الفحص اليومي الشامل لكل السيارات", bulkCheckSub:"عبّي الأعمدة اللي تحتاجها لكل سيارة، والسيارات اللي متلمسهاش مش هتتحفظ.",
     bulkCheckDate:"تاريخ الفحص", bulkCheckPlate:"رقم اللوحة", bulkCheckNoVehicles:"لا توجد سيارات مسجّلة في سجل السيارات بعد",
     bulkCheckSaveBtn:"حفظ فحص كل السيارات", bulkCheckMissingDate:"اختر تاريخ الفحص أولًا", bulkCheckNothingFilled:"لم تُعبّئ أي بيانات لأي سيارة",
@@ -865,6 +868,9 @@ const STR = {
     convertToPmAmcFound:(names)=>`💡 We noticed an existing AMC contract for the same branch/service: ${names}`,
     convertToPmConfirmBtn:"Convert Now", convertToPmDoneToast:"✅ Successfully converted to Preventive Maintenance",
     convertToPmOriginTag:(ref)=>`Converted from maintenance request #${ref}`,
+    exportSelectTitle:"📤 Choose Sections to Export", exportSelectSub:"Select which sections to include in the Excel file.",
+    exportSelectAll:"Select All", exportSelectNone:"Deselect All", exportSelectConfirmBtn:"Export Selected",
+    exportSelectNothing:"Select at least one section",
     bulkCheckBtn:"📋 Bulk Daily Check", bulkCheckTitle:"Bulk Daily Check for All Vehicles", bulkCheckSub:"Fill in the columns you need for each vehicle — vehicles you don't touch won't be saved.",
     bulkCheckDate:"Check Date", bulkCheckPlate:"Plate No.", bulkCheckNoVehicles:"No vehicles registered in the fleet yet",
     bulkCheckSaveBtn:"Save All Vehicle Checks", bulkCheckMissingDate:"Select the check date first", bulkCheckNothingFilled:"No data was filled in for any vehicle",
@@ -2586,7 +2592,7 @@ function renderDashboard(){
   document.getElementById("topbarActions").innerHTML = `
     <button class="btn btn-gold" id="btnExportAll">${t("exportAll")}</button>
     ${langSwitcherHtml()}`;
-  document.getElementById("btnExportAll").onclick = exportAllExcel;
+  document.getElementById("btnExportAll").onclick = openExportSelectModal;
   bindLangSwitcher();
 
   let totalOpen = 0, totalRecords = 0;
@@ -4784,11 +4790,12 @@ async function exportModuleExcel(m){
   await downloadWorkbook(workbook, `GroupForka_${m.key}${suffix}_${todayStr()}.xlsx`);
   showToast(t('exportedFile'));
 }
-async function exportAllExcel(){
+async function exportAllExcel(selectedKeys){
   showToast(t('exportPreparing'));
+  const modulesToExport = selectedKeys ? MODULES.filter(m=> selectedKeys.includes(m.key)) : MODULES;
   const workbook = new ExcelJS.Workbook();
   const summaries = [];
-  for(const m of MODULES){
+  for(const m of modulesToExport){
     const { rows, raw } = await moduleToSheetData(m, null, null, true);
     addStyledSheet(workbook, ML(m,"name"), moduleExportHeaders(m, null, true), rows, { fields: moduleExportFields(m, null, true), rawRecords: raw, photoField: modulePhotoField(m), photoField2: moduleSecondAttachmentField(m) });
     const alertCount = m.statusField ? raw.filter(r=> isOverdue(m,r) || (m.alertValues||[]).includes((r[m.statusField]||"").trim())).length
@@ -4799,6 +4806,46 @@ async function exportAllExcel(){
   workbook.views = [{ activeTab: workbook.worksheets.length-1 }];
   await downloadWorkbook(workbook, `GroupForka_AllData_${todayStr()}.xlsx`);
   showToast(t('exportedAll'));
+}
+function openExportSelectModal(){
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay" id="exportSelectOverlay">
+      <div class="modal" style="max-width:520px;">
+        <h2>${t('exportSelectTitle')}</h2>
+        <div class="modal-sub">${t('exportSelectSub')}</div>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <button type="button" class="btn btn-outline btn-sm" id="btnExportSelectAll">${t('exportSelectAll')}</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnExportSelectNone">${t('exportSelectNone')}</button>
+        </div>
+        <div style="max-height:50vh; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+          ${MODULES.map(m=>`
+            <label style="display:flex; align-items:center; gap:10px; padding:8px; border:1px solid var(--line); border-radius:8px; cursor:pointer;">
+              <input type="checkbox" class="export-select-cb" value="${m.key}" checked style="width:18px; height:18px;">
+              <span style="font-size:14px;">${m.icon} ${ML(m,"name")}</span>
+            </label>`).join("")}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" id="btnExportSelectCancel">${t('cancel')}</button>
+          <button class="btn btn-primary" id="btnExportSelectConfirm">${t('exportSelectConfirmBtn')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnExportSelectCancel").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("exportSelectOverlay").onclick = (e)=>{ if(e.target.id==="exportSelectOverlay") root.innerHTML = ""; };
+  document.getElementById("btnExportSelectAll").onclick = ()=>{
+    document.querySelectorAll(".export-select-cb").forEach(cb=> cb.checked = true);
+  };
+  document.getElementById("btnExportSelectNone").onclick = ()=>{
+    document.querySelectorAll(".export-select-cb").forEach(cb=> cb.checked = false);
+  };
+  document.getElementById("btnExportSelectConfirm").onclick = ()=>{
+    const selected = Array.from(document.querySelectorAll(".export-select-cb:checked")).map(cb=>cb.value);
+    if(!selected.length){ alert(t('exportSelectNothing')); return; }
+    root.innerHTML = "";
+    exportAllExcel(selected);
+  };
 }
 
 /* ---------------- BACKUP / RESTORE ---------------- */
