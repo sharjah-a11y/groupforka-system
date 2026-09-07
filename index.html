@@ -1748,7 +1748,10 @@ function buildDatalistsHtml(){
   const masterLists = MASTER_TYPES.map(type=>
     `<datalist id="dl_${type}">${(m[type]||[]).map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`
   ).join("");
-  const assetNames = [...new Set(loadData("assets").map(a=>(a.name||"").trim()).filter(Boolean))];
+  const assetNames = [...new Set([
+    ...loadData("assets").map(a=>(a.name||"").trim()),
+    ...loadData("fleet").map(v=>(v.carName||"").trim()),
+  ].filter(Boolean))];
   const assetDatalist = `<datalist id="dl_assetNames">${assetNames.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`;
   return masterLists + assetDatalist;
 }
