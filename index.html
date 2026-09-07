@@ -1208,7 +1208,7 @@ const MODULES = [
     {key:"linkedAssetName", label:"🔗 الأصل/السيارة المرتبطة", labelEn:"🔗 Linked Asset/Vehicle", type:"select",
       options:()=> [
         ...new Set(loadData("assets").map(a=>a.name).filter(Boolean)),
-        ...new Set(loadData("fleet").map(v=>v.carName).filter(Boolean)),
+        ...new Set(loadData("fleet").map(v=> v.carName ? `${v.carName}${v.plate?" — "+v.plate:""}` : "").filter(Boolean)),
       ]},
     {key:"issue", label:"وصف المشكلة", labelEn:"Issue Description", type:"textarea", full:true},
     {key:"severity", label:"درجة الخطورة", labelEn:"Priority", type:"select", options:["حرج","عالٍ","متوسط","منخفض"]},
@@ -1750,7 +1750,7 @@ function buildDatalistsHtml(){
   ).join("");
   const assetNames = [...new Set([
     ...loadData("assets").map(a=>(a.name||"").trim()),
-    ...loadData("fleet").map(v=>(v.carName||"").trim()),
+    ...loadData("fleet").map(v=> v.carName ? `${v.carName.trim()}${v.plate ? " — "+v.plate.trim() : ""}` : ""),
   ].filter(Boolean))];
   const assetDatalist = `<datalist id="dl_assetNames">${assetNames.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`;
   return masterLists + assetDatalist;
@@ -3690,14 +3690,23 @@ function openForm(m, existing, viewMode){
       }
     });
     if(m.key==="requests"){
+      const findVehicleByText = (text)=>{
+        const t = (text||"").trim().toLowerCase();
+        if(!t) return null;
+        return loadData("fleet").find(v=>{
+          const plain = (v.carName||"").trim().toLowerCase();
+          const withPlate = v.plate ? `${plain} — ${v.plate.trim().toLowerCase()}` : plain;
+          return plain === t || withPlate === t;
+        });
+      };
       if(newRec.linkedAssetName){
         const explicitAsset = loadData("assets").find(a=> (a.name||"").trim() === newRec.linkedAssetName.trim());
-        const explicitVehicle = !explicitAsset ? loadData("fleet").find(v=> (v.carName||"").trim() === newRec.linkedAssetName.trim()) : null;
+        const explicitVehicle = !explicitAsset ? findVehicleByText(newRec.linkedAssetName) : null;
         newRec.linkedAssetId = explicitAsset ? explicitAsset.id : null;
         newRec.linkedVehicleId = explicitVehicle ? explicitVehicle.id : null;
       } else if(newRec.equipment){
         const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
-        const matchedVehicle = !matchedAsset ? loadData("fleet").find(v=> (v.carName||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase()) : null;
+        const matchedVehicle = !matchedAsset ? findVehicleByText(newRec.equipment) : null;
         newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
         newRec.linkedVehicleId = matchedVehicle ? matchedVehicle.id : null;
       } else {
