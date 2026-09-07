@@ -547,6 +547,9 @@ const STR = {
     branchAuditDuplicatesFound:(n)=>`⚠️ لاحظنا ${n} حالة تكرار محتمل (نفس الفرع بأسماء مختلفة شوية)`,
     branchAuditNoDuplicates:"✅ مفيش أي تكرار — كل فرع اسمه موحّد",
     branchAuditRecordCount:(n)=>`${n} أصل`, branchAuditDuplicateWarning:"⚠️ ده على الأغلب نفس الفرع مكتوب بشكل مختلف",
+    branchAuditAutoFixBtn:"🔧 صلّح كل التكرار تلقائيًا الآن (كل الأقسام)",
+    branchAuditAutoFixConfirm:"هيتم توحيد كل الفروع المكررة تلقائيًا في كل الأقسام (البلاغات، الأصول، السيارات، وكل حاجة) — الاسم الأكتر استخدامًا هيبقى هو المعتمد. متابعة؟",
+    branchAuditAutoFixDone:(recs,groups)=>`✅ تم توحيد ${groups} فرع مكرر، وتحديث ${recs} سجل بنجاح`,
     convertToPmBtn:"تحويل لصيانة وقائية", convertToPmTitle:"🔧 تحويل إلى صيانة وقائية",
     convertToPmSub:"راجع وعدّل البيانات قبل التحويل — هيتسجّل كسجل جديد في الصيانة الوقائية.",
     convertToPmBranch:"الفرع", convertToPmEquipment:"الجهاز / المعدة", convertToPmServiceType:"نوع الخدمة",
@@ -873,6 +876,9 @@ const STR = {
     branchAuditDuplicatesFound:(n)=>`⚠️ We noticed ${n} likely duplicate(s) (same branch, slightly different spelling)`,
     branchAuditNoDuplicates:"✅ No duplicates found — every branch name is consistent",
     branchAuditRecordCount:(n)=>`${n} asset(s)`, branchAuditDuplicateWarning:"⚠️ This is likely the same branch written differently",
+    branchAuditAutoFixBtn:"🔧 Auto-Fix All Duplicates Now (All Sections)",
+    branchAuditAutoFixConfirm:"All duplicate branches will be automatically merged across every section (requests, assets, vehicles, everything) — the most-used spelling becomes the standard one. Continue?",
+    branchAuditAutoFixDone:(recs,groups)=>`✅ Merged ${groups} duplicate branch(es), updated ${recs} record(s) successfully`,
     convertToPmBtn:"Convert to Preventive Maintenance", convertToPmTitle:"🔧 Convert to Preventive Maintenance",
     convertToPmSub:"Review and edit the data before converting — it will be saved as a new Preventive Maintenance record.",
     convertToPmBranch:"Branch", convertToPmEquipment:"Equipment", convertToPmServiceType:"Service Type",
@@ -6795,6 +6801,68 @@ const BULK_ASSET_IMPORT_DRAFT = [
   {code:"MY-43", name:"بوتاجاز غاز", category:"", location:"المطبخ", branch:"ميار كوفي شوب"},
   {code:"MY-44", name:"ثلاجة", category:"INOFRIGO", location:"المطبخ", branch:"ميار كوفي شوب"},
 ];
+function autoFixBranchDuplicates(){
+  // Collect every raw branch string used anywhere (assets, fleet, and every other branch-tracked module),
+  // grouped by normalized form. For each group with more than one spelling, the MOST-USED spelling
+  // (across everything) becomes canonical, and every record using a different spelling gets rewritten to it.
+  const branchModules = MODULES.filter(m=>m.branchField);
+  const rawCounts = {};
+  branchModules.forEach(m=>{
+    loadData(m.key).forEach(r=>{
+      splitBranchNames(r[m.branchField]).forEach(b=>{ rawCounts[b] = (rawCounts[b]||0) + 1; });
+    });
+  });
+
+  const groups = {};
+  Object.keys(rawCounts).forEach(raw=>{
+    const norm = normalizeSearchText(raw);
+    (groups[norm] = groups[norm] || []).push({ raw, count: rawCounts[raw] });
+  });
+
+  const canonicalFor = {}; // normalized -> chosen canonical raw string
+  let duplicateGroupCount = 0;
+  Object.entries(groups).forEach(([norm, variants])=>{
+    if(variants.length <= 1) return;
+    duplicateGroupCount++;
+    variants.sort((a,b)=> b.count - a.count);
+    canonicalFor[norm] = variants[0].raw;
+  });
+
+  if(duplicateGroupCount === 0) return { fixedGroups:0, fixedRecords:0 };
+
+  let fixedRecords = 0;
+  branchModules.forEach(m=>{
+    const arr = loadDataRaw(m.key);
+    let changedThisModule = false;
+    arr.forEach(r=>{
+      const parts = splitBranchNames(r[m.branchField]);
+      if(!parts.length) return;
+      const newParts = parts.map(p=> canonicalFor[normalizeSearchText(p)] || p);
+      const changed = newParts.some((p,i)=> p !== parts[i]);
+      if(changed){
+        r[m.branchField] = newParts.join("، ");
+        r._updatedAt = Date.now();
+        cloudPushRecord(m.key, r);
+        fixedRecords++;
+        changedThisModule = true;
+      }
+    });
+    if(changedThisModule) saveData(m.key, arr);
+  });
+
+  // Clean up the master branches list too: drop non-canonical duplicate entries
+  const masters = loadMasters();
+  if(masters.branches){
+    const cleaned = [...new Set(masters.branches.map(b=> canonicalFor[normalizeSearchText(b)] || b))];
+    masters.branches = cleaned;
+    saveMasters(masters);
+    if(cloudEnabled && cloudDb){
+      cloudDb.collection("forka_meta").doc("masters").set(masters).catch(()=>{});
+    }
+  }
+
+  return { fixedGroups: duplicateGroupCount, fixedRecords };
+}
 function openBranchAuditModal(){
   const root = document.getElementById("modalRoot");
   const assets = loadData("assets");
@@ -6832,6 +6900,7 @@ function openBranchAuditModal(){
         <div class="modal-sub">${t('branchAuditModalSub', assets.length)}</div>
         ${duplicateGroups.length ? `
           <div class="banner" style="margin-bottom:14px; background:#fdecea; color:#c0392b;">${t('branchAuditDuplicatesFound', duplicateGroups.length)}</div>
+          <button class="btn btn-danger" id="btnAutoFixDuplicates" style="width:100%; margin-bottom:14px;">${t('branchAuditAutoFixBtn')}</button>
         ` : `<div class="banner" style="margin-bottom:14px; background:#eafaf0; color:#1f8a4c;">${t('branchAuditNoDuplicates')}</div>`}
         <div style="max-height:55vh; overflow-y:auto;">
           ${groupList.map(g=>{
@@ -6854,6 +6923,16 @@ function openBranchAuditModal(){
   `;
   document.getElementById("btnBranchAuditClose").onclick = ()=>{ root.innerHTML = ""; };
   document.getElementById("branchAuditOverlay").onclick = (e)=>{ if(e.target.id==="branchAuditOverlay") root.innerHTML = ""; };
+  const autoFixBtn = document.getElementById("btnAutoFixDuplicates");
+  if(autoFixBtn){
+    autoFixBtn.onclick = ()=>{
+      if(!confirm(t('branchAuditAutoFixConfirm'))) return;
+      const result = autoFixBranchDuplicates();
+      root.innerHTML = "";
+      showToast(t('branchAuditAutoFixDone', result.fixedRecords, result.fixedGroups));
+      render();
+    };
+  }
 }
 function openBulkAssetImportModal(){
   const root = document.getElementById("modalRoot");
