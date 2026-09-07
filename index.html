@@ -643,6 +643,7 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    linkedRequestsTitle:"🛠️ بلاغات الصيانة المرتبطة بهذه السيارة", noLinkedRequests:"لا توجد بلاغات صيانة مسجلة لهذه السيارة 👍",
     linkedChecksTitle:"✅ آخر 10 عمليات فحص يومي مرتبطة بهذه السيارة",
     noLinkedChecks:"لا توجد عمليات فحص يومي مسجلة لهذه السيارة بعد",
     settingsSecurityNote:"⚠️ هذا رمز حماية بسيط لمنع الاستخدام العرضي فقط، وليس تشفيرًا حقيقيًا للبيانات — أي شخص يصل لملفات المتصفح يقدر يتجاوزه. لا تعتمد عليه لحماية بيانات حساسة جدًا.",
@@ -962,6 +963,7 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    linkedRequestsTitle:"🛠️ Maintenance Requests Linked to This Vehicle", noLinkedRequests:"No maintenance requests recorded for this vehicle 👍",
     linkedChecksTitle:"✅ Last 10 Daily Checks Linked to This Vehicle",
     noLinkedChecks:"No daily checks recorded for this vehicle yet",
     settingsSecurityNote:"⚠️ This is a simple access-friction PIN, not real data encryption — anyone with access to the browser's files can bypass it. Don't rely on it for highly sensitive data.",
@@ -3238,11 +3240,24 @@ function buildFleetLinkedHtml(rec){
       <div class="card"><div class="sub">${t('vehicleHealthNote')}</div></div>
     </div>`;
 
+  const requestsM = MODULES.find(x=>x.key==="requests");
+  const carName = (rec.carName||"").trim().toLowerCase();
+  const linkedRequests = loadData("requests").filter(r=>
+    r.linkedVehicleId===rec.id || (carName && (r.equipment||"").trim().toLowerCase()===carName)
+  ).sort((a,b)=> new Date(b.reportDate||0)-new Date(a.reportDate||0));
+
   const timelineEvents = [];
   if(rec.purchaseDate) timelineEvents.push({date:rec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
   accidents.forEach(a=> timelineEvents.push({date:a.date, label:(a.type||"")+": "+(a.desc||"").slice(0,20), icon:"🚨", color:"#c0392b"}));
   html += `<div class="section-title">${t('timelineTitle')}</div>`;
   html += buildTimelineHtml(timelineEvents);
+
+  html += `<div class="section-title">${t('linkedRequestsTitle')}</div>`;
+  html += linkedRequests.length ? `
+    <div class="table-wrap" style="margin-bottom:14px;"><table>
+      <thead><tr><th>${fl(requestsM,'reportDate')}</th><th>${fl(requestsM,'issue')}</th><th>${fl(requestsM,'severity')}</th><th>${fl(requestsM,'status')}</th><th>${fl(requestsM,'cost')}</th></tr></thead>
+      <tbody>${linkedRequests.map(r=>`<tr><td>${(r.reportDate||"").slice(0,10)}</td><td class="desc-cell">${escapeHtml(r.issue||"")}</td><td>${badge(r.severity||"")}</td><td>${badge(r.status||"")}</td><td>${r.cost?fmtMoney(r.cost):"—"}</td></tr>`).join("")}</tbody>
+    </table></div>` : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">${t('noLinkedRequests')}</div>`;
 
   html += `<div class="section-title">${t('linkedViolationsTitle')}</div>`;
   html += accidents.length ? `
