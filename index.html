@@ -542,6 +542,11 @@ const STR = {
     bulkAssetImportFilterLabel:"📍 اعرض معدات فرع:", bulkAssetImportFilterAll:"كل الفروع", bulkAssetImportBranchCol:"الفرع",
     bulkAssetImportAddRow:"➕ إضافة صف", bulkAssetImportConfirmBtn:"استيراد الكل الآن", bulkAssetImportNothing:"مفيش صفوف فيها بيانات",
     bulkAssetImportDoneToast:(n)=>`✅ تم استيراد ${n} أصل بنجاح`,
+    branchAuditTitle:"📍 مراجعة فروع الأصول", branchAuditSub:"شوف كل الفروع المستخدمة في سجل الأصول، واكتشف لو فيه تكرار بأسماء مختلفة.",
+    branchAuditBtn:"فتح المراجعة", branchAuditModalSub:(n)=>`إجمالي ${n} أصل مسجّل. الفروع الموجودة فعليًا:`,
+    branchAuditDuplicatesFound:(n)=>`⚠️ لاحظنا ${n} حالة تكرار محتمل (نفس الفرع بأسماء مختلفة شوية)`,
+    branchAuditNoDuplicates:"✅ مفيش أي تكرار — كل فرع اسمه موحّد",
+    branchAuditRecordCount:(n)=>`${n} أصل`, branchAuditDuplicateWarning:"⚠️ ده على الأغلب نفس الفرع مكتوب بشكل مختلف",
     convertToPmBtn:"تحويل لصيانة وقائية", convertToPmTitle:"🔧 تحويل إلى صيانة وقائية",
     convertToPmSub:"راجع وعدّل البيانات قبل التحويل — هيتسجّل كسجل جديد في الصيانة الوقائية.",
     convertToPmBranch:"الفرع", convertToPmEquipment:"الجهاز / المعدة", convertToPmServiceType:"نوع الخدمة",
@@ -863,6 +868,11 @@ const STR = {
     bulkAssetImportFilterLabel:"📍 Show equipment for branch:", bulkAssetImportFilterAll:"All Branches", bulkAssetImportBranchCol:"Branch",
     bulkAssetImportAddRow:"➕ Add Row", bulkAssetImportConfirmBtn:"Import All Now", bulkAssetImportNothing:"No rows have data",
     bulkAssetImportDoneToast:(n)=>`✅ Successfully imported ${n} assets`,
+    branchAuditTitle:"📍 Asset Branch Audit", branchAuditSub:"See all branches used in the asset registry, and spot duplicates with slightly different names.",
+    branchAuditBtn:"Open Audit", branchAuditModalSub:(n)=>`${n} total assets registered. Branches actually in use:`,
+    branchAuditDuplicatesFound:(n)=>`⚠️ We noticed ${n} likely duplicate(s) (same branch, slightly different spelling)`,
+    branchAuditNoDuplicates:"✅ No duplicates found — every branch name is consistent",
+    branchAuditRecordCount:(n)=>`${n} asset(s)`, branchAuditDuplicateWarning:"⚠️ This is likely the same branch written differently",
     convertToPmBtn:"Convert to Preventive Maintenance", convertToPmTitle:"🔧 Convert to Preventive Maintenance",
     convertToPmSub:"Review and edit the data before converting — it will be saved as a new Preventive Maintenance record.",
     convertToPmBranch:"Branch", convertToPmEquipment:"Equipment", convertToPmServiceType:"Service Type",
@@ -6785,6 +6795,66 @@ const BULK_ASSET_IMPORT_DRAFT = [
   {code:"MY-43", name:"بوتاجاز غاز", category:"", location:"المطبخ", branch:"ميار كوفي شوب"},
   {code:"MY-44", name:"ثلاجة", category:"INOFRIGO", location:"المطبخ", branch:"ميار كوفي شوب"},
 ];
+function openBranchAuditModal(){
+  const root = document.getElementById("modalRoot");
+  const assets = loadData("assets");
+
+  // Count each RAW branch string as it actually appears (splitting any multi-branch entries)
+  const rawCounts = {};
+  assets.forEach(a=>{
+    splitBranchNames(a.branch).forEach(b=>{
+      rawCounts[b] = (rawCounts[b]||0) + 1;
+    });
+  });
+  // Fallback: if splitBranchNames found nothing (e.g. branch text matches no registered branch),
+  // still count the raw un-split value so nothing gets silently dropped from the audit.
+  assets.forEach(a=>{
+    const b = (a.branch||"").trim();
+    if(b && splitBranchNames(a.branch).length===0){
+      rawCounts[b] = (rawCounts[b]||0) + 1;
+    }
+  });
+
+  // Group raw values by normalized form to detect near-duplicates
+  const groups = {};
+  Object.keys(rawCounts).forEach(raw=>{
+    const norm = normalizeSearchText(raw);
+    if(!groups[norm]) groups[norm] = [];
+    groups[norm].push({ raw, count: rawCounts[raw] });
+  });
+  const groupList = Object.values(groups).sort((a,b)=> b.reduce((s,x)=>s+x.count,0) - a.reduce((s,x)=>s+x.count,0));
+  const duplicateGroups = groupList.filter(g=> g.length > 1);
+
+  root.innerHTML = `
+    <div class="modal-overlay" id="branchAuditOverlay">
+      <div class="modal" style="max-width:640px;">
+        <h2>${t('branchAuditTitle')}</h2>
+        <div class="modal-sub">${t('branchAuditModalSub', assets.length)}</div>
+        ${duplicateGroups.length ? `
+          <div class="banner" style="margin-bottom:14px; background:#fdecea; color:#c0392b;">${t('branchAuditDuplicatesFound', duplicateGroups.length)}</div>
+        ` : `<div class="banner" style="margin-bottom:14px; background:#eafaf0; color:#1f8a4c;">${t('branchAuditNoDuplicates')}</div>`}
+        <div style="max-height:55vh; overflow-y:auto;">
+          ${groupList.map(g=>{
+            const total = g.reduce((s,x)=>s+x.count,0);
+            const isDup = g.length > 1;
+            return `
+            <div style="border:1.5px solid ${isDup?'#e08a8a':'var(--line)'}; background:${isDup?'#fff7f7':'#fff'}; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+              ${g.map(x=>`<div style="display:flex; justify-content:space-between; padding:3px 0; font-weight:${isDup?'800':'700'}; font-size:14px;">
+                <span>${escapeHtml(x.raw)}</span><span style="color:var(--muted); font-weight:700;">${t('branchAuditRecordCount', x.count)}</span>
+              </div>`).join("")}
+              ${isDup ? `<div style="font-size:11.5px; color:#c0392b; margin-top:4px; font-weight:700;">${t('branchAuditDuplicateWarning')}</div>` : ""}
+            </div>`;
+          }).join("")}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btnBranchAuditClose">${t('close')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnBranchAuditClose").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("branchAuditOverlay").onclick = (e)=>{ if(e.target.id==="branchAuditOverlay") root.innerHTML = ""; };
+}
 function openBulkAssetImportModal(){
   const root = document.getElementById("modalRoot");
   const draftBranches = [...new Set(BULK_ASSET_IMPORT_DRAFT.map(it=>it.branch).filter(Boolean))];
@@ -6958,6 +7028,11 @@ function renderSettingsPage(){
         <div class="sub" style="margin-bottom:16px;">${t('bulkAssetImportSub')}</div>
         <button class="btn btn-primary btn-sm" id="btnOpenBulkAssetImport">${t('bulkAssetImportBtn')}</button>
       </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:6px;">${t('branchAuditTitle')}</div>
+        <div class="sub" style="margin-bottom:16px;">${t('branchAuditSub')}</div>
+        <button class="btn btn-outline btn-sm" id="btnOpenBranchAudit">${t('branchAuditBtn')}</button>
+      </div>
     </div>
   `;
   if(document.getElementById("btnLockNow")) document.getElementById("btnLockNow").onclick = lockNow;
@@ -7012,6 +7087,7 @@ function renderSettingsPage(){
     showToast(t('renumberDoneToast', count));
   };
   document.getElementById("btnOpenBulkAssetImport").onclick = openBulkAssetImportModal;
+  document.getElementById("btnOpenBranchAudit").onclick = openBranchAuditModal;
 }
 
 /* ---------------- HELP ---------------- */
