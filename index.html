@@ -1669,7 +1669,7 @@ function escapeAttr(s){ return (s||"").toString().replace(/&/g,"&amp;").replace(
 const NO_TRANSLATE_KEY_PATTERN = /No\.?$|Number|Phone|reqNo|plate|serial|invoice|contractNo|^code$|chassis|engine|appId|apiKey/i;
 function isTranslatableField(f){
   if(!f) return false;
-  if(f.type!=="text" && f.type!=="textarea") return false;
+  if(f.type!=="text" && f.type!=="textarea" && f.type!=="branchMultiSelect") return false;
   return !NO_TRANSLATE_KEY_PATTERN.test(f.key);
 }
 
