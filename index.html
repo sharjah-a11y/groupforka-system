@@ -550,6 +550,9 @@ const STR = {
     branchAuditAutoFixBtn:"🔧 صلّح كل التكرار تلقائيًا الآن (كل الأقسام)",
     branchAuditAutoFixConfirm:"هيتم توحيد كل الفروع المكررة تلقائيًا في كل الأقسام (البلاغات، الأصول، السيارات، وكل حاجة) — الاسم الأكتر استخدامًا هيبقى هو المعتمد. متابعة؟",
     branchAuditAutoFixDone:(recs,groups)=>`✅ تم توحيد ${groups} فرع مكرر، وتحديث ${recs} سجل بنجاح`,
+    moduleExportBranchTitle:"📤 اختر الفروع للتصدير", moduleExportBranchSub:(name)=>`تصدير ${name} — اختار كل الفروع ولا فروع معيّنة بس.`,
+    moduleExportAllBranches:"كل الفروع", moduleExportSpecificBranches:"فروع معيّنة",
+    moduleExportBranchConfirmBtn:"تصدير الآن", moduleExportBranchNothing:"اختر فرع واحد على الأقل",
     convertToPmBtn:"تحويل لصيانة وقائية", convertToPmTitle:"🔧 تحويل إلى صيانة وقائية",
     convertToPmSub:"راجع وعدّل البيانات قبل التحويل — هيتسجّل كسجل جديد في الصيانة الوقائية.",
     convertToPmBranch:"الفرع", convertToPmEquipment:"الجهاز / المعدة", convertToPmServiceType:"نوع الخدمة",
@@ -879,6 +882,9 @@ const STR = {
     branchAuditAutoFixBtn:"🔧 Auto-Fix All Duplicates Now (All Sections)",
     branchAuditAutoFixConfirm:"All duplicate branches will be automatically merged across every section (requests, assets, vehicles, everything) — the most-used spelling becomes the standard one. Continue?",
     branchAuditAutoFixDone:(recs,groups)=>`✅ Merged ${groups} duplicate branch(es), updated ${recs} record(s) successfully`,
+    moduleExportBranchTitle:"📤 Choose Branches to Export", moduleExportBranchSub:(name)=>`Exporting ${name} — choose all branches or specific ones only.`,
+    moduleExportAllBranches:"All Branches", moduleExportSpecificBranches:"Specific Branches",
+    moduleExportBranchConfirmBtn:"Export Now", moduleExportBranchNothing:"Select at least one branch",
     convertToPmBtn:"Convert to Preventive Maintenance", convertToPmTitle:"🔧 Convert to Preventive Maintenance",
     convertToPmSub:"Review and edit the data before converting — it will be saved as a new Preventive Maintenance record.",
     convertToPmBranch:"Branch", convertToPmEquipment:"Equipment", convertToPmServiceType:"Service Type",
@@ -2932,7 +2938,7 @@ function renderModule(mKey){
   const btnExportPdfTop = document.getElementById("btnExportPdf");
   if(btnExportPdfTop) btnExportPdfTop.onclick = ()=> exportModulePDF(m);
   const btnExportTop = document.getElementById("btnExport");
-  if(btnExportTop) btnExportTop.onclick = ()=> exportModuleExcel(m);
+  if(btnExportTop) btnExportTop.onclick = ()=> openModuleExportBranchModal(m);
   const btnExportByBranchTop = document.getElementById("btnExportByBranch");
   if(btnExportByBranchTop) btnExportByBranchTop.onclick = exportAssetsByBranchExcel;
 
@@ -3099,7 +3105,7 @@ function renderModuleRecordsBody(m){
   document.getElementById("btnAdd").onclick = ()=> openForm(m, null);
   document.getElementById("btnPrint").onclick = ()=> window.print();
   document.getElementById("btnExportPdf").onclick = ()=> exportModulePDF(m);
-  document.getElementById("btnExport").onclick = ()=> exportModuleExcel(m);
+  document.getElementById("btnExport").onclick = ()=> openModuleExportBranchModal(m);
   const si = document.getElementById("searchInput");
   si.oninput = ()=>{ ms.search = si.value; ms.page = 1; renderModuleRecordsBody(m); si.focus(); si.setSelectionRange(si.value.length, si.value.length); };
   const sf = document.getElementById("statusFilter");
@@ -4808,10 +4814,62 @@ function moduleExportHeaders(m, statusFilterValue, forceAll){ return moduleExpor
 function modulePhotoField(m){ return m.fields.find(f=>f.type==="photo") || null; }
 function moduleSecondAttachmentField(m){ return m.fields.find(f=>f.type==="photo2") || null; }
 
-async function exportModuleExcel(m){
+function openModuleExportBranchModal(m){
+  const branches = loadMasters().branches || [];
+  if(!m.branchField || !branches.length){ exportModuleExcel(m); return; }
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay" id="moduleExportBranchOverlay">
+      <div class="modal" style="max-width:480px;">
+        <h2>${t('moduleExportBranchTitle')}</h2>
+        <div class="modal-sub">${t('moduleExportBranchSub', ML(m,"name"))}</div>
+        <div class="field" style="margin-bottom:14px; display:flex; align-items:center; gap:10px;">
+          <input type="radio" name="exportBranchMode" id="exportModeAll" value="all" checked style="width:18px; height:18px;">
+          <label for="exportModeAll" style="margin:0; font-weight:800;">${t('moduleExportAllBranches')}</label>
+        </div>
+        <div class="field" style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+          <input type="radio" name="exportBranchMode" id="exportModeSpecific" value="specific" style="width:18px; height:18px;">
+          <label for="exportModeSpecific" style="margin:0; font-weight:800;">${t('moduleExportSpecificBranches')}</label>
+        </div>
+        <div id="exportBranchChecklist" style="display:none; max-height:35vh; overflow-y:auto; margin-inline-start:28px; margin-bottom:14px;">
+          ${branches.map(b=>`
+            <label style="display:flex; align-items:center; gap:8px; padding:6px 0; cursor:pointer;">
+              <input type="checkbox" class="export-branch-cb" value="${escapeAttr(b)}" style="width:16px; height:16px;">
+              <span style="font-size:13.5px;">${escapeHtml(b)}</span>
+            </label>`).join("")}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" id="btnModuleExportBranchCancel">${t('cancel')}</button>
+          <button class="btn btn-primary" id="btnModuleExportBranchConfirm">${t('moduleExportBranchConfirmBtn')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("btnModuleExportBranchCancel").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("moduleExportBranchOverlay").onclick = (e)=>{ if(e.target.id==="moduleExportBranchOverlay") root.innerHTML = ""; };
+  const toggleChecklist = ()=>{
+    document.getElementById("exportBranchChecklist").style.display = document.getElementById("exportModeSpecific").checked ? "block" : "none";
+  };
+  document.getElementById("exportModeAll").onchange = toggleChecklist;
+  document.getElementById("exportModeSpecific").onchange = toggleChecklist;
+  document.getElementById("btnModuleExportBranchConfirm").onclick = ()=>{
+    const isSpecific = document.getElementById("exportModeSpecific").checked;
+    let selectedBranches = null;
+    if(isSpecific){
+      selectedBranches = Array.from(document.querySelectorAll(".export-branch-cb:checked")).map(cb=>cb.value);
+      if(!selectedBranches.length){ alert(t('moduleExportBranchNothing')); return; }
+    }
+    root.innerHTML = "";
+    exportModuleExcel(m, selectedBranches);
+  };
+}
+async function exportModuleExcel(m, selectedBranches){
   showToast(t('exportPreparing'));
   const workbook = new ExcelJS.Workbook();
-  const filtered = getFilteredData(m);
+  let filtered = getFilteredData(m);
+  if(selectedBranches && selectedBranches.length && m.branchField){
+    filtered = filtered.filter(r=> splitBranchNames(r[m.branchField]).some(b=> selectedBranches.includes(b)));
+  }
   const ms = state.moduleState[m.key];
   const statusFilter = ms ? ms.status : "all";
   const { rows, raw } = await moduleToSheetData(m, filtered, statusFilter);
