@@ -1786,6 +1786,34 @@ function setPinValue(pin){ localStorage.setItem("forka_pin", pin); }
 function removePinValue(){ localStorage.removeItem("forka_pin"); }
 let unlockedThisSession = false;
 function needsLock(){ return !!getPin() && !unlockedThisSession; }
+function migrateStripUploadedPhotoDataUrls(){
+  if(localStorage.getItem("forka_migrated_photostrip_v1")) return;
+  let changedAny = false;
+  MODULES.forEach(m=>{
+    const photoKeys = m.fields.filter(f=>f.type==="photo"||f.type==="photo2").map(f=>f.key);
+    if(!photoKeys.length) return;
+    const arr = loadDataRaw(m.key);
+    let changedThisModule = false;
+    arr.forEach(r=>{
+      photoKeys.forEach(key=>{
+        if(!Array.isArray(r[key])) return;
+        let rowChanged = false;
+        r[key] = r[key].map(p=>{
+          if(p && p.storageUrl && p.dataUrl){
+            rowChanged = true;
+            const { dataUrl, ...rest } = p;
+            return { ...rest, dataUrl: null };
+          }
+          return p;
+        });
+        if(rowChanged){ changedThisModule = true; changedAny = true; }
+      });
+    });
+    if(changedThisModule) saveData(m.key, arr);
+  });
+  localStorage.setItem("forka_migrated_photostrip_v1", "1");
+  return changedAny;
+}
 function migratePaymentStatusDefaults(){
   if(localStorage.getItem("forka_migrated_paymentstatus_v1")) return;
   const arr = loadDataRaw("requests");
@@ -1822,7 +1850,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migratePaymentStatusDefaults, 2500);
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500);
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -3665,8 +3693,7 @@ function openForm(m, existing, viewMode){
       newRec[inp.dataset.field] = inp.value;
     });
     if(m.fields.some(f=>f.type==="photo")) newRec.photos = formPhotos.map(p=>{
-      const isNonImage = isPdfAttachment(p) || isVideoAttachment(p);
-      if(isNonImage && p.storageUrl){
+      if(p.storageUrl){
         const { dataUrl, ...rest } = p; // uploaded successfully — drop the heavy local copy, keep the cloud link
         return { ...rest, dataUrl: null };
       }
@@ -3674,8 +3701,7 @@ function openForm(m, existing, viewMode){
     });
     const photo2Field = m.fields.find(f=>f.type==="photo2");
     if(photo2Field) newRec[photo2Field.key] = formPhotos2.map(p=>{
-      const isNonImage = isPdfAttachment(p);
-      if(isNonImage && p.storageUrl){
+      if(p.storageUrl){
         const { dataUrl, ...rest } = p;
         return { ...rest, dataUrl: null };
       }
@@ -7385,7 +7411,7 @@ if(location.hash === "#public"){
   renderBranchInspectPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migratePaymentStatusDefaults, 2500); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); }
 </script>
 </body>
 </html>
