@@ -542,6 +542,8 @@ const STR = {
     bulkAssetImportFilterLabel:"📍 اعرض معدات فرع:", bulkAssetImportFilterAll:"كل الفروع", bulkAssetImportBranchCol:"الفرع",
     bulkAssetImportAddRow:"➕ إضافة صف", bulkAssetImportConfirmBtn:"استيراد الكل الآن", bulkAssetImportNothing:"مفيش صفوف فيها بيانات",
     bulkAssetImportDoneToast:(n)=>`✅ تم استيراد ${n} أصل بنجاح`,
+    storageInfoTitle:"💾 مساحة التخزين", storageInfoSub:"البيانات والمرفقات بتتخزن في مساحة كبيرة (IndexedDB) بدل مساحة المتصفح الصغيرة.",
+    storageModeBig:"تخزين موسّع مُفعّل", storageModeBasic:"تخزين أساسي (المتصفح لا يدعم الموسّع)", storageInfoUsed:"المستخدم", storageInfoAvail:"المتاح بالكامل",
     branchAuditTitle:"📍 مراجعة فروع الأصول", branchAuditSub:"شوف كل الفروع المستخدمة في سجل الأصول، واكتشف لو فيه تكرار بأسماء مختلفة.",
     branchAuditBtn:"فتح المراجعة", branchAuditModalSub:(n)=>`إجمالي ${n} أصل مسجّل. الفروع الموجودة فعليًا:`,
     branchAuditDuplicatesFound:(n)=>`⚠️ لاحظنا ${n} حالة تكرار محتمل (نفس الفرع بأسماء مختلفة شوية)`,
@@ -874,6 +876,8 @@ const STR = {
     bulkAssetImportFilterLabel:"📍 Show equipment for branch:", bulkAssetImportFilterAll:"All Branches", bulkAssetImportBranchCol:"Branch",
     bulkAssetImportAddRow:"➕ Add Row", bulkAssetImportConfirmBtn:"Import All Now", bulkAssetImportNothing:"No rows have data",
     bulkAssetImportDoneToast:(n)=>`✅ Successfully imported ${n} assets`,
+    storageInfoTitle:"💾 Storage Space", storageInfoSub:"Data and attachments are stored in a large space (IndexedDB) instead of the small browser quota.",
+    storageModeBig:"Extended storage active", storageModeBasic:"Basic storage (browser lacks extended support)", storageInfoUsed:"Used", storageInfoAvail:"Total available",
     branchAuditTitle:"📍 Asset Branch Audit", branchAuditSub:"See all branches used in the asset registry, and spot duplicates with slightly different names.",
     branchAuditBtn:"Open Audit", branchAuditModalSub:(n)=>`${n} total assets registered. Branches actually in use:`,
     branchAuditDuplicatesFound:(n)=>`⚠️ We noticed ${n} likely duplicate(s) (same branch, slightly different spelling)`,
@@ -1570,18 +1574,138 @@ let formPhotos2 = []; /* second, independent attachment field (e.g. technical re
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
 let formViewOnly = false;
 
+/* ---------------- BIG-DATA STORE ----------------
+   Module records and report archives can carry large attachments. localStorage is capped at ~5 MB
+   (that is what produced the "storage full" error), so everything heavy lives in IndexedDB, which
+   allows hundreds of MB up to several GB. An in-memory string cache fronts it so the rest of the app
+   keeps reading/writing synchronously exactly as before (each read still gets a fresh JSON.parse copy).
+   If IndexedDB is unavailable (some private modes / very old browsers) it silently falls back to localStorage. */
+const BigStore = (function(){
+  const DB_NAME = "forka_bigstore", STORE = "kv";
+  let db = null, usable = false, flushScheduled = false;
+  const strCache = {};   // key -> JSON string
+  const pending = {};    // key -> JSON string waiting to be written to IndexedDB
+  let channel = null;
+  try{
+    channel = new BroadcastChannel("forka_bigstore");
+    channel.onmessage = (e)=>{ if(e.data && e.data.k && typeof e.data.s === "string") strCache[e.data.k] = e.data.s; };
+  }catch(e){ channel = null; }
+
+  function bigKeys(){
+    const keys = [];
+    MODULES.forEach(m=>{ keys.push("forka_"+m.key); keys.push("forka_reportarchive_"+m.key); });
+    return keys;
+  }
+  function flush(){
+    flushScheduled = false;
+    if(!usable || !db) return;
+    const entries = Object.entries(pending);
+    if(!entries.length) return;
+    try{
+      const tx = db.transaction(STORE, "readwrite");
+      const st = tx.objectStore(STORE);
+      entries.forEach(([k,s])=>{ st.put(s, k); delete pending[k]; });
+      tx.onerror = tx.onabort = ()=>{
+        // IndexedDB write failed: fall back to localStorage so nothing is lost
+        entries.forEach(([k,s])=>{ try{ localStorage.setItem(k, s); localStorage.setItem("forka_lsfallback_"+k, "1"); }catch(e){} });
+      };
+    }catch(e){
+      entries.forEach(([k,s])=>{ try{ localStorage.setItem(k, s); localStorage.setItem("forka_lsfallback_"+k, "1"); }catch(err){} });
+    }
+  }
+  function scheduleFlush(){
+    if(flushScheduled) return;
+    flushScheduled = true;
+    setTimeout(flush, 0);
+  }
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "hidden") flush(); });
+
+  function init(){
+    return new Promise((resolve)=>{
+      if(!window.indexedDB){ resolve(false); return; }
+      let req;
+      try{ req = indexedDB.open(DB_NAME, 1); }catch(e){ resolve(false); return; }
+      req.onupgradeneeded = ()=>{ req.result.createObjectStore(STORE); };
+      req.onerror = ()=> resolve(false);
+      req.onblocked = ()=> resolve(false);
+      req.onsuccess = ()=>{
+        db = req.result;
+        // 1) load everything already stored in IndexedDB into the cache
+        const loaded = {};
+        try{
+          const tx = db.transaction(STORE, "readonly");
+          const cur = tx.objectStore(STORE).openCursor();
+          cur.onsuccess = ()=>{
+            const c = cur.result;
+            if(c){ loaded[c.key] = c.value; c.continue(); }
+          };
+          tx.oncomplete = ()=>{
+            Object.assign(strCache, loaded);
+            // 2) one-time migration: move any data still sitting in localStorage into IndexedDB
+            const toWrite = {};
+            bigKeys().forEach(k=>{
+              const ls = localStorage.getItem(k);
+              if(ls === null) return;
+              const wasFallback = localStorage.getItem("forka_lsfallback_"+k) === "1";
+              if(!(k in strCache) || wasFallback){ strCache[k] = ls; toWrite[k] = ls; }
+            });
+            usable = true;
+            const keys = Object.keys(toWrite);
+            if(!keys.length){
+              // clean any stale duplicate copies left in localStorage to free its space
+              bigKeys().forEach(k=>{ if(k in strCache){ try{ localStorage.removeItem(k); localStorage.removeItem("forka_lsfallback_"+k); }catch(e){} } });
+              resolve(true); return;
+            }
+            try{
+              const wtx = db.transaction(STORE, "readwrite");
+              const st = wtx.objectStore(STORE);
+              keys.forEach(k=> st.put(toWrite[k], k));
+              wtx.oncomplete = ()=>{
+                // only after IndexedDB confirmed the write do we free localStorage
+                keys.forEach(k=>{ try{ localStorage.removeItem(k); localStorage.removeItem("forka_lsfallback_"+k); }catch(e){} });
+                resolve(true);
+              };
+              wtx.onerror = wtx.onabort = ()=>{ resolve(true); }; // keep localStorage copy; cache already holds the data
+            }catch(e){ resolve(true); }
+          };
+          tx.onerror = tx.onabort = ()=> resolve(false);
+        }catch(e){ resolve(false); }
+      };
+      try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+    });
+  }
+  function getString(k){
+    if(usable) return (k in strCache) ? strCache[k] : null;
+    return localStorage.getItem(k);
+  }
+  // returns true on success, false if nothing could store it
+  function setString(k, s){
+    if(usable){
+      strCache[k] = s;
+      pending[k] = s;
+      scheduleFlush();
+      if(channel){ try{ channel.postMessage({k, s}); }catch(e){} }
+      return true;
+    }
+    try{ localStorage.setItem(k, s); return true; }catch(e){ return false; }
+  }
+  function isUsable(){ return usable; }
+  return { init, getString, setString, isUsable, flush };
+})();
+window.__BigStore = BigStore;
+
 /* ---------------- STORAGE ---------------- */
 function loadDataRaw(key){
-  try{ return JSON.parse(localStorage.getItem("forka_"+key)) || []; }catch(e){ return []; }
+  try{ return JSON.parse(BigStore.getString("forka_"+key)) || []; }catch(e){ return []; }
 }
 function loadData(key){
   return loadDataRaw(key).filter(r=> !r._deleted);
 }
 function saveData(key, arr){
-  try{
-    localStorage.setItem("forka_"+key, JSON.stringify(arr));
-  }catch(e){
-    console.error("saveData failed (likely storage quota exceeded):", e);
+  const ok = BigStore.setString("forka_"+key, JSON.stringify(arr));
+  if(!ok){
+    console.error("saveData failed (storage unavailable/full)");
     alert(t('storageQuotaError'));
   }
 }
@@ -5349,8 +5473,7 @@ function attachCloudListeners(){
     cloudUnsubscribers[m.key] = cloudDb.collection("forka_"+m.key).onSnapshot(snap=>{
       const arr = [];
       snap.forEach(doc=> arr.push(doc.data()));
-      const existingRaw = localStorage.getItem("forka_"+m.key);
-      const existing = existingRaw ? JSON.parse(existingRaw) : [];
+      const existing = loadDataRaw(m.key);
       const isFirstSync = !cloudFirstSyncReceived[m.key];
       cloudFirstSyncReceived[m.key] = true;
       // Safety guard: Firestore can return an empty/stale cached snapshot BEFORE the real data
@@ -5362,7 +5485,7 @@ function attachCloudListeners(){
         setLastSyncNow();
         return;
       }
-      localStorage.setItem("forka_"+m.key, JSON.stringify(arr));
+      saveData(m.key, arr);
       setLastSyncNow();
       if(isDriverMode || isBranchInspectMode || isPublicMode) return; // standalone pages manage their own rendering
       if(isAssetViewMode){ if(m.key==="assets" || m.key==="fleet" || m.key==="requests") renderAssetViewPage(); return; }
@@ -5684,9 +5807,9 @@ function computeContractorPerfForRecords(recs, contractorField){
 
 /* ---- Report archive (per module), synced to cloud like other collections ---- */
 function loadReportArchive(moduleKey){
-  try{ return JSON.parse(localStorage.getItem("forka_reportarchive_"+moduleKey)) || []; }catch(e){ return []; }
+  try{ return JSON.parse(BigStore.getString("forka_reportarchive_"+moduleKey)) || []; }catch(e){ return []; }
 }
-function saveReportArchive(moduleKey, arr){ localStorage.setItem("forka_reportarchive_"+moduleKey, JSON.stringify(arr)); }
+function saveReportArchive(moduleKey, arr){ BigStore.setString("forka_reportarchive_"+moduleKey, JSON.stringify(arr)); }
 function archiveModuleReport(m, from, to, branch){
   const summary = moduleSummary(m, from, to, branch);
   const snapshot = {
@@ -6947,6 +7070,18 @@ function autoFixBranchDuplicates(){
 
   return { fixedGroups: duplicateGroupCount, fixedRecords };
 }
+function refreshStorageInfoLine(){
+  const el = document.getElementById("storageInfoLine");
+  if(!el) return;
+  const mode = BigStore.isUsable() ? t('storageModeBig') : t('storageModeBasic');
+  if(navigator.storage && navigator.storage.estimate){
+    navigator.storage.estimate().then(est=>{
+      const fmt = (b)=> b >= 1073741824 ? (b/1073741824).toFixed(1)+" GB" : (b/1048576).toFixed(0)+" MB";
+      const line = document.getElementById("storageInfoLine");
+      if(line) line.textContent = `${mode} — ${t('storageInfoUsed')}: ${fmt(est.usage||0)} / ${t('storageInfoAvail')}: ${fmt(est.quota||0)}`;
+    }).catch(()=>{ el.textContent = mode; });
+  } else { el.textContent = mode; }
+}
 function openBranchAuditModal(){
   const root = document.getElementById("modalRoot");
   const assets = loadData("assets");
@@ -7192,6 +7327,11 @@ function renderSettingsPage(){
         <button class="btn btn-primary btn-sm" id="btnOpenBulkAssetImport">${t('bulkAssetImportBtn')}</button>
       </div>
       <div class="card">
+        <div class="label" style="margin-bottom:6px;">${t('storageInfoTitle')}</div>
+        <div class="sub" style="margin-bottom:10px;">${t('storageInfoSub')}</div>
+        <div id="storageInfoLine" style="font-weight:800; font-size:14px; color:var(--navy);">…</div>
+      </div>
+      <div class="card">
         <div class="label" style="margin-bottom:6px;">${t('branchAuditTitle')}</div>
         <div class="sub" style="margin-bottom:16px;">${t('branchAuditSub')}</div>
         <button class="btn btn-outline btn-sm" id="btnOpenBranchAudit">${t('branchAuditBtn')}</button>
@@ -7251,6 +7391,7 @@ function renderSettingsPage(){
   };
   document.getElementById("btnOpenBulkAssetImport").onclick = openBulkAssetImportModal;
   document.getElementById("btnOpenBranchAudit").onclick = openBranchAuditModal;
+  refreshStorageInfoLine();
 }
 
 /* ---------------- HELP ---------------- */
@@ -7383,10 +7524,6 @@ if(getPushNotifEnabled() && "Notification" in window && Notification.permission 
   startPushNotifWatcher();
 }
 
-purgeExpiredTrash();
-applyStaticText();
-setupServiceWorker();
-initEmailJsIfConfigured();
 function navigateToQrDeepLinkIfPresent(){
   const parsed = parseQrScanData(location.hash);
   if(!parsed) return;
@@ -7401,6 +7538,11 @@ function navigateToQrDeepLinkIfPresent(){
     alert(t('qrNotFound'));
   }
 }
+function startApp(){
+purgeExpiredTrash();
+applyStaticText();
+setupServiceWorker();
+initEmailJsIfConfigured();
 updateCloudStatusBadge();
 initCloud();
 if(location.hash === "#public"){
@@ -7412,6 +7554,8 @@ if(location.hash === "#public"){
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
 } else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); }
+}
+BigStore.init().then(startApp, startApp);
 </script>
 </body>
 </html>
