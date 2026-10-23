@@ -657,6 +657,9 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    vehEventsSummaryTitle:"📊 ملخص الحوادث والمخالفات", vehEventsAccidents:"حوادث", vehEventsViolations:"مخالفات", vehEventsUnpaid:"مخالفات غير مدفوعة", vehEventsTotalCost:"إجمالي التكلفة",
+    vehAccidentsTitle:"🚨 الحوادث المسجلة على هذه السيارة", noVehAccidents:"لا توجد حوادث مسجلة لهذه السيارة 👍",
+    vehViolationsTitle:"📋 المخالفات المسجلة على هذه السيارة", noVehViolations:"لا توجد مخالفات مسجلة لهذه السيارة 👍",
     linkedRequestsTitle:"🛠️ بلاغات الإصلاحات المرتبطة بهذه السيارة", noLinkedRequests:"لا توجد بلاغات إصلاحات مسجلة لهذه السيارة 👍",
     linkedChecksTitle:"✅ آخر 10 عمليات فحص يومي مرتبطة بهذه السيارة",
     noLinkedChecks:"لا توجد عمليات فحص يومي مسجلة لهذه السيارة بعد",
@@ -991,6 +994,9 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    vehEventsSummaryTitle:"📊 Accidents & Violations Summary", vehEventsAccidents:"Accidents", vehEventsViolations:"Violations", vehEventsUnpaid:"Unpaid violations", vehEventsTotalCost:"Total cost",
+    vehAccidentsTitle:"🚨 Accidents Recorded for This Vehicle", noVehAccidents:"No accidents recorded for this vehicle 👍",
+    vehViolationsTitle:"📋 Violations Recorded for This Vehicle", noVehViolations:"No violations recorded for this vehicle 👍",
     linkedRequestsTitle:"🛠️ Repair Requests Linked to This Vehicle", noLinkedRequests:"No repair requests recorded for this vehicle 👍",
     linkedChecksTitle:"✅ Last 10 Daily Checks Linked to This Vehicle",
     noLinkedChecks:"No daily checks recorded for this vehicle yet",
@@ -1372,7 +1378,7 @@ const MODULES = [
     {key:"date", label:"التاريخ", labelEn:"Date", type:"date", required:true},
     {key:"type", label:"نوع الحدث", labelEn:"Event Type", type:"select", options:["حادث","مخالفة"], required:true},
     {key:"driver", label:"اسم السائق", labelEn:"Driver Name", type:"text", master:"drivers"},
-    {key:"plate", label:"رقم اللوحة", labelEn:"Plate No.", type:"text"},
+    {key:"plate", label:"رقم اللوحة", labelEn:"Plate No.", type:"text", datalistId:"fleetPlates"},
     {key:"location", label:"الموقع", labelEn:"Location", type:"text"},
     {key:"desc", label:"الوصف", labelEn:"Description", type:"textarea", full:true},
     {key:"injuries", label:"إصابات؟", labelEn:"Injuries?", type:"select", options:["نعم","لا"], showIf:{field:"type",value:"حادث"}},
@@ -1904,7 +1910,9 @@ function buildDatalistsHtml(){
     ...loadData("fleet").map(v=> v.carName ? `${v.carName.trim()}${v.plate ? " — "+v.plate.trim() : ""}` : ""),
   ].filter(Boolean))];
   const assetDatalist = `<datalist id="dl_assetNames">${assetNames.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`;
-  return masterLists + assetDatalist;
+  const fleetPlates = loadData("fleet").filter(v=>v.plate && v.plate.trim());
+  const plateDatalist = `<datalist id="dl_fleetPlates">${fleetPlates.map(v=>`<option value="${escapeAttr(v.plate.trim())}" label="${escapeAttr((v.carName||"").trim())}">${escapeHtml((v.carName||"").trim())}</option>`).join("")}</datalist>`;
+  return masterLists + assetDatalist + plateDatalist;
 }
 
 /* ---------------- PIN LOCK ---------------- */
@@ -2351,6 +2359,16 @@ function renderAssetViewPage(){
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
             <span style="color:#7a8699;">${t('assetsMaintLast')}</span><span style="font-weight:800;">${maint.lastDate || "—"}</span>
           </div>
+          ${isVehicle ? (()=>{ const st = vehicleEventStats(rec); return `
+          <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
+            <span style="color:#7a8699;">🚨 ${t('vehEventsAccidents')}</span><span style="font-weight:800;">${st.accidents.length}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
+            <span style="color:#7a8699;">📋 ${t('vehEventsViolations')}</span><span style="font-weight:800;">${st.violations.length}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
+            <span style="color:#7a8699;">💸 ${t('vehEventsUnpaid')}</span><span style="font-weight:800; color:${st.unpaid.length?'#c0392b':'inherit'};">${st.unpaid.length}</span>
+          </div>`; })() : ""}
         </div>
       </div>
     </div>`;
@@ -3180,6 +3198,7 @@ function renderModuleRecordsBody(m){
   const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
   if(ms.page > totalPages) ms.page = totalPages;
   const pageData = data.slice((ms.page-1)*PAGE_SIZE, ms.page*PAGE_SIZE);
+  const allAccidentsForChips = (m.key==="fleet") ? loadData("accidents") : null;
 
   const tableHtml = `
     <div class="print-only print-header">
@@ -3207,6 +3226,15 @@ function renderModuleRecordsBody(m){
             ${cols.map(c=>{
               const f = m.fields.find(x=>x.key===c);
               let val = r[c]||"";
+              if(m.key==="fleet" && c==="plate" && allAccidentsForChips){
+                const st = vehicleEventStats(r, allAccidentsForChips);
+                const chips = [
+                  st.accidents.length ? `<span class="badge badge-danger" title="${t('vehEventsAccidents')}" style="margin-inline-start:4px;">🚨${st.accidents.length}</span>` : "",
+                  st.violations.length ? `<span class="badge badge-warning" title="${t('vehEventsViolations')}" style="margin-inline-start:4px;">📋${st.violations.length}</span>` : "",
+                  st.unpaid.length ? `<span class="badge badge-danger" title="${t('vehEventsUnpaid')}" style="margin-inline-start:4px;">💸${st.unpaid.length}</span>` : "",
+                ].join("");
+                return `<td>${escapeHtml(val)}${chips}</td>`;
+              }
               if(f && f.type==="select"){
                 val = badge(val);
                 if(overdue && c===m.statusField) val += `<span class="overdue-tag">${overdueLabelFor(m)}</span>`;
@@ -3419,14 +3447,15 @@ function buildLinkedRecordsHtml(m, rec, viewMode){
   return "";
 }
 function buildFleetLinkedHtml(rec){
-  if(!rec.plate || !rec.plate.trim()) return "";
-  const plate = rec.plate.trim();
   const accidentsM = MODULES.find(x=>x.key==="accidents");
   const vehcheckM = MODULES.find(x=>x.key==="vehcheck");
-  const accidents = loadData("accidents").filter(a=>platesMatch(a.plate, plate))
-    .sort((a,b)=> new Date(b.date||0)-new Date(a.date||0));
-  const checks = loadData("vehcheck").filter(v=>platesMatch(v.plate, plate))
-    .sort((a,b)=> new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
+  const evStats = vehicleEventStats(rec);
+  const byDateDesc = (a,b)=> new Date(b.date||0)-new Date(a.date||0);
+  const accidentRecs = evStats.accidents.slice().sort(byDateDesc);
+  const violationRecs = evStats.violations.slice().sort(byDateDesc);
+  const accidents = evStats.all; // everything (accidents + violations) — used for the health score & timeline
+  const checks = (rec.plate && rec.plate.trim()) ? loadData("vehcheck").filter(v=>platesMatch(v.plate, rec.plate))
+    .sort((a,b)=> new Date(b.date||0)-new Date(a.date||0)).slice(0,10) : [];
 
   const fl = (mod,key) => FL(mod.fields.find(f=>f.key===key));
 
@@ -3447,7 +3476,11 @@ function buildFleetLinkedHtml(rec){
 
   const timelineEvents = [];
   if(rec.purchaseDate) timelineEvents.push({date:rec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
-  accidents.forEach(a=> timelineEvents.push({date:a.date, label:(a.type||"")+": "+(a.desc||"").slice(0,20), icon:"🚨", color:"#c0392b"}));
+  accidents.forEach(a=>{
+    const isViolation = (a.type||"").trim()==="مخالفة";
+    const text = isViolation ? (a.violationType||a.desc||"") : (a.desc||"");
+    timelineEvents.push({date:a.date, label:optLabel(a.type||"")+": "+String(text).slice(0,20), icon: isViolation ? "📋" : "🚨", color: isViolation ? "#d98e1f" : "#c0392b"});
+  });
   html += `<div class="section-title">${t('timelineTitle')}</div>`;
   html += buildTimelineHtml(timelineEvents);
 
@@ -3458,12 +3491,27 @@ function buildFleetLinkedHtml(rec){
       <tbody>${linkedRequests.map(r=>`<tr><td>${(r.reportDate||"").slice(0,10)}</td><td class="desc-cell">${escapeHtml(r.issue||"")}</td><td>${badge(r.severity||"")}</td><td>${badge(r.status||"")}</td><td>${r.cost?fmtMoney(r.cost):"—"}</td></tr>`).join("")}</tbody>
     </table></div>` : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">${t('noLinkedRequests')}</div>`;
 
-  html += `<div class="section-title">${t('linkedViolationsTitle')}</div>`;
-  html += accidents.length ? `
+  html += `<div class="section-title">${t('vehEventsSummaryTitle')}</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+      <span class="badge ${accidentRecs.length?'badge-danger':'badge-success'}" style="font-size:12.5px; padding:6px 12px;">🚨 ${t('vehEventsAccidents')}: ${accidentRecs.length}</span>
+      <span class="badge ${violationRecs.length?'badge-warning':'badge-success'}" style="font-size:12.5px; padding:6px 12px;">📋 ${t('vehEventsViolations')}: ${violationRecs.length}</span>
+      <span class="badge ${evStats.unpaid.length?'badge-danger':'badge-success'}" style="font-size:12.5px; padding:6px 12px;">💸 ${t('vehEventsUnpaid')}: ${evStats.unpaid.length}${evStats.unpaidAmount?` (${fmtMoney(evStats.unpaidAmount)})`:""}</span>
+      <span class="badge badge-muted" style="font-size:12.5px; padding:6px 12px;">${t('vehEventsTotalCost')}: ${fmtMoney(evStats.totalCost)}</span>
+    </div>`;
+
+  html += `<div class="section-title">${t('vehAccidentsTitle')}</div>`;
+  html += accidentRecs.length ? `
     <div class="table-wrap" style="margin-bottom:14px;"><table>
-      <thead><tr><th>${fl(accidentsM,'date')}</th><th>${fl(accidentsM,'type')}</th><th>${fl(accidentsM,'desc')}</th><th>${fl(accidentsM,'status')}</th></tr></thead>
-      <tbody>${accidents.map(a=>`<tr><td>${a.date||""}</td><td>${badge(a.type||"")}</td><td class="desc-cell">${a.desc||""}</td><td>${badge(a.status||"")}</td></tr>`).join("")}</tbody>
-    </table></div>` : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">${t('noLinkedViolations')}</div>`;
+      <thead><tr><th>${fl(accidentsM,'date')}</th><th>${fl(accidentsM,'desc')}</th><th>${fl(accidentsM,'location')}</th><th>${fl(accidentsM,'cost')}</th><th>${fl(accidentsM,'status')}</th></tr></thead>
+      <tbody>${accidentRecs.map(a=>`<tr><td>${a.date||""}</td><td class="desc-cell">${escapeHtml(a.desc||"")}</td><td>${escapeHtml(a.location||"")}</td><td>${a.cost?fmtMoney(a.cost):"—"}</td><td>${badge(a.status||"")}</td></tr>`).join("")}</tbody>
+    </table></div>` : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">${t('noVehAccidents')}</div>`;
+
+  html += `<div class="section-title">${t('vehViolationsTitle')}</div>`;
+  html += violationRecs.length ? `
+    <div class="table-wrap" style="margin-bottom:14px;"><table>
+      <thead><tr><th>${fl(accidentsM,'date')}</th><th>${fl(accidentsM,'violationType')}</th><th>${fl(accidentsM,'fineNumber')}</th><th>${fl(accidentsM,'cost')}</th><th>${fl(accidentsM,'paidStatus')}</th><th>${fl(accidentsM,'status')}</th></tr></thead>
+      <tbody>${violationRecs.map(a=>`<tr><td>${a.date||""}</td><td>${badge(a.violationType||"")}</td><td>${escapeHtml(a.fineNumber||"")}</td><td>${a.cost?fmtMoney(a.cost):"—"}</td><td>${badge(a.paidStatus||"")}</td><td>${badge(a.status||"")}</td></tr>`).join("")}</tbody>
+    </table></div>` : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:14px;">${t('noVehViolations')}</div>`;
 
   html += `<div class="section-title">${t('linkedChecksTitle')}</div>`;
   html += checks.length ? `
@@ -3883,6 +3931,17 @@ function openForm(m, existing, viewMode){
         addMasterValue(f.master, newRec[f.key]);
       }
     });
+    if(m.key==="accidents"){
+      // link the accident/violation to its vehicle (by plate), canonicalize the plate spelling, and default the driver
+      const veh = (newRec.plate||"").trim() ? loadData("fleet").find(v=> platesMatch(v.plate, newRec.plate)) : null;
+      if(veh){
+        newRec.linkedVehicleId = veh.id;
+        newRec.plate = veh.plate.trim();
+        if(!(newRec.driver||"").trim() && (veh.driver||"").trim()) newRec.driver = veh.driver.trim();
+      } else {
+        newRec.linkedVehicleId = null;
+      }
+    }
     if(m.key==="requests"){
       const findVehicleByText = (text)=>{
         const t = (text||"").trim().toLowerCase();
@@ -5051,7 +5110,15 @@ async function exportModuleExcel(m, selectedBranches){
       if(!relModule) continue;
       const matchValues = new Set(raw.map(r=>(r[rel.matchField]||"").trim()).filter(Boolean));
       if(!matchValues.size) continue;
-      const relRecords = loadData(relModule.key).filter(r=> matchValues.has((r[rel.matchField]||"").trim()));
+      let relRecords;
+      if(m.key==="fleet" && rel.matchField==="plate"){
+        // tolerant matching: explicit link OR plate with different spacing/letter variants
+        const idSet = new Set(raw.map(r=>r.id));
+        const plateSet = new Set(raw.map(r=>normalizePlate(r.plate)).filter(Boolean));
+        relRecords = loadData(relModule.key).filter(r=> idSet.has(r.linkedVehicleId) || plateSet.has(normalizePlate(r.plate)));
+      } else {
+        relRecords = loadData(relModule.key).filter(r=> matchValues.has((r[rel.matchField]||"").trim()));
+      }
       if(!relRecords.length) continue;
       const relRows = await rowsToTranslatedSheetData(relModule, relRecords, null, true);
       const sheetTitle = LANG==='ar' ? rel.titleAr : rel.titleEn;
@@ -6565,8 +6632,26 @@ function normalizeSearchText(text){
     .replace(/ة/g, "ه")                 // normalize ta marbuta / ha
     .replace(/ى/g, "ي");                // normalize alef maqsura / ya
 }
+/* Accidents & violations belong to a vehicle either by an explicit link (linkedVehicleId, set on save)
+   or by plate number (spacing / letter-variant tolerant) — so older records link automatically too. */
+function accidentsForVehicle(vehicle, accidentsList){
+  const list = accidentsList || loadData("accidents");
+  return list.filter(a=> a.linkedVehicleId===vehicle.id || (vehicle.plate && platesMatch(a.plate, vehicle.plate)));
+}
+function vehicleEventStats(vehicle, accidentsList){
+  const evs = accidentsForVehicle(vehicle, accidentsList);
+  const accidents = evs.filter(a=> (a.type||"").trim()==="حادث");
+  const violations = evs.filter(a=> (a.type||"").trim()==="مخالفة");
+  const unpaid = violations.filter(a=> (a.paidStatus||"").trim()!=="مدفوعة");
+  return {
+    all: evs, accidents, violations, unpaid,
+    totalCost: evs.reduce((s,a)=> s + (Number(a.cost)||0), 0),
+    unpaidAmount: unpaid.reduce((s,a)=> s + (Number(a.cost)||0), 0),
+  };
+}
 function normalizePlate(plate){
-  return normalizeSearchText((plate||"").toString());
+  // ignore spaces, dashes, dots, slashes and underscores so "أ ب ج 1111" = "أ-ب-ج-1111" = "أبج1111"
+  return normalizeSearchText((plate||"").toString()).replace(/[\s\-_.\/\\]+/g, "");
 }
 function platesMatch(plateA, plateB){
   if(!plateA || !plateB) return false;
