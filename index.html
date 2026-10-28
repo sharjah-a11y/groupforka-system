@@ -657,6 +657,11 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    cloudWriteFailed:(code)=>`⚠️ تعذّر رفع البيانات للسحابة (Firebase)\nكود الخطأ: ${code}\n\nالسبب المرجّح: قواعد الأمان في Firebase بتمنع الكتابة. لحد ما تتظبط، التعديلات بتفضل على الجهاز ده بس ومش هتظهر على أجهزة تانية، وممكن ترجع للنسخة القديمة من السحابة بعد المزامنة.\n\nالحل: Firebase Console ← Firestore Database ← Rules، وخلّي القاعدة: allow read, write: if request.auth != null;`,
+    cloudHealthOk:(n)=>`☁️ الرفع للسحابة: ✅ سليم (${n} عملية ناجحة في الجلسة دي)`, cloudHealthFail:(code,n)=>`☁️ الرفع للسحابة: ⚠️ فشل (${code}) — ${n} عملية مرفوضة، راجع قواعد Firebase`, cloudHealthOff:"☁️ الرفع للسحابة: غير مفعّل (البيانات محلية فقط)",
+    fujCloudNotSaved:"⚠️ لم تُحفظ هذه التغييرات على السحابة (مرفوضة من Firebase)، فقد لا تظهر على أجهزة أخرى.",
+    fujCloudPending:"ℹ️ رفع البيانات للسحابة لسه جاري (النت بطيء أو مقطوع) — هيكمل لوحده.",
+    fujRestored:(added,branch)=>`♻️ تم إرجاع ${added} معدة للفجيرة في فرع: ${branch}\n\nكانت اختفت بعد مزامنة السحابة (ده معناه إن الرفع للسحابة كان فاشل).`,
     unassignedCleanupDone:(removed,unmatched,vehicles)=>`🧹 تنظيف المعدات اللي من غير فرع\n\n• تم نقل ${removed} معدة بدون فرع إلى سلة المحذوفات (تقدر ترجّعها خلال 30 يوم)${unmatched?`\n• ${unmatched} معدة ليها فرع مكتوب بشكل مختلف عن الفروع المسجلة — لم تُحذف، وحّد اسم فرعها من الإعدادات ← مراجعة فروع الأصول`:""}${vehicles?`\n• ${vehicles} أصل شكله مركبة لم يُحذف`:""}\n• سجل السيارات لم يتأثر`,
     fujMigrationDone:(added,removed,branch,vehicles)=>`✅ تم تحديث معدات الفجيرة\n\n• تم تنزيل ${added} معدة جديدة في فرع: ${branch}\n• تم نقل ${removed} معدة قديمة إلى سلة المحذوفات (تقدر ترجّعها خلال 30 يوم)\n• السيارات والفروع الأخرى لم تتأثر`,
     vehEventsSummaryTitle:"📊 ملخص الحوادث والمخالفات", vehEventsAccidents:"حوادث", vehEventsViolations:"مخالفات", vehEventsUnpaid:"مخالفات غير مدفوعة", vehEventsTotalCost:"إجمالي التكلفة",
@@ -996,6 +1001,11 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    cloudWriteFailed:(code)=>`⚠️ Could not upload data to the cloud (Firebase)\nError code: ${code}\n\nLikely cause: Firebase security rules are blocking writes. Until fixed, changes stay on this device only, will not appear on other devices, and may be replaced by the old cloud copy on the next sync.\n\nFix: Firebase Console → Firestore Database → Rules, and set: allow read, write: if request.auth != null;`,
+    cloudHealthOk:(n)=>`☁️ Cloud upload: ✅ healthy (${n} successful writes this session)`, cloudHealthFail:(code,n)=>`☁️ Cloud upload: ⚠️ failing (${code}) — ${n} writes rejected, check the Firebase rules`, cloudHealthOff:"☁️ Cloud upload: not enabled (data is local only)",
+    fujCloudNotSaved:"⚠️ These changes were NOT saved to the cloud (rejected by Firebase), so they may not appear on other devices.",
+    fujCloudPending:"ℹ️ Cloud upload is still in progress (slow or no connection) — it will complete on its own.",
+    fujRestored:(added,branch)=>`♻️ ${added} Fujairah items restored in branch: ${branch}\n\nThey had disappeared after a cloud sync (which means cloud uploads were failing).`,
     unassignedCleanupDone:(removed,unmatched,vehicles)=>`🧹 Unassigned equipment cleanup\n\n• ${removed} items with no branch moved to the recycle bin (restorable for 30 days)${unmatched?`\n• ${unmatched} items have a branch spelled differently from the registered branches — NOT deleted; unify their branch from Settings → Asset Branch Audit`:""}${vehicles?`\n• ${vehicles} vehicle-like assets were kept`:""}\n• The vehicle registry was not affected`,
     fujMigrationDone:(added,removed,branch,vehicles)=>`✅ Fujairah equipment updated\n\n• ${added} new items added to branch: ${branch}\n• ${removed} old items moved to the recycle bin (restorable for 30 days)\n• Vehicles and other branches were not affected`,
     vehEventsSummaryTitle:"📊 Accidents & Violations Summary", vehEventsAccidents:"Accidents", vehEventsViolations:"Violations", vehEventsUnpaid:"Unpaid violations", vehEventsTotalCost:"Total cost",
@@ -2311,12 +2321,7 @@ const FUJ_MIGRATION_FLAG = "forka_migrated_fujairah_equip_v1";
 function looksLikeVehicleAsset(a){
   return /سيار|شاحن|مركب|دباب|بيك ?اب|\bvan\b|vehicle|truck|\bcar\b|pickup/i.test(`${a.name||""} ${a.category||""}`);
 }
-function runFujairahEquipmentMigration(){
-  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return null;
-  const arr = loadDataRaw("assets");
-  // already done (here or on another device, synced through the cloud)?
-  if(arr.some(a=> String(a.id||"").startsWith(FUJ_IMPORT_PREFIX))){ localStorage.setItem(FUJ_MIGRATION_FLAG, "1"); return null; }
-
+function resolveFujairahTarget(){
   const masters = loadMasters();
   const fujBranches = (masters.branches||[]).filter(b=> normalizeSearchText(b).includes("فجير"));
   let target = fujBranches.find(b=> normalizeSearchText(b).includes("كويتي")) || fujBranches[0];
@@ -2324,8 +2329,37 @@ function runFujairahEquipmentMigration(){
     target = "مطعم المطبخ الكويتي - الفجيرة";
     masters.branches = [...(masters.branches||[]), target];
     saveMasters(masters);
-    if(typeof cloudEnabled !== "undefined" && cloudEnabled && cloudDb){ cloudDb.collection("forka_meta").doc("masters").set(masters).catch(()=>{}); }
+    cloudPushMasters(masters);
   }
+  return { target, fujBranches };
+}
+function fujairahImportRecord(it, target, now){
+  return { id: it.id, code: it.code, name: it.name, category: it.category, serial: it.serial, branch: target,
+           location: it.location, condition: it.condition, notes: it.notes, photos: [], _updatedAt: now };
+}
+/* Safety net: if the job already ran but the imported records are gone (e.g. a cloud sync replaced the local list because
+   the cloud write was rejected), put them back. Never deletes anything; gives up after 3 attempts. */
+function ensureFujairahEquipmentPresent(){
+  if(!localStorage.getItem(FUJ_MIGRATION_FLAG)) return null;
+  const attempts = Number(localStorage.getItem("forka_fuj_heal_attempts")||0);
+  if(attempts >= 3) return null;
+  const arr = loadDataRaw("assets");
+  if(arr.some(a=> String(a.id||"").startsWith(FUJ_IMPORT_PREFIX))) return null;
+  const { target } = resolveFujairahTarget();
+  const now = Date.now(); const pushes = [];
+  FUJAIRAH_EQUIPMENT_2026.forEach(it=>{ const rec = fujairahImportRecord(it, target, now); arr.push(rec); pushes.push(cloudPushRecord("assets", rec)); });
+  saveData("assets", arr);
+  localStorage.setItem("forka_fuj_heal_attempts", String(attempts+1));
+  return { added: FUJAIRAH_EQUIPMENT_2026.length, branch: target, pushes };
+}
+function runFujairahEquipmentMigration(){
+  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return null;
+  const arr = loadDataRaw("assets");
+  // already done (here or on another device, synced through the cloud)?
+  if(arr.some(a=> String(a.id||"").startsWith(FUJ_IMPORT_PREFIX))){ localStorage.setItem(FUJ_MIGRATION_FLAG, "1"); return null; }
+
+  const { target, fujBranches } = resolveFujairahTarget();
+  const pushes = [];
   const normTarget = normalizeSearchText(target);
   const needKuwaiti = fujBranches.length > 1 && normTarget.includes("كويتي");
   const belongsToTarget = (a)=>{
@@ -2341,21 +2375,26 @@ function runFujairahEquipmentMigration(){
     if(a._deleted || !belongsToTarget(a)) return;
     if(looksLikeVehicleAsset(a)){ keptVehicles++; return; }
     a._deleted = true; a._deletedAt = now; a._updatedAt = now;
-    cloudPushRecord("assets", a);
+    pushes.push(cloudPushRecord("assets", a));
     removed++;
   });
   FUJAIRAH_EQUIPMENT_2026.forEach(it=>{
-    const rec = { id: it.id, code: it.code, name: it.name, category: it.category, serial: it.serial, branch: target,
-                  location: it.location, condition: it.condition, notes: it.notes, photos: [], _updatedAt: now };
+    const rec = fujairahImportRecord(it, target, now);
     arr.push(rec);
-    cloudPushRecord("assets", rec);
+    pushes.push(cloudPushRecord("assets", rec));
   });
   saveData("assets", arr);
   localStorage.setItem(FUJ_MIGRATION_FLAG, "1");
-  return { added: FUJAIRAH_EQUIPMENT_2026.length, removed, keptVehicles, branch: target };
+  return { added: FUJAIRAH_EQUIPMENT_2026.length, removed, keptVehicles, branch: target, pushes };
+}
+/* waits (max 8 s) to learn whether the cloud accepted the writes: "ok" | "fail" | "pending" (offline / slow) */
+function cloudVerdict(pushes){
+  return Promise.race([
+    Promise.all(pushes).then(r=> r.every(Boolean) ? "ok" : "fail"),
+    new Promise(res=> setTimeout(()=> res("pending"), 8000)),
+  ]);
 }
 function scheduleFujairahEquipmentMigration(){
-  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return;
   let waited = 0;
   const timer = setInterval(()=>{
     waited += 800;
@@ -2363,10 +2402,18 @@ function scheduleFujairahEquipmentMigration(){
     const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
     if(!synced && waited < 15000) return;
     clearInterval(timer);
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       const res = runFujairahEquipmentMigration();
       if(res){
-        alert(t('fujMigrationDone', res.added, res.removed, res.branch, res.keptVehicles));
+        const verdict = await cloudVerdict(res.pushes);
+        alert(t('fujMigrationDone', res.added, res.removed, res.branch, res.keptVehicles) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
+        render();
+        return;
+      }
+      const healed = ensureFujairahEquipmentPresent();
+      if(healed){
+        const verdict = await cloudVerdict(healed.pushes);
+        alert(t('fujRestored', healed.added, healed.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : ""));
         render();
       }
     }, 600);
@@ -6121,17 +6168,30 @@ function attachCloudListeners(){
   });
 }
 
+/* Cloud writes used to fail SILENTLY (console only). Now every failure is counted and, once per session, the admin is told
+   plainly — a rejected write (typically Firebase security rules) means data stays on this device only and can even be
+   replaced by the cloud copy on the next sync. Each helper resolves to true/false so callers can verify. */
+let cloudWriteOk = 0, cloudWriteFail = 0, cloudLastErrorCode = null, cloudFailAlerted = false;
+function cloudWrite(promise, label){
+  return promise.then(()=>{ cloudWriteOk++; setLastSyncNow(); return true; }, err=>{
+    cloudWriteFail++; cloudLastErrorCode = (err && err.code) || "unknown";
+    console.error("Cloud write failed ["+label+"]:", err);
+    const adminMode = !(isDriverMode || isBranchInspectMode || isPublicMode || isAssetViewMode);
+    if(adminMode && !cloudFailAlerted){ cloudFailAlerted = true; try{ alert(t('cloudWriteFailed', cloudLastErrorCode)); }catch(e){} }
+    return false;
+  });
+}
 function cloudPushRecord(moduleKey, record){
-  if(!cloudEnabled || !cloudDb) return;
-  cloudDb.collection("forka_"+moduleKey).doc(record.id).set(record).then(setLastSyncNow).catch(err=>console.error("Cloud push failed:", err));
+  if(!cloudEnabled || !cloudDb) return Promise.resolve(true);
+  return cloudWrite(cloudDb.collection("forka_"+moduleKey).doc(record.id).set(record), "push "+moduleKey);
 }
 function cloudDeleteRecord(moduleKey, id){
-  if(!cloudEnabled || !cloudDb) return;
-  cloudDb.collection("forka_"+moduleKey).doc(id).delete().then(setLastSyncNow).catch(err=>console.error("Cloud delete failed:", err));
+  if(!cloudEnabled || !cloudDb) return Promise.resolve(true);
+  return cloudWrite(cloudDb.collection("forka_"+moduleKey).doc(id).delete(), "delete "+moduleKey);
 }
 function cloudPushMasters(obj){
-  if(!cloudEnabled || !cloudDb) return;
-  cloudDb.collection("forka_meta").doc("masters").set(obj).then(setLastSyncNow).catch(err=>console.error("Cloud push masters failed:", err));
+  if(!cloudEnabled || !cloudDb) return Promise.resolve(true);
+  return cloudWrite(cloudDb.collection("forka_meta").doc("masters").set(obj), "masters");
 }
 function cloudPushChecklist(kind, obj){
   if(!cloudEnabled || !cloudDb) return;
@@ -7685,7 +7745,15 @@ function autoFixBranchDuplicates(){
 
   return { fixedGroups: duplicateGroupCount, fixedRecords };
 }
+function refreshCloudHealthLine(){
+  const el = document.getElementById("cloudHealthLine");
+  if(!el) return;
+  if(!cloudEnabled){ el.style.color = "var(--muted)"; el.textContent = t('cloudHealthOff'); return; }
+  if(cloudWriteFail > 0){ el.style.color = "#c0392b"; el.textContent = t('cloudHealthFail', cloudLastErrorCode, cloudWriteFail); return; }
+  el.style.color = "#1f8a4c"; el.textContent = t('cloudHealthOk', cloudWriteOk);
+}
 function refreshStorageInfoLine(){
+  refreshCloudHealthLine();
   const el = document.getElementById("storageInfoLine");
   if(!el) return;
   const mode = BigStore.isUsable() ? t('storageModeBig') : t('storageModeBasic');
@@ -7945,6 +8013,7 @@ function renderSettingsPage(){
         <div class="label" style="margin-bottom:6px;">${t('storageInfoTitle')}</div>
         <div class="sub" style="margin-bottom:10px;">${t('storageInfoSub')}</div>
         <div id="storageInfoLine" style="font-weight:800; font-size:14px; color:var(--navy);">…</div>
+        <div id="cloudHealthLine" style="font-weight:800; font-size:13.5px; margin-top:8px;"></div>
       </div>
       <div class="card">
         <div class="label" style="margin-bottom:6px;">${t('branchAuditTitle')}</div>
