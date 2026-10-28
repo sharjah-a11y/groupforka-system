@@ -403,6 +403,7 @@
   <div class="nav-item" data-view="reports"><span class="ic">📈</span><span id="navReportsLabel"></span></div>
   <div class="nav-item" data-view="calendar"><span class="ic">📅</span><span id="navCalendarLabel"></span></div>
   <div class="nav-item" data-view="branchCompare"><span class="ic">🏢</span><span id="navBranchCompareLabel"></span></div>
+  <div class="nav-item" data-view="expenseReport"><span class="ic">📊</span><span id="navExpenseReportLabel"></span></div>
   <div class="nav-item" data-view="amcVisitsLog"><span class="ic">🗓️</span><span id="navAmcVisitsLogLabel"></span></div>
   <div class="nav-item" data-view="assetMap"><span class="ic">🗺️</span><span id="navAssetMapLabel"></span></div>
   <div class="nav-item" data-view="trash"><span class="ic">🗑️</span><span id="navTrashLabel"></span></div>
@@ -657,6 +658,30 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    navExpenseReport:"📊 تقرير المصروفات الشهري", expReportTitle:"تقرير المصروفات والفواتير الإدارية", expReportMeta:"كل فاتورة موزعة على فروعها — جاهزة لمطابقة الـ P&L الشهري",
+    expFltMonth:"الشهر", expFltAllMonths:"كل الفترات", expFltBranch:"الفرع", expFltAll:"الكل", expFltBasis:"المبالغ", expFltGroupBy:"تجميع حسب", expFltSearch:"بحث", expFltSearchPh:"رقم فاتورة، جهة، موظف، مرجع بيمو...",
+    expBasisNet:"قبل الضريبة", expBasisTotal:"شامل الضريبة", expGroupCategory:"نوع المصروف", expGroupDepartment:"القسم", expGroupVendor:"الجهة / المورد",
+    expSumInvoices:"عدد الفواتير", expSumTotal:"إجمالي المصروفات", expSumUnpaid:"غير مسددة بالكامل", expSumToReview:"تنتظر المراجعة",
+    expPivotTitle:"الملخص حسب الفرع", expPivotTotal:"الإجمالي", expListTitle:"الفواتير", expNoData:"مفيش فواتير بالفلاتر دي",
+    expColEntry:"رقم القيد", expColDate:"التاريخ", expColVendor:"الجهة", expColInvoiceNo:"رقم الفاتورة", expColType:"النوع / القسم", expColSplit:"التوزيع على الفروع", expColTotal:"الإجمالي", expColPayment:"الدفع", expColReview:"المراجعة",
+    expBtnExport:"📥 تصدير للمحاسب (Excel)", expBtnDetails:"تفاصيل", expDetailsSplit:"توزيع الفاتورة على الفروع", expAttachments:"المرفقات", expNoAttachments:"مفيش مرفقات", expAccountantSection:"إجراءات المحاسب",
+    expSaveReview:"حفظ", expReviewSaved:"✅ تم الحفظ",
+    expSheetSummary:"ملخص حسب الفرع", expSheetLines:"توزيع الفواتير على الفروع", expSheetInvoices:"الفواتير",
+    expXlMonth:"الشهر المحاسبي", expXlBranch:"الفرع", expXlNet:"قبل الضريبة", expXlVat:"الضريبة", expXlTotal:"الإجمالي", expXlAttach:"روابط المرفقات", expXlLocal:"(مرفق محفوظ محليًا)",
+    expUpTitle:"رفع فاتورة", expUpIntro:"ارفع صورة الفاتورة واكتب بياناتها واختار الفرع، وهتوصل للمحاسب على طول.",
+    expUpSubmitter:"اسمك", expUpAttach:"الفاتورة (صورة أو PDF)", expUpVatBtn:"ضريبة 5%", expUpPaymentTitle:"الدفع والملاحظات (اختياري)", expUpSubmit:"إرسال الفاتورة",
+    expUpMissing:"من فضلك أكمل الخانات دي:", expUpNeedFile:"ارفع صورة أو ملف الفاتورة الأول.",
+    expUpThanksTitle:"تم إرسال الفاتورة", expUpThanksBody:"وصلت للمحاسب. رقم القيد:", expUpAnother:"رفع فاتورة تانية",
+    acctTitle:"بوابة المحاسب — المصروفات والفواتير", acctGateTitle:"دخول المحاسب", acctGateHint:"اكتب رمز الدخول اللي وصلك من الإدارة", acctGateBtn:"دخول",
+    acctGateWrong:"الرمز غير صحيح", acctGateLoading:"جاري التحميل...", acctGateOff:"الرابط لسه غير مفعّل. اطلب من الإدارة تفعيل رمز المحاسب من الإعدادات.", acctLogout:"خروج",
+    expLinksTitle:"🧾 روابط رفع الفواتير وبوابة المحاسب", expLinksSub:"رابط رفع الفواتير تبعته لموظفي شؤون الموظفين والإدارة، ورابط المحاسب بيدخل بيه برمز. كل رابط بعربي وإنجليزي.",
+    expLinkUpload:"رفع الفواتير", expLinkAccountant:"بوابة المحاسب", expLinkArabic:"عربي", expLinkEnglish:"English", expLinkCopy:"نسخ", expLinkCopied:"✅ تم نسخ الرابط", expLinkCopyManual:"انسخ الرابط يدويًا:",
+    expAcctCodeLabel:"رمز دخول المحاسب", expAcctCodeSave:"حفظ الرمز", expAcctCodeSaved:"✅ تم حفظ الرمز", expAcctCodeShort:"الرمز لازم يكون 4 خانات على الأقل",
+    expAcctCodeNote:"الرمز حماية بسيطة للصفحة. شارك الرابط والرمز مع المحاسب بس.",
+    expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
+    expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
+    expAllocMismatch:(sum,total)=>`مجموع المبالغ الموزعة على الفروع (${sum}) لا يساوي إجمالي الفاتورة (${total}). عدّل التوزيع أولًا.`,
+    expDuplicateMsg:(no)=>`فيه فاتورة بنفس الرقم ومن نفس الجهة مسجلة قبل كده (${no}). تسجّلها برضو؟`,
     mayarMigrationDone:(added,removed,branch)=>`✅ تم تنزيل معدات ميار\n\n• ${added} معدة في فرع: ${branch}\n• اتنقل: الكود، الاسم، الماركة، الرقم التسلسلي/الموديل، الكمية، القسم، الملاحظات، والاسم والملاحظات بنص الملف الأصلي${removed?`\n• تم نقل ${removed} معدة قديمة (أكوادها MY-...) من استيراد سابق إلى سلة المحذوفات لتفادي التكرار (تقدر ترجّعها خلال 30 يوم)`:""}\n• باقي الفروع والسيارات لم تتأثر`,
     mayarRestored:(added,branch)=>`♻️ تم إرجاع ${added} معدة لميار في فرع: ${branch}\n\nكانت اختفت بعد مزامنة السحابة (ده معناه إن الرفع للسحابة كان فاشل).`,
     mayarJobError:(msg)=>`❌ حصل خطأ أثناء نقل معدات ميار:\n${msg}\n\nابعتلي نص الرسالة دي وأصلحها.`,
@@ -1006,6 +1031,30 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    navExpenseReport:"📊 Monthly Expense Report", expReportTitle:"Admin & HR Invoices Report", expReportMeta:"Every invoice split by branch — ready to match the monthly P&L",
+    expFltMonth:"Month", expFltAllMonths:"All periods", expFltBranch:"Branch", expFltAll:"All", expFltBasis:"Amounts", expFltGroupBy:"Group by", expFltSearch:"Search", expFltSearchPh:"Invoice no., vendor, employee, Bimo ref...",
+    expBasisNet:"Before VAT", expBasisTotal:"Incl. VAT", expGroupCategory:"Expense type", expGroupDepartment:"Department", expGroupVendor:"Vendor / Payee",
+    expSumInvoices:"Invoices", expSumTotal:"Total expenses", expSumUnpaid:"Not fully paid", expSumToReview:"Awaiting review",
+    expPivotTitle:"Summary by branch", expPivotTotal:"Total", expListTitle:"Invoices", expNoData:"No invoices match these filters",
+    expColEntry:"Entry No.", expColDate:"Date", expColVendor:"Vendor", expColInvoiceNo:"Invoice No.", expColType:"Type / Dept.", expColSplit:"Branch split", expColTotal:"Total", expColPayment:"Payment", expColReview:"Review",
+    expBtnExport:"📥 Export for accountant (Excel)", expBtnDetails:"Details", expDetailsSplit:"Invoice split by branch", expAttachments:"Attachments", expNoAttachments:"No attachments", expAccountantSection:"Accountant actions",
+    expSaveReview:"Save", expReviewSaved:"✅ Saved",
+    expSheetSummary:"Summary by Branch", expSheetLines:"Invoice Lines by Branch", expSheetInvoices:"Invoices",
+    expXlMonth:"P&L Month", expXlBranch:"Branch", expXlNet:"Before VAT", expXlVat:"VAT", expXlTotal:"Total", expXlAttach:"Attachment links", expXlLocal:"(stored locally)",
+    expUpTitle:"Upload an Invoice", expUpIntro:"Attach the invoice, fill in its details and choose the branch — it goes straight to the accountant.",
+    expUpSubmitter:"Your name", expUpAttach:"Invoice (photo or PDF)", expUpVatBtn:"VAT 5%", expUpPaymentTitle:"Payment & notes (optional)", expUpSubmit:"Submit invoice",
+    expUpMissing:"Please complete these fields:", expUpNeedFile:"Please attach the invoice photo or file first.",
+    expUpThanksTitle:"Invoice submitted", expUpThanksBody:"It reached the accountant. Entry no.:", expUpAnother:"Upload another invoice",
+    acctTitle:"Accountant Portal — Expenses & Invoices", acctGateTitle:"Accountant sign-in", acctGateHint:"Enter the access code you received from management", acctGateBtn:"Enter",
+    acctGateWrong:"Incorrect code", acctGateLoading:"Loading...", acctGateOff:"This link is not active yet. Ask management to set the accountant code in Settings.", acctLogout:"Sign out",
+    expLinksTitle:"🧾 Invoice upload links & accountant portal", expLinksSub:"Send the upload link to HR and admin staff; the accountant signs in with a code. Every link comes in Arabic and English.",
+    expLinkUpload:"Invoice upload", expLinkAccountant:"Accountant portal", expLinkArabic:"Arabic", expLinkEnglish:"English", expLinkCopy:"Copy", expLinkCopied:"✅ Link copied", expLinkCopyManual:"Copy the link manually:",
+    expAcctCodeLabel:"Accountant access code", expAcctCodeSave:"Save code", expAcctCodeSaved:"✅ Code saved", expAcctCodeShort:"The code must be at least 4 characters",
+    expAcctCodeNote:"The code is simple protection for the page. Share the link and code with the accountant only.",
+    expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
+    expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
+    expAllocMismatch:(sum,total)=>`The amounts split between the branches (${sum}) do not equal the invoice total (${total}). Please adjust the split.`,
+    expDuplicateMsg:(no)=>`An invoice with the same number from the same vendor is already recorded (${no}). Record it anyway?`,
     mayarMigrationDone:(added,removed,branch)=>`✅ Mayar equipment imported\n\n• ${added} items in branch: ${branch}\n• Transferred: code, name, brand, serial/model, quantity, section, remarks, plus the original name and remarks text from the file${removed?`\n• ${removed} old items (codes MY-...) from an earlier import moved to the recycle bin to avoid duplicates (restorable for 30 days)`:""}\n• Other branches and vehicles were not affected`,
     mayarRestored:(added,branch)=>`♻️ ${added} Mayar items restored in branch: ${branch}\n\nThey had disappeared after a cloud sync (which means cloud uploads were failing).`,
     mayarJobError:(msg)=>`❌ An error occurred while importing the Mayar equipment:\n${msg}\n\nSend me this message and I will fix it.`,
@@ -1169,6 +1218,7 @@ function applyStaticText(){
   document.getElementById("navCalendarLabel").textContent = t("navCalendar");
   document.getElementById("navBranchCompareLabel").textContent = t("navBranchCompare");
   document.getElementById("navAmcVisitsLogLabel").textContent = t("navAmcVisitsLog");
+  document.getElementById("navExpenseReportLabel").textContent = t("navExpenseReport");
   document.getElementById("navAssetMapLabel").textContent = t("navAssetMap");
   document.getElementById("navTrashLabel").textContent = t("navTrash");
   document.getElementById("navGlobalSearchLabel").textContent = t("navGlobalSearch");
@@ -1195,10 +1245,22 @@ const STATUS_COLORS = {
   "قيد الإصلاح":"badge-warning","مصلح":"badge-success",
   "مكتملة":"badge-success","ناقصة":"badge-warning","منتهية":"badge-danger","نشطة":"badge-success",
   "مدفوعة":"badge-success","غير مدفوعة":"badge-danger",
-  "تم الدفع":"badge-success","لم يتم الدفع":"badge-danger"
+  "تم الدفع":"badge-success","لم يتم الدفع":"badge-danger",
+  "جديدة":"badge-info","تمت المراجعة":"badge-success","مسجلة في بيمو":"badge-success","استفسار":"badge-warning","مدفوعة جزئيًا":"badge-warning"
 };
 /* canonical Arabic value -> English display label (values are ALWAYS stored in Arabic for consistent filtering/coloring) */
 const OPT_EN = {
+  "شؤون الموظفين":"HR / Employee Affairs","الإدارة":"Administration","المحاسبة":"Accounting","المشتريات":"Purchasing","التشغيل":"Operations","أخرى":"Other",
+  "بطاقة عمل":"Work Permit Card","تجديد بطاقة عمل":"Work Permit Renewal","تأشيرة وإقامة":"Visa & Residency","تجديد إقامة":"Residency Renewal",
+  "هوية إماراتية":"Emirates ID","بطاقة صحية":"Health Card","تأمين صحي":"Health Insurance","تأمين عمالي":"Workers' Insurance","رسوم تعديل وضع":"Status Change Fees",
+  "رسوم حكومية":"Government Fees","تذاكر سفر":"Travel Tickets","سكن عمال":"Staff Accommodation","رخصة تجارية وتجديدها":"Trade License & Renewal",
+  "إيجار":"Rent","كهرباء ومياه":"Electricity & Water","اتصالات وإنترنت":"Telecom & Internet","قرطاسية ومستلزمات مكتبية":"Stationery & Office Supplies",
+  "أتعاب مهنية وقانونية":"Professional & Legal Fees","مواصلات ومحروقات":"Transport & Fuel","برامج واشتراكات":"Software & Subscriptions",
+  "تأمين عام":"General Insurance","دعاية وتسويق":"Marketing & Advertising",
+  "جديدة":"New","تمت المراجعة":"Reviewed","مسجلة في بيمو":"Entered in Bimo","استفسار":"Query",
+  "مدفوعة":"Paid","غير مدفوعة":"Unpaid","مدفوعة جزئيًا":"Partially Paid",
+  "نقدي":"Cash","بطاقة":"Card","تحويل بنكي":"Bank Transfer","شيك":"Cheque","آجل":"On Credit",
+  "بالتساوي":"Equally","مبلغ محدد لكل فرع":"Specific amount per branch",
   "حرج":"Critical","عالٍ":"High","متوسط":"Medium","منخفض":"Low",
   "نعم":"Yes","لا":"No",
   "مفتوح":"Open","قيد التنفيذ":"In Progress","متأخر":"Delayed","مغلق":"Closed",
@@ -1246,6 +1308,51 @@ function FL(f){ return LANG==="en" ? (f.labelEn||f.label) : f.label; }
 function ML(m,key){ return LANG==="en" ? (m[key+"En"]||m[key]) : m[key]; }
 
 /* ---------------- MODULE SCHEMAS ---------------- */
+/* ---------------- EXPENSES / INVOICES: shared lists and branch-allocation maths ---------------- */
+const EXPENSE_DEPARTMENTS = ["شؤون الموظفين","الإدارة","المحاسبة","المشتريات","التشغيل","أخرى"];
+const EXPENSE_CATEGORIES = [
+  "بطاقة عمل","تجديد بطاقة عمل","تأشيرة وإقامة","تجديد إقامة","هوية إماراتية","بطاقة صحية","تأمين صحي","تأمين عمالي",
+  "رسوم تعديل وضع","رسوم حكومية","تذاكر سفر","سكن عمال",
+  "رخصة تجارية وتجديدها","إيجار","كهرباء ومياه","اتصالات وإنترنت","قرطاسية ومستلزمات مكتبية","أتعاب مهنية وقانونية",
+  "مواصلات ومحروقات","برامج واشتراكات","تأمين عام","دعاية وتسويق","أخرى"
+];
+const EXPENSE_REVIEW_STATUSES = ["جديدة","تمت المراجعة","مسجلة في بيمو","استفسار"];
+const EXPENSE_PAYMENT_STATUSES = ["مدفوعة","غير مدفوعة","مدفوعة جزئيًا"];
+const EXPENSE_PAYMENT_METHODS = ["نقدي","بطاقة","تحويل بنكي","شيك","آجل"];
+const EXPENSE_SPLIT_EQUAL = "بالتساوي";
+const EXPENSE_SPLIT_CUSTOM = "مبلغ محدد لكل فرع";
+const round2 = (n)=> Math.round((Number(n)||0)*100)/100;
+function parseAllocations(v){
+  if(Array.isArray(v)) return v;
+  try{ const a = JSON.parse(v||"[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; }
+}
+/* Splits an invoice between its branches. Returns [{branch, total, net, vat}] where the shares always add up to the invoice
+   (rounding cents go to the last branch). In "custom" mode rec.allocations holds the TOTAL (incl. VAT) typed per branch. */
+function computeExpenseAllocations(rec){
+  const branches = splitBranchNames(rec.branch);
+  if(!branches.length) return [];
+  const net = round2(rec.amount), vat = round2(rec.vat), total = round2(net + vat);
+  let shares;
+  if((rec.splitMode||"").trim() === EXPENSE_SPLIT_CUSTOM){
+    const custom = parseAllocations(rec.allocations);
+    shares = branches.map(b=>{ const f = custom.find(x=> x.branch===b); return round2(f ? (f.total!==undefined ? f.total : f.amount) : 0); });
+  } else {
+    const each = Math.floor(total/branches.length*100)/100;
+    shares = branches.map(()=> each);
+    shares[shares.length-1] = round2(shares[shares.length-1] + (total - each*branches.length));
+  }
+  const out = branches.map((b,i)=>{
+    const sNet = total ? round2(shares[i]*net/total) : 0;
+    return { branch:b, total:shares[i], net:sNet, vat: round2(shares[i]-sNet) };
+  });
+  const netDiff = round2(net - out.reduce((s,x)=>s+x.net,0));
+  if(out.length && netDiff){ out[out.length-1].net = round2(out[out.length-1].net + netDiff); out[out.length-1].vat = round2(out[out.length-1].total - out[out.length-1].net); }
+  return out;
+}
+function expenseAllocationText(allocs){
+  return (allocs||[]).map(a=> `${a.branch}: ${Number(a.total).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`).join(" | ");
+}
+function expenseMonth(rec){ return (rec.accountingMonth && /^\d{4}-\d{2}$/.test(rec.accountingMonth)) ? rec.accountingMonth : String(rec.date||"").slice(0,7); }
 const MODULES = [
 {
   key:"requests", icon:"🛠️", name:"بلاغات الإصلاحات العامة", nameEn:"General Repair Requests",
@@ -1594,6 +1701,41 @@ const MODULES = [
   listColumns:["carName","plate","branch","driver","insuranceExpiry","licenseExpiry","inspectionExpiry","documentsStatus","status"],
   dateFieldForReports:"purchaseDate", freqField:"model", branchField:"branch"
 },
+{
+  key:"expenses", icon:"🧾", name:"المصروفات والفواتير الإدارية", nameEn:"Admin & HR Invoices",
+  singular:"فاتورة", singularEn:"Invoice",
+  numberPrefix:"EX", numberField:"expNo",
+  statusField:"reviewStatus", alertValues:["استفسار"],
+  branchField:"branch", dateFieldForReports:"date",
+  fields:[
+    {key:"expNo", label:"رقم القيد", labelEn:"Entry No.", type:"text"},
+    {key:"date", label:"تاريخ الفاتورة", labelEn:"Invoice Date", type:"date", required:true},
+    {key:"invoiceNo", label:"رقم الفاتورة", labelEn:"Invoice No.", type:"text"},
+    {key:"vendor", label:"الجهة / المورد", labelEn:"Vendor / Payee", type:"text", required:true, datalistId:"expenseVendors"},
+    {key:"department", label:"القسم", labelEn:"Department", type:"select", required:true, options:EXPENSE_DEPARTMENTS},
+    {key:"category", label:"نوع المصروف", labelEn:"Expense Type", type:"select", required:true, options:EXPENSE_CATEGORIES},
+    {key:"employee", label:"الموظف المعني (إن وجد)", labelEn:"Employee (if any)", type:"text"},
+    {key:"branch", label:"الفرع / الفروع", labelEn:"Branch(es)", type:"branchMultiSelect", required:true, full:true},
+    {key:"project", label:"المشروع / مركز التكلفة", labelEn:"Project / Cost Centre", type:"text", datalistId:"expenseProjects"},
+    {key:"accountingMonth", label:"شهر القيد في الـ P&L", labelEn:"P&L Month", type:"month"},
+    {key:"amount", label:"المبلغ قبل الضريبة (د.إ)", labelEn:"Amount before VAT (AED)", type:"number", required:true},
+    {key:"vat", label:"الضريبة (د.إ)", labelEn:"VAT (AED)", type:"number"},
+    {key:"total", label:"الإجمالي (د.إ)", labelEn:"Total (AED)", type:"number", readOnlyComputed:true, alwaysInList:true},
+    {key:"splitMode", label:"طريقة توزيع المبلغ على الفروع", labelEn:"How to split between branches", type:"select", options:[EXPENSE_SPLIT_EQUAL, EXPENSE_SPLIT_CUSTOM]},
+    {key:"allocations", label:"توزيع المبلغ على الفروع", labelEn:"Branch allocation", type:"allocations", full:true, hideInList:true},
+    {key:"allocationText", label:"التوزيع على الفروع", labelEn:"Branch split", type:"text", formHidden:true},
+    {key:"paymentStatus", label:"حالة الدفع", labelEn:"Payment Status", type:"select", options:EXPENSE_PAYMENT_STATUSES},
+    {key:"paymentMethod", label:"طريقة الدفع", labelEn:"Payment Method", type:"select", options:EXPENSE_PAYMENT_METHODS},
+    {key:"paidDate", label:"تاريخ الدفع", labelEn:"Payment Date", type:"date"},
+    {key:"bimoRef", label:"رقم المرجع في بيمو", labelEn:"Bimo Reference No.", type:"text"},
+    {key:"reviewStatus", label:"حالة المراجعة", labelEn:"Review Status", type:"select", options:EXPENSE_REVIEW_STATUSES},
+    {key:"accountantNotes", label:"ملاحظات المحاسب", labelEn:"Accountant Notes", type:"textarea", full:true},
+    {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
+    {key:"submittedBy", label:"مقدّم الفاتورة", labelEn:"Submitted By", type:"text"},
+    {key:"photos", label:"صورة/ملف الفاتورة والمرفقات", labelEn:"Invoice file & attachments", type:"photo"},
+  ],
+  listColumns:["date","vendor","invoiceNo","category","branch","total","paymentStatus","reviewStatus"],
+}
 ];
 
 /* SLA minutes per severity for auto-overdue detection on maintenance requests */
@@ -1605,8 +1747,10 @@ let isPublicMode = (location.hash === "#public");
 let isDriverMode = (location.hash === "#driver");
 let isBranchInspectMode = /^#inspect(-ar|-en)?$/.test(location.hash);
 /* Dedicated links per language: #inspect-ar (Arabic) / #inspect-en (English); plain #inspect keeps the device's saved language */
-if(location.hash === "#inspect-en") LANG = "en";
-else if(location.hash === "#inspect-ar") LANG = "ar";
+let isExpenseMode = /^#expense(-ar|-en)?$/.test(location.hash);
+let isAccountantMode = /^#accountant(-ar|-en)?$/.test(location.hash);
+if(/^#(inspect|expense|accountant)-en$/.test(location.hash)) LANG = "en";
+else if(/^#(inspect|expense|accountant)-ar$/.test(location.hash)) LANG = "ar";
 let isAssetViewMode = /^#asset-/.test(location.hash);
 MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
@@ -1853,7 +1997,7 @@ function isFieldRelevantForList(f, m, statusFilterValue, forceAll){
   return f.showIf.field === m.statusField && statusFilterValue === f.showIf.value;
 }
 function getListRelevantFields(m, statusFilterValue, forceAll){
-  return m.fields.filter(f=> f.type!=="photo" && f.type!=="photo2" && f.type!=="quotes" && isFieldRelevantForList(f, m, statusFilterValue, forceAll));
+  return m.fields.filter(f=> f.type!=="photo" && f.type!=="photo2" && f.type!=="quotes" && f.type!=="allocations" && !f.hideInList && isFieldRelevantForList(f, m, statusFilterValue, forceAll));
 }
 
 /* ---------------- BILINGUAL GLOSSARY ----------------
@@ -1937,7 +2081,8 @@ function setAutoTranslateEnabled(on){ localStorage.setItem("forka_autotranslate"
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function showToast(msg){
-  const t = document.getElementById("toast");
+  let t = document.getElementById("toast");
+  if(!t){ t = document.createElement("div"); t.id = "toast"; t.className = "toast"; document.body.appendChild(t); }
   t.textContent = msg; t.classList.add("show");
   clearTimeout(window.__toastT);
   window.__toastT = setTimeout(()=>t.classList.remove("show"), 2200);
@@ -1986,7 +2131,11 @@ function buildDatalistsHtml(){
   const assetDatalist = `<datalist id="dl_assetNames">${assetNames.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join("")}</datalist>`;
   const fleetPlates = loadData("fleet").filter(v=>v.plate && v.plate.trim());
   const plateDatalist = `<datalist id="dl_fleetPlates">${fleetPlates.map(v=>`<option value="${escapeAttr(v.plate.trim())}" label="${escapeAttr((v.carName||"").trim())}">${escapeHtml((v.carName||"").trim())}</option>`).join("")}</datalist>`;
-  return masterLists + assetDatalist + plateDatalist;
+  const expRecs = loadData("expenses");
+  const uniq = (arr)=> [...new Set(arr.map(x=>(x||"").trim()).filter(Boolean))];
+  const vendorDatalist = `<datalist id="dl_expenseVendors">${uniq(expRecs.map(r=>r.vendor)).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
+  const projectDatalist = `<datalist id="dl_expenseProjects">${uniq(expRecs.map(r=>r.project)).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
+  return masterLists + assetDatalist + plateDatalist + vendorDatalist + projectDatalist;
 }
 
 /* ---------------- PIN LOCK ---------------- */
@@ -3975,6 +4124,171 @@ function renderAssetViewPage(){
       </div>
     </div>`;
 }
+/* ---------------- INVOICE UPLOAD PAGE (#expense) — for HR / admin staff, no login, no admin sidebar ---------------- */
+let expenseUploadPhotos = [];
+let expenseUploadBusy = false;
+function expenseUploadCaptureDraft(){
+  const draft = {};
+  document.querySelectorAll("#expUpForm [data-field]").forEach(el=>{ draft[el.dataset.field] = el.value; });
+  return draft;
+}
+function renderExpenseUploadPhotos(){
+  const w = document.getElementById("expUpPhotos");
+  if(!w) return;
+  w.innerHTML = expenseUploadPhotos.map((p,i)=>{
+    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+    const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:30px;">📄</div>` : `<img src="${p.dataUrl||p.storageUrl||''}" alt="">`;
+    return `<div class="photo-thumb">${body}${badgeHtml}<button class="rm" data-exprm="${i}" type="button">✕</button></div>`;
+  }).join("") + `<div class="photo-add-btn" id="expUpAddBtn">+</div>`;
+  document.getElementById("expUpAddBtn").onclick = ()=> document.getElementById("expUpFile").click();
+  w.querySelectorAll("[data-exprm]").forEach(b=>{ b.onclick = ()=>{ expenseUploadPhotos.splice(Number(b.dataset.exprm),1); renderExpenseUploadPhotos(); }; });
+}
+function renderExpenseUploadPage(draft){
+  draft = draft || {};
+  const dir = LANG==='ar' ? 'rtl' : 'ltr';
+  const box = `width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;`;
+  const fld = (label, inner, required)=> `<div class="field" style="margin-bottom:14px;"><label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${label}${required?' *':''}</label>${inner}</div>`;
+  const sel = (key, options, def)=> `<select data-field="${key}" style="${box}"><option value=""></option>${options.map(o=>`<option value="${escapeAttr(o)}" ${(draft[key]!==undefined?draft[key]:def)===o?'selected':''}>${escapeHtml(optLabel(o))}</option>`).join("")}</select>`;
+  const txt = (key, extra)=> `<input type="text" data-field="${key}" value="${escapeAttr(draft[key]||"")}" style="${box}" ${extra||""}>`;
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="${dir}">
+      ${buildDatalistsHtml()}
+      <div style="max-width:560px; margin:0 auto;" id="expUpForm">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button id="expUpLangBtn" type="button" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
+        </div>
+        <div style="text-align:center; margin-bottom:18px;">
+          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+          <div style="font-size:14px; font-weight:800; color:#1F3864; margin-top:4px;">🧾 ${t('expUpTitle')}</div>
+          <div style="font-size:12px; color:#7a8699; margin-top:8px; line-height:1.7;">${t('expUpIntro')}</div>
+        </div>
+        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          ${fld(t('expUpSubmitter'), txt("submittedBy"), true)}
+          ${fld(t('expUpAttach'), `<div id="expUpPhotos" class="photo-widget"></div><input type="file" id="expUpFile" accept="image/*,application/pdf" multiple style="display:none">`, true)}
+        </div>
+        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          ${fld(efl('date'), `<input type="date" data-field="date" value="${escapeAttr(draft.date||todayStr())}" style="${box}">`, true)}
+          ${fld(efl('invoiceNo'), txt("invoiceNo"))}
+          ${fld(efl('vendor'), txt("vendor", 'list="dl_expenseVendors" autocomplete="off"'), true)}
+          ${fld(efl('department'), sel("department", EXPENSE_DEPARTMENTS), true)}
+          ${fld(efl('category'), sel("category", EXPENSE_CATEGORIES), true)}
+          ${fld(efl('employee'), txt("employee"))}
+          ${fld(efl('project'), txt("project", 'list="dl_expenseProjects" autocomplete="off"'))}
+        </div>
+        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          ${fld(efl('branch'), `<input type="hidden" data-field="branch" value="${escapeAttr(draft.branch||"")}"><div id="branchMultiWidget_branch" class="branch-multi-widget"></div>`, true)}
+          ${fld(efl('amount'), `<input type="number" step="0.01" min="0" data-field="amount" value="${escapeAttr(draft.amount||"")}" style="${box}">`, true)}
+          ${fld(efl('vat'), `<div style="display:flex; gap:8px;"><input type="number" step="0.01" min="0" data-field="vat" value="${escapeAttr(draft.vat||"")}" style="${box} flex:1;"><button type="button" id="expUpVat5" style="background:#fff; border:1.5px solid #1F3864; color:#1F3864; border-radius:8px; padding:0 14px; font-weight:800; cursor:pointer; white-space:nowrap;">${t('expUpVatBtn')}</button></div>`)}
+          ${fld(efl('total'), `<input type="number" data-field="total" readonly style="${box} background:#f3f4f7; font-weight:800;" value="${escapeAttr(draft.total||"")}">`)}
+          ${fld(efl('splitMode'), sel("splitMode", [EXPENSE_SPLIT_EQUAL, EXPENSE_SPLIT_CUSTOM], EXPENSE_SPLIT_EQUAL))}
+          <input type="hidden" data-field="allocations" value="${escapeAttr(draft.allocations||"[]")}">
+          <div id="allocWidget" class="alloc-widget" style="margin-bottom:6px;"></div>
+        </div>
+        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          <div style="font-weight:800; font-size:13.5px; color:#1F3864; margin-bottom:12px;">${t('expUpPaymentTitle')}</div>
+          ${fld(efl('paymentStatus'), sel("paymentStatus", EXPENSE_PAYMENT_STATUSES))}
+          ${fld(efl('paymentMethod'), sel("paymentMethod", EXPENSE_PAYMENT_METHODS))}
+          ${fld(efl('notes'), `<textarea data-field="notes" style="${box} min-height:70px;">${escapeHtml(draft.notes||"")}</textarea>`)}
+        </div>
+        <button id="expUpSubmit" type="button" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('expUpSubmit')}</button>
+        <div id="expUpMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#c0392b; white-space:pre-line;"></div>
+      </div>
+    </div>`;
+  document.getElementById("expUpLangBtn").onclick = ()=>{ const d = expenseUploadCaptureDraft(); LANG = LANG==='ar' ? 'en' : 'ar'; localStorage.setItem("forka_lang", LANG); renderExpenseUploadPage(d); };
+  renderBranchMultiWidget("branch", draft.branch || "");
+  wireExpenseForm(false);
+  setTimeout(()=>{ const hb = document.querySelector('[data-field="branch"]'); if(hb && document.getElementById("branchMultiWidget_branch")) renderBranchMultiWidget("branch", hb.value); }, 1300);  // after the cloud branch list has synced
+  renderExpenseUploadPhotos();
+
+  document.getElementById("expUpVat5").onclick = ()=>{
+    const a = document.querySelector('[data-field="amount"]'), v = document.querySelector('[data-field="vat"]');
+    v.value = String(round2((Number(a.value)||0) * 0.05)); v.dispatchEvent(new Event("input"));
+  };
+  document.getElementById("expUpFile").onchange = (e)=>{
+    const files = Array.from(e.target.files||[]);
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const original = reader.result;
+        const willUpload = hasAnyUploadServiceConfigured();
+        const entry = { name:file.name, dataUrl:original, uploading: willUpload, _tempId: uid() };
+        expenseUploadPhotos.push(entry);
+        renderExpenseUploadPhotos();
+        if(file.type.startsWith("image/")){
+          resizeImageDataUrl(original, 220).then(small=>{ const f = expenseUploadPhotos.find(p=>p._tempId===entry._tempId); if(f){ f.dataUrl = small; renderExpenseUploadPhotos(); } });
+        }
+        if(willUpload) startAttachmentUpload(entry, file, expenseUploadPhotos, renderExpenseUploadPhotos);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+  document.getElementById("expUpSubmit").onclick = submitExpenseUpload;
+}
+function submitExpenseUpload(){
+  if(expenseUploadBusy) return;
+  const msg = document.getElementById("expUpMsg");
+  const g = (k)=> { const el = document.querySelector(`#expUpForm [data-field="${k}"]`); return el ? el.value.trim() : ""; };
+  const missing = [];
+  if(!g("submittedBy")) missing.push(t('expUpSubmitter'));
+  if(!g("date")) missing.push(efl('date'));
+  if(!g("vendor")) missing.push(efl('vendor'));
+  if(!g("department")) missing.push(efl('department'));
+  if(!g("category")) missing.push(efl('category'));
+  if(!splitBranchNames(g("branch")).length) missing.push(efl('branch'));
+  if(!(Number(g("amount")) > 0)) missing.push(efl('amount'));
+  if(missing.length){ msg.textContent = t('expUpMissing') + "\n• " + missing.join("\n• "); return; }
+  if(!expenseUploadPhotos.length){ msg.textContent = t('expUpNeedFile'); return; }
+  if(expenseUploadPhotos.some(p=>p.uploading)){ msg.textContent = t('driverWaitUpload'); return; }
+
+  const m = expenseModule();
+  const rec = {
+    id: uid(), date: g("date"), invoiceNo: g("invoiceNo"), vendor: g("vendor"), department: g("department"), category: g("category"),
+    employee: g("employee"), branch: g("branch"), project: g("project"), amount: g("amount"), vat: g("vat"),
+    splitMode: g("splitMode") || EXPENSE_SPLIT_EQUAL, allocations: g("allocations"),
+    paymentStatus: g("paymentStatus"), paymentMethod: g("paymentMethod"), notes: g("notes"), submittedBy: g("submittedBy"),
+    reviewStatus: "جديدة",
+  };
+  rec.total = String(round2((Number(rec.amount)||0) + (Number(rec.vat)||0)));
+  rec.accountingMonth = rec.date.slice(0,7);
+  if(rec.splitMode === EXPENSE_SPLIT_CUSTOM){
+    const picked = splitBranchNames(rec.branch);
+    const typed = parseAllocations(rec.allocations).filter(a=> picked.includes(a.branch));
+    const sum = round2(typed.reduce((s,a)=> s + (Number(a.total!==undefined?a.total:a.amount)||0), 0));
+    if(Math.abs(sum - Number(rec.total)) > 0.01){ msg.textContent = t('expAllocMismatch', sum.toFixed(2), Number(rec.total).toFixed(2)); return; }
+  }
+  const dup = expenseDuplicateMessage(rec);
+  if(dup && !confirm(dup)) return;
+  const allocs = computeExpenseAllocations(rec);
+  rec.allocations = allocs; rec.allocationText = expenseAllocationText(allocs);
+  rec.photos = expenseUploadPhotos.map(p=> p.storageUrl ? (({dataUrl, ...rest})=>({...rest, dataUrl:null}))(p) : p);
+  expenseUploadBusy = true;
+  const btn = document.getElementById("expUpSubmit"); btn.disabled = true; btn.style.opacity = "0.6";
+  rec.expNo = getNextRecordNumber(m);
+  rec._updatedAt = Date.now();
+  const arr = loadDataRaw("expenses");
+  arr.push(rec);
+  saveData("expenses", arr);
+  cloudPushRecord("expenses", rec);
+  fireWebhook("expense_submitted", { expNo: rec.expNo, vendor: rec.vendor, category: rec.category, branch: rec.branch, total: rec.total, submittedBy: rec.submittedBy, date: rec.date });
+  expenseUploadPhotos = [];
+  expenseUploadBusy = false;
+  renderExpenseThankYouPage(rec.expNo);
+}
+function renderExpenseThankYouPage(expNo){
+  const dir = LANG==='ar' ? 'rtl' : 'ltr';
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
+      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="font-size:56px; margin-bottom:16px;">✅</div>
+        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('expUpThanksTitle')}</div>
+        <div style="font-size:15px; color:#5a6577; line-height:1.8; margin-bottom:8px;">${t('expUpThanksBody')}</div>
+        <div style="font-size:18px; font-weight:900; color:#1f8a4c; margin-bottom:24px; direction:ltr;">${escapeHtml(expNo||"")}</div>
+        <button id="expUpAnother" type="button" style="background:#1F3864; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-weight:800; cursor:pointer;">${t('expUpAnother')}</button>
+      </div>
+    </div>`;
+  document.getElementById("expUpAnother").onclick = ()=> renderExpenseUploadPage();
+}
 function renderBranchInspectPage(){
   const masters = loadMasters();
   const branches = masters.branches || [];
@@ -4327,6 +4641,8 @@ function renderNav(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isExpenseMode){ renderExpenseUploadPage(); return; }
+  if(isAccountantMode){ renderAccountantPage(); return; }
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   const navRoot = document.getElementById("nav-modules");
   navRoot.innerHTML = MODULES.map(m=>{
@@ -4407,6 +4723,7 @@ function renderDashboard(){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isExpenseMode || isAccountantMode) return;
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
@@ -4704,6 +5021,7 @@ function renderModule(mKey){
   if(isPublicMode){ renderPublicStatusPage(); return; }
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
+  if(isExpenseMode || isAccountantMode) return;
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
@@ -5285,6 +5603,9 @@ function openForm(m, existing, viewMode){
   if(!isEdit && m.numberField){
     rec[m.numberField] = getNextRecordNumber(m);
   }
+  if(!isEdit && m.key==="expenses"){
+    rec.reviewStatus = "جديدة"; rec.splitMode = EXPENSE_SPLIT_EQUAL; rec.accountingMonth = todayStr().slice(0,7);
+  }
   if(!isEdit){
     m.fields.forEach(f=>{
       if(f.type==="date" && (f.key==="date"||f.key==="reportDate")) rec[f.key] = todayStr();
@@ -5306,6 +5627,7 @@ function openForm(m, existing, viewMode){
     if(f.type==="photo") return `<div id="photoWidget" class="photo-widget"></div><input type="file" id="photoFileInput" accept="image/*,application/pdf,video/*" multiple style="display:none">`;
     if(f.type==="photo2") return `<div id="photoWidget2" class="photo-widget"></div><input type="file" id="photoFileInput2" accept="image/*,application/pdf" multiple style="display:none">`;
     if(f.type==="quotes") return `<div id="quotesWidget" class="quotes-widget"></div>`;
+    if(f.type==="allocations") return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(JSON.stringify(parseAllocations(val)))}"><div id="allocWidget" class="alloc-widget"></div>`;
     if(f.type==="branchMultiSelect"){
       return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(val)}"><div id="branchMultiWidget_${f.key}" class="branch-multi-widget"></div>`;
     }
@@ -5343,7 +5665,7 @@ function openForm(m, existing, viewMode){
     (condGroupsMap[gkey] = condGroupsMap[gkey] || []).push(f);
   });
 
-  const fieldsHtml = m.fields.filter(f=>!f.showIf).map(f=>{
+  const fieldsHtml = m.fields.filter(f=>!f.showIf && !f.formHidden).map(f=>{
     const val = rec[f.key]!==undefined ? rec[f.key] : "";
     const input = renderFieldInput(f, val);
     return `<div class="field ${f.full?'full':''}"><label>${FL(f)}${(f.required && !formViewOnly)?' *':''}</label>${input}</div>`;
@@ -5422,6 +5744,7 @@ function openForm(m, existing, viewMode){
     if(countInput) countInput.addEventListener("input", recalcInstallment);
     recalcInstallment();
   }
+  if(m.key==="expenses") wireExpenseForm(isEdit);
 
   const condBlocks = document.querySelectorAll("[data-condtrigger]");
   if(condBlocks.length){
@@ -5515,6 +5838,20 @@ function openForm(m, existing, viewMode){
     if(missingRequired.length){
       alert(t('fillRequired') + missingRequired.join("\n"));
       return;
+    }
+    if(m.key==="expenses"){
+      newRec.total = String(round2((Number(newRec.amount)||0) + (Number(newRec.vat)||0)));
+      if(!newRec.accountingMonth) newRec.accountingMonth = String(newRec.date||"").slice(0,7);
+      if(!newRec.reviewStatus) newRec.reviewStatus = "جديدة";
+      if((newRec.splitMode||"").trim()===EXPENSE_SPLIT_CUSTOM){
+        const picked = splitBranchNames(newRec.branch);
+        const typed = parseAllocations(newRec.allocations).filter(a=> picked.includes(a.branch));
+        const sum = round2(typed.reduce((s,a)=> s + (Number(a.total!==undefined?a.total:a.amount)||0), 0));
+        if(Math.abs(sum - Number(newRec.total)) > 0.01){ alert(t('expAllocMismatch', sum.toFixed(2), Number(newRec.total).toFixed(2))); return; }
+      }
+      const allocs = computeExpenseAllocations(newRec);
+      newRec.allocations = allocs;
+      newRec.allocationText = expenseAllocationText(allocs);
     }
     if(!isEdit){
       const dupMsg = checkForLikelyDuplicate(m, newRec);
@@ -5629,7 +5966,8 @@ function openForm(m, existing, viewMode){
     }
     closeModal();
     showToast(isEdit? t('savedEdits'):t('savedNew'));
-    renderModule(m.key); renderNav();
+    if(m.key==="expenses" && state.view==="expenseReport") renderExpenseReportPage(); else renderModule(m.key);
+    renderNav();
   };
 }
 function autoScheduleNextPM(rec){
@@ -5657,7 +5995,14 @@ function autoScheduleNextPM(rec){
   return true;
 }
 function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; formPhotos = []; formPhotos2 = []; formQuotes = []; formViewOnly = false; }
+function expenseDuplicateMessage(newRec){
+  const v = (newRec.vendor||"").trim().toLowerCase(), no = (newRec.invoiceNo||"").trim().toLowerCase();
+  if(!v || !no) return null;
+  const match = loadData("expenses").find(r=> r.id!==newRec.id && (r.vendor||"").trim().toLowerCase()===v && (r.invoiceNo||"").trim().toLowerCase()===no);
+  return match ? t('expDuplicateMsg', match.expNo||"") : null;
+}
 function checkForLikelyDuplicate(m, newRec){
+  if(m.key==="expenses") return expenseDuplicateMessage(newRec);
   const keyFields = [...new Set([m.branchField, m.freqField, m.contractorField].filter(Boolean))]
     .filter(fk => (newRec[fk]||"").trim());
   if(!keyFields.length) return null;
@@ -5669,6 +6014,66 @@ function checkForLikelyDuplicate(m, newRec){
   return null;
 }
 
+function wireExpenseForm(isEdit){
+  const q = k=> document.querySelector(`[data-field="${k}"]`);
+  const amountEl = q("amount"), vatEl = q("vat"), totalEl = q("total"), modeEl = q("splitMode"), dateEl = q("date"), monthEl = q("accountingMonth");
+  const recompute = ()=>{ if(totalEl && amountEl) totalEl.value = String(round2((Number(amountEl.value)||0) + (Number(vatEl&&vatEl.value)||0))); };
+  [amountEl, vatEl].forEach(el=>{ if(el) el.addEventListener("input", ()=>{ recompute(); renderAllocWidget(); }); });
+  if(modeEl) modeEl.addEventListener("change", renderAllocWidget);
+  if(monthEl){
+    monthEl.dataset.auto = isEdit ? "0" : "1";
+    monthEl.addEventListener("input", ()=>{ monthEl.dataset.auto = "0"; });
+    if(dateEl) dateEl.addEventListener("change", ()=>{ if(monthEl.dataset.auto==="1" && dateEl.value) monthEl.value = dateEl.value.slice(0,7); });
+  }
+  recompute();
+  const aw = document.getElementById("allocWidget"), ah = q("allocations");
+  if(aw && ah && isEdit && modeEl && modeEl.value===EXPENSE_SPLIT_CUSTOM && parseAllocations(ah.value).length) aw.dataset.userEdited = "1";
+  renderAllocWidget();
+}
+function renderAllocWidget(){
+  const w = document.getElementById("allocWidget");
+  if(!w) return;
+  const q = k=> document.querySelector(`[data-field="${k}"]`);
+  const hidden = q("allocations"), branchEl = q("branch"), modeEl = q("splitMode");
+  if(!hidden || !branchEl) return;
+  const net = Number(q("amount") && q("amount").value) || 0, vat = Number(q("vat") && q("vat").value) || 0;
+  const total = round2(net + vat);
+  const fmt = n=> Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const box = (inner)=> `<div style="border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; background:#fafbfd;">${inner}</div>`;
+  if(formViewOnly){
+    const saved = parseAllocations(hidden.value);
+    w.innerHTML = saved.length ? box(saved.map(a=>`<div style="display:flex; justify-content:space-between; padding:4px 0; font-size:13px;"><span>🏢 ${escapeHtml(a.branch)}</span><b>${fmt(a.total)}</b></div>`).join("")) : "—";
+    return;
+  }
+  const branches = splitBranchNames(branchEl.value);
+  if(!branches.length){ w.innerHTML = `<div style="font-size:12.5px; color:var(--muted);">${t('expAllocPickBranch')}</div>`; hidden.value = "[]"; return; }
+  const custom = modeEl && modeEl.value === EXPENSE_SPLIT_CUSTOM;
+  if(!custom){
+    const eq = computeExpenseAllocations({branch: branchEl.value, amount: net, vat, splitMode: EXPENSE_SPLIT_EQUAL});
+    hidden.value = "[]";
+    w.innerHTML = box(`<div style="font-size:12px; color:var(--muted); margin-bottom:6px;">${t('expAllocEqualTitle')}</div>` +
+      eq.map(a=>`<div style="display:flex; justify-content:space-between; padding:4px 0; font-size:13px;"><span>🏢 ${escapeHtml(a.branch)}</span><b>${fmt(a.total)}</b></div>`).join(""));
+    return;
+  }
+  // amounts typed by the user (or loaded from a saved invoice) are kept; otherwise they follow the equal split as branches change
+  const saved = (w.dataset.userEdited === "1") ? parseAllocations(hidden.value) : [];
+  const eqDefault = computeExpenseAllocations({branch: branchEl.value, amount: net, vat, splitMode: EXPENSE_SPLIT_EQUAL});
+  const initial = branches.map(b=>{ const s = saved.find(x=>x.branch===b); return s ? (s.total!==undefined ? s.total : s.amount) : (eqDefault.find(x=>x.branch===b)||{}).total; });
+  w.innerHTML = box(`<div style="font-size:12px; color:var(--muted); margin-bottom:8px;">${t('expAllocCustomHint')}</div>` +
+    branches.map((b,i)=>`<div style="display:flex; align-items:center; gap:10px; padding:4px 0;">
+        <span style="flex:1; font-size:13px;">🏢 ${escapeHtml(b)}</span>
+        <input type="number" step="0.01" min="0" data-allocbranch="${escapeAttr(b)}" value="${initial[i]!==undefined?initial[i]:""}" style="width:130px; padding:7px; border:1.5px solid var(--line); border-radius:8px;">
+      </div>`).join("") + `<div id="allocRemaining" style="margin-top:8px; font-size:12.5px; font-weight:800;"></div>`);
+  const sync = ()=>{
+    const list = [...w.querySelectorAll("[data-allocbranch]")].map(inp=> ({branch: inp.dataset.allocbranch, total: round2(inp.value)}));
+    hidden.value = JSON.stringify(list);
+    const rem = round2(total - list.reduce((s,x)=>s+x.total,0));
+    const el = document.getElementById("allocRemaining");
+    if(el){ el.textContent = t('expAllocRemaining', fmt(rem)); el.style.color = Math.abs(rem) < 0.01 ? "#1f8a4c" : "#c0392b"; }
+  };
+  w.querySelectorAll("[data-allocbranch]").forEach(inp=> inp.addEventListener("input", ()=>{ w.dataset.userEdited = "1"; sync(); }));
+  sync();
+}
 function renderBranchMultiWidget(fieldKey, currentValue){
   const w = document.getElementById(`branchMultiWidget_${fieldKey}`);
   if(!w) return;
@@ -5690,6 +6095,7 @@ function renderBranchMultiWidget(fieldKey, currentValue){
       if(selected.has(b)) selected.delete(b); else selected.add(b);
       hiddenInput.value = [...selected].join("، ");
       renderBranchMultiWidget(fieldKey, hiddenInput.value);
+      if(fieldKey==="branch" && document.getElementById("allocWidget")) renderAllocWidget();
     };
   });
 }
@@ -7181,7 +7587,8 @@ function attachCloudListeners(){
       }
       saveData(m.key, arr);
       setLastSyncNow();
-      if(isDriverMode || isBranchInspectMode || isPublicMode) return; // standalone pages manage their own rendering
+      if(isDriverMode || isBranchInspectMode || isPublicMode || isExpenseMode) return; // standalone pages manage their own rendering
+      if(isAccountantMode){ if(m.key==="expenses" && typeof window.__accountantRefresh==="function") window.__accountantRefresh(); return; }
       if(isAssetViewMode){ if(m.key==="assets" || m.key==="fleet" || m.key==="requests") renderAssetViewPage(); return; }
       if(state.view===m.key) renderModule(m.key);
       if(state.view==="dashboard") renderDashboard();
@@ -7192,12 +7599,14 @@ function attachCloudListeners(){
     if(doc.exists){
       saveMasters(doc.data());
       if(state.view==="masters") renderMastersPage();
+      if(isAccountantMode && typeof window.__accountantRemount==="function") window.__accountantRemount();
     }
   }, err=> console.error("Cloud sync error [masters]:", err));
   cloudUnsubscribers.settings = cloudDb.collection("forka_meta").doc("settings").onSnapshot(doc=>{
     if(doc.exists){
       const data = doc.data();
       if(data.webhookUrl !== undefined) localStorage.setItem("forka_webhook_url", data.webhookUrl);
+      if(data.accountantCode !== undefined) localStorage.setItem("forka_accountant_code", data.accountantCode);
     }
   }, err=> console.error("Cloud sync error [settings]:", err));
   ["daily","monthly"].forEach(kind=>{
@@ -7226,7 +7635,7 @@ function cloudWrite(promise, label){
   return promise.then(()=>{ cloudWriteOk++; setLastSyncNow(); return true; }, err=>{
     cloudWriteFail++; cloudLastErrorCode = (err && err.code) || "unknown";
     console.error("Cloud write failed ["+label+"]:", err);
-    const adminMode = !(isDriverMode || isBranchInspectMode || isPublicMode || isAssetViewMode);
+    const adminMode = !(isDriverMode || isBranchInspectMode || isPublicMode || isAssetViewMode || isExpenseMode || isAccountantMode);
     if(adminMode && !cloudFailAlerted){ cloudFailAlerted = true; try{ alert(t('cloudWriteFailed', cloudLastErrorCode)); }catch(e){} }
     return false;
   });
@@ -8366,7 +8775,7 @@ function renderTrashPage(){
         <tbody>
         ${items.length ? items.map(it=>{
           const r = it.record;
-          const label = r.branch || r.company || r.reqNo || r.plate || r.name || r.carName || "";
+          const label = (it.moduleKey==="expenses" && r.vendor) ? [r.expNo, r.vendor, r.invoiceNo].filter(Boolean).join(" — ") : (r.branch || r.company || r.reqNo || r.plate || r.name || r.carName || "");
           const deletedDate = r._deletedAt ? new Date(r._deletedAt) : null;
           const daysLeft = deletedDate ? Math.max(0, TRASH_RETENTION_DAYS - Math.floor((Date.now()-r._deletedAt)/(24*60*60*1000))) : "-";
           return `<tr>
@@ -8510,6 +8919,227 @@ function renderAssetMapPage(){
   });
 }
 
+/* ---------------- EXPENSE REPORT (monthly, by branch) + DETAILS ---------------- */
+const expenseReportState = { month:"", branch:"", department:"", category:"", payment:"", review:"", basis:"net", groupBy:"category", search:"", _init:false };
+window.expenseReportState = expenseReportState;
+function expenseModule(){ return MODULES.find(m=>m.key==="expenses"); }
+function efl(key){ const f = expenseModule().fields.find(x=>x.key===key); return f ? FL(f) : key; }
+function fmt2(n){ return Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function expenseAllocs(rec){ return (Array.isArray(rec.allocations) && rec.allocations.length) ? rec.allocations : computeExpenseAllocations(rec); }
+function expenseFilteredInvoices(st){
+  const needle = st.search ? normalizeSearchText(st.search) : "";
+  return loadData("expenses").filter(r=>{
+    if(st.month && expenseMonth(r)!==st.month) return false;
+    if(st.department && r.department!==st.department) return false;
+    if(st.category && r.category!==st.category) return false;
+    if(st.payment && (r.paymentStatus||"")!==st.payment) return false;
+    if(st.review && (r.reviewStatus||"جديدة")!==st.review) return false;
+    if(st.branch && !expenseAllocs(r).some(a=>a.branch===st.branch)) return false;
+    if(needle && !normalizeSearchText([r.expNo,r.invoiceNo,r.vendor,r.employee,r.project,r.notes,r.bimoRef,r.submittedBy].join(" ")).includes(needle)) return false;
+    return true;
+  }).sort((a,b)=> String(b.date||"").localeCompare(String(a.date||"")) || String(b.expNo||"").localeCompare(String(a.expNo||"")));
+}
+function expenseLines(invoices, st){
+  const lines = [];
+  invoices.forEach(r=> expenseAllocs(r).forEach(a=>{ if(st.branch && a.branch!==st.branch) return; lines.push({rec:r, alloc:a}); }));
+  return lines;
+}
+function expenseAmount(a, st){ return st.basis==="total" ? a.total : a.net; }
+function expenseGroupValue(rec, groupBy){
+  return groupBy==="department" ? (rec.department||"—") : groupBy==="vendor" ? (rec.vendor||"—") : (rec.category||"—");
+}
+function expenseGroupLabel(groupBy){ return groupBy==="department" ? t('expGroupDepartment') : groupBy==="vendor" ? t('expGroupVendor') : t('expGroupCategory'); }
+function expenseGroupShown(g, groupBy){ return groupBy==="vendor" ? g : optLabel(g); }
+function expensePivot(lines, st){
+  const reg = loadMasters().branches || [];
+  const used = [...new Set(lines.map(l=>l.alloc.branch))];
+  const branches = [...reg.filter(b=>used.includes(b)), ...used.filter(b=>!reg.includes(b))];
+  const rows = {};
+  lines.forEach(l=>{
+    const g = expenseGroupValue(l.rec, st.groupBy);
+    const row = rows[g] = rows[g] || {byBranch:{}, total:0};
+    const v = expenseAmount(l.alloc, st);
+    row.byBranch[l.alloc.branch] = round2((row.byBranch[l.alloc.branch]||0) + v);
+    row.total = round2(row.total + v);
+  });
+  const groups = Object.keys(rows).sort((a,b)=> rows[b].total - rows[a].total);
+  const colTotals = {};
+  branches.forEach(b=> colTotals[b] = round2(lines.filter(l=>l.alloc.branch===b).reduce((s,l)=>s+expenseAmount(l.alloc, st),0)));
+  return { branches, groups, rows, colTotals, grand: round2(lines.reduce((s,l)=>s+expenseAmount(l.alloc, st),0)) };
+}
+function expenseSummary(invoices, lines, st){
+  const unpaidInv = invoices.filter(r=> ["غير مدفوعة","مدفوعة جزئيًا"].includes((r.paymentStatus||"").trim()));
+  const unpaidIds = new Set(unpaidInv.map(r=>r.id));
+  const unpaidLines = lines.filter(l=> unpaidIds.has(l.rec.id));
+  return {
+    count: invoices.length,
+    total: round2(lines.reduce((s,l)=>s+expenseAmount(l.alloc, st),0)),
+    unpaidCount: unpaidInv.length,
+    unpaid: round2(unpaidLines.reduce((s,l)=>s+expenseAmount(l.alloc, st),0)),
+    toReview: invoices.filter(r=> ["جديدة","استفسار"].includes((r.reviewStatus||"جديدة").trim())).length,
+  };
+}
+function expenseControlsHtml(st){
+  const branches = loadMasters().branches || [];
+  const sel = (id, label, options, value)=> `<div class="field" style="min-width:150px;"><label style="font-size:12px;">${label}</label><select id="${id}"><option value="">${t('expFltAll')}</option>${options.map(o=>`<option value="${escapeAttr(o.v)}" ${o.v===value?'selected':''}>${escapeHtml(o.l)}</option>`).join("")}</select></div>`;
+  return `<div class="card no-print" style="margin-bottom:14px;"><div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+    <div class="field" style="min-width:170px;"><label style="font-size:12px;">${t('expFltMonth')}</label>
+      <div style="display:flex; gap:6px;"><input type="month" id="expFltMonth" value="${st.month}" style="flex:1;"><button type="button" class="btn btn-outline btn-sm" id="expFltAllMonths">${t('expFltAllMonths')}</button></div></div>
+    ${sel("expFltBranch", t('expFltBranch'), branches.map(b=>({v:b,l:b})), st.branch)}
+    ${sel("expFltDepartment", efl('department'), EXPENSE_DEPARTMENTS.map(o=>({v:o,l:optLabel(o)})), st.department)}
+    ${sel("expFltCategory", efl('category'), EXPENSE_CATEGORIES.map(o=>({v:o,l:optLabel(o)})), st.category)}
+    ${sel("expFltPayment", efl('paymentStatus'), EXPENSE_PAYMENT_STATUSES.map(o=>({v:o,l:optLabel(o)})), st.payment)}
+    ${sel("expFltReview", efl('reviewStatus'), EXPENSE_REVIEW_STATUSES.map(o=>({v:o,l:optLabel(o)})), st.review)}
+    <div class="field" style="min-width:150px;"><label style="font-size:12px;">${t('expFltBasis')}</label><select id="expFltBasis"><option value="net" ${st.basis==='net'?'selected':''}>${t('expBasisNet')}</option><option value="total" ${st.basis==='total'?'selected':''}>${t('expBasisTotal')}</option></select></div>
+    <div class="field" style="min-width:150px;"><label style="font-size:12px;">${t('expFltGroupBy')}</label><select id="expFltGroupBy"><option value="category" ${st.groupBy==='category'?'selected':''}>${t('expGroupCategory')}</option><option value="department" ${st.groupBy==='department'?'selected':''}>${t('expGroupDepartment')}</option><option value="vendor" ${st.groupBy==='vendor'?'selected':''}>${t('expGroupVendor')}</option></select></div>
+    <div class="field" style="min-width:220px; flex:1;"><label style="font-size:12px;">${t('expFltSearch')}</label><input type="text" id="expFltSearch" value="${escapeAttr(st.search)}" placeholder="${t('expFltSearchPh')}"></div>
+  </div></div>`;
+}
+function expenseResultsHtml(st, mode){
+  const invoices = expenseFilteredInvoices(st);
+  const lines = expenseLines(invoices, st);
+  const sum = expenseSummary(invoices, lines, st);
+  const pv = expensePivot(lines, st);
+  const card = (label, value, color)=> `<div class="card" style="flex:1; min-width:150px; text-align:center;"><div style="font-size:12px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:21px; font-weight:900; color:${color||'var(--navy)'}; margin-top:4px;">${value}</div></div>`;
+  const cards = `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+    ${card(t('expSumInvoices'), sum.count)}${card(t('expSumTotal')+" ("+(st.basis==='total'?t('expBasisTotal'):t('expBasisNet'))+")", fmt2(sum.total))}
+    ${card(t('expSumUnpaid'), `${fmt2(sum.unpaid)} <span style="font-size:12px;">(${sum.unpaidCount})</span>`, sum.unpaid?'#c0392b':'#1f8a4c')}
+    ${card(t('expSumToReview'), sum.toReview, sum.toReview?'#d98e1f':'#1f8a4c')}</div>`;
+  const pivot = pv.groups.length ? `<div class="section-title">${t('expPivotTitle')}</div>
+    <div class="table-wrap" style="margin-bottom:16px;"><table><thead><tr><th>${expenseGroupLabel(st.groupBy)}</th>${pv.branches.map(b=>`<th>${escapeHtml(b)}</th>`).join("")}<th>${t('expPivotTotal')}</th></tr></thead>
+      <tbody>${pv.groups.map(g=>`<tr><td><b>${escapeHtml(expenseGroupShown(g, st.groupBy))}</b></td>${pv.branches.map(b=>`<td>${pv.rows[g].byBranch[b] ? fmt2(pv.rows[g].byBranch[b]) : "—"}</td>`).join("")}<td><b>${fmt2(pv.rows[g].total)}</b></td></tr>`).join("")}
+      <tr style="background:var(--bg); font-weight:900;"><td>${t('expPivotTotal')}</td>${pv.branches.map(b=>`<td>${fmt2(pv.colTotals[b])}</td>`).join("")}<td>${fmt2(pv.grand)}</td></tr></tbody></table></div>` : "";
+  const list = `<div class="section-title">${t('expListTitle')}</div>
+    <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColInvoiceNo')}</th><th>${t('expColType')}</th><th>${t('expColSplit')}</th><th>${t('expColTotal')}</th><th>${t('expColPayment')}</th><th>${t('expColReview')}</th><th>${t('actions')}</th></tr></thead>
+    <tbody>${invoices.length ? invoices.map(r=>{
+      const allocs = expenseAllocs(r).filter(a=> !st.branch || a.branch===st.branch);
+      return `<tr><td>${escapeHtml(r.expNo||"")}</td><td>${escapeHtml(r.date||"")}</td><td><b>${escapeHtml(r.vendor||"")}</b>${r.employee?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(r.employee)}</div>`:""}</td><td>${escapeHtml(r.invoiceNo||"")}</td>
+        <td>${escapeHtml(optLabel(r.category||""))}<div style="font-size:11px; color:var(--muted);">${escapeHtml(optLabel(r.department||""))}</div></td>
+        <td style="font-size:12px;">${allocs.map(a=>`${escapeHtml(a.branch)}: <b>${fmt2(expenseAmount(a, st))}</b>`).join("<br>")}</td>
+        <td><b>${fmt2(r.total)}</b></td><td>${badge(r.paymentStatus||"")}</td><td>${badge(r.reviewStatus||"جديدة")}</td>
+        <td style="white-space:nowrap;"><button class="btn btn-sm btn-outline" data-expdetails="${r.id}">${t('expBtnDetails')}</button>${mode==="admin"?` <button class="btn btn-sm btn-outline" data-expedit="${r.id}">${t('edit')}</button>`:""}</td></tr>`;
+    }).join("") : `<tr class="empty-row"><td colspan="10">${t('expNoData')}</td></tr>`}</tbody></table></div>`;
+  return cards + pivot + list;
+}
+function mountExpenseReport(root, mode, onDataChanged){
+  if(!expenseReportState._init){ expenseReportState.month = todayStr().slice(0,7); expenseReportState._init = true; }
+  const st = expenseReportState;
+  root.innerHTML = expenseControlsHtml(st) + `<div id="expResults"></div>`;
+  const refresh = ()=>{
+    const box = document.getElementById("expResults");
+    box.innerHTML = expenseResultsHtml(st, mode);
+    box.querySelectorAll("[data-expdetails]").forEach(b=> b.onclick = ()=> openExpenseDetailsModal(b.dataset.expdetails, mode, refresh));
+    box.querySelectorAll("[data-expedit]").forEach(b=> b.onclick = ()=>{ const rec = loadData("expenses").find(r=>r.id===b.dataset.expedit); if(rec) openForm(expenseModule(), rec); });
+  };
+  const bindSel = (id, key)=>{ const el = document.getElementById(id); if(el) el.onchange = ()=>{ st[key] = el.value; refresh(); }; };
+  bindSel("expFltBranch","branch"); bindSel("expFltDepartment","department"); bindSel("expFltCategory","category");
+  bindSel("expFltPayment","payment"); bindSel("expFltReview","review"); bindSel("expFltBasis","basis"); bindSel("expFltGroupBy","groupBy");
+  document.getElementById("expFltMonth").onchange = (e)=>{ st.month = e.target.value; refresh(); };
+  document.getElementById("expFltAllMonths").onclick = ()=>{ st.month = ""; document.getElementById("expFltMonth").value = ""; refresh(); };
+  document.getElementById("expFltSearch").oninput = (e)=>{ st.search = e.target.value; refresh(); };
+  refresh();
+  return refresh;
+}
+function renderExpenseReportPage(){
+  document.getElementById("topbarTitle").textContent = "📊 " + t('expReportTitle');
+  document.getElementById("topbarMeta").textContent = t('expReportMeta');
+  document.getElementById("topbarActions").innerHTML = `<button class="btn btn-gold" id="btnExpExport">${t('expBtnExport')}</button>` + langSwitcherHtml();
+  bindLangSwitcher();
+  document.getElementById("btnExpExport").onclick = ()=> exportExpenseReportExcel(expenseReportState);
+  mountExpenseReport(document.getElementById("content"), "admin");
+}
+function openExpenseDetailsModal(id, mode, onChanged){
+  const rec = loadData("expenses").find(r=>r.id===id);
+  if(!rec) return;
+  let root = document.getElementById("modalRoot");
+  if(!root){ root = document.createElement("div"); root.id = "modalRoot"; document.body.appendChild(root); }
+  const m = expenseModule();
+  const val = (key)=>{
+    const f = m.fields.find(x=>x.key===key); const v = rec[key];
+    if(v===undefined || v===null || v==="") return "—";
+    if(f && f.type==="select") return optLabel(v);
+    if(key==="amount"||key==="vat"||key==="total") return fmt2(v);
+    return escapeHtml(isTranslatableField(f) ? glDisplay(v) : v);
+  };
+  const keys = ["expNo","date","invoiceNo","vendor","department","category","employee","project","accountingMonth","amount","vat","total","paymentStatus","paymentMethod","paidDate","submittedBy","notes"];
+  const allocs = expenseAllocs(rec);
+  const photos = Array.isArray(rec.photos) ? rec.photos : [];
+  const attach = photos.length ? photos.map(p=>{
+    const href = p.storageUrl || p.dataUrl || "#";
+    const isImg = !isPdfAttachment(p) && !isVideoAttachment(p);
+    return isImg ? `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" style="display:inline-block; margin:4px;"><img src="${escapeAttr(p.dataUrl||p.storageUrl||'')}" style="width:96px; height:96px; object-fit:cover; border-radius:8px; border:1px solid var(--line);" alt=""></a>`
+      : `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="margin:4px;">${isPdfAttachment(p)?"📄":"🎬"} ${escapeHtml(p.name||"file")}</a>`;
+  }).join("") : `<span style="color:var(--muted); font-size:12.5px;">${t('expNoAttachments')}</span>`;
+  root.innerHTML = `<div class="modal-overlay" id="expDetailsOverlay"><div class="modal" style="max-width:720px;">
+    <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${escapeHtml(rec.vendor||"")}</h2>
+    <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#f6f7fa; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
+    <div class="section-title">${t('expDetailsSplit')}</div>
+    <div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('expXlBranch')}</th><th>${t('expXlNet')}</th><th>${t('expXlVat')}</th><th>${t('expXlTotal')}</th></tr></thead><tbody>${allocs.map(a=>`<tr><td>${escapeHtml(a.branch)}</td><td>${fmt2(a.net)}</td><td>${fmt2(a.vat)}</td><td><b>${fmt2(a.total)}</b></td></tr>`).join("")}</tbody></table></div>
+    <div class="section-title">${t('expAttachments')}</div><div style="margin-bottom:14px;">${attach}</div>
+    <div class="section-title">${t('expAccountantSection')}</div>
+    <div class="form-grid">
+      <div class="field"><label>${efl('reviewStatus')}</label><select id="expDtReview">${EXPENSE_REVIEW_STATUSES.map(o=>`<option value="${o}" ${(rec.reviewStatus||"جديدة")===o?'selected':''}>${optLabel(o)}</option>`).join("")}</select></div>
+      <div class="field"><label>${efl('bimoRef')}</label><input type="text" id="expDtBimo" value="${escapeAttr(rec.bimoRef||"")}"></div>
+      <div class="field full"><label>${efl('accountantNotes')}</label><textarea id="expDtNotes">${escapeHtml(rec.accountantNotes||"")}</textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-outline" id="expDtClose">${t('close')}</button>${mode==="admin"?`<button class="btn btn-outline" id="expDtEdit">${t('edit')}</button>`:""}<button class="btn btn-primary" id="expDtSave">${t('expSaveReview')}</button></div>
+  </div></div>`;
+  const close = ()=>{ root.innerHTML = ""; };
+  document.getElementById("expDtClose").onclick = close;
+  document.getElementById("expDetailsOverlay").onclick = (e)=>{ if(e.target.id==="expDetailsOverlay") close(); };
+  const editBtn = document.getElementById("expDtEdit");
+  if(editBtn) editBtn.onclick = ()=>{ close(); openForm(m, rec); };
+  document.getElementById("expDtSave").onclick = ()=>{
+    const arr = loadDataRaw("expenses");
+    const idx = arr.findIndex(x=>x.id===rec.id);
+    if(idx < 0) return;
+    const upd = { ...arr[idx], reviewStatus: document.getElementById("expDtReview").value, bimoRef: document.getElementById("expDtBimo").value.trim(),
+                  accountantNotes: document.getElementById("expDtNotes").value, reviewedAt: Date.now(), _updatedAt: Date.now() };
+    arr[idx] = upd;
+    saveData("expenses", arr);
+    cloudPushRecord("expenses", upd);
+    close();
+    showToast(t('expReviewSaved'));
+    if(typeof onChanged === "function") onChanged();
+  };
+}
+async function exportExpenseReportExcel(st){
+  showToast(t('exportPreparing'));
+  const invoices = expenseFilteredInvoices(st);
+  const lines = expenseLines(invoices, st);
+  const pv = expensePivot(lines, st);
+  const wb = new ExcelJS.Workbook();
+
+  // 1) summary pivot: group x branch
+  const h1 = [expenseGroupLabel(st.groupBy), ...pv.branches, t('expPivotTotal')];
+  const rows1 = pv.groups.map(g=>{ const o = {[h1[0]]: expenseGroupShown(g, st.groupBy)}; pv.branches.forEach(b=> o[b] = pv.rows[g].byBranch[b] || 0); o[h1[h1.length-1]] = pv.rows[g].total; return o; });
+  const totalRow = {[h1[0]]: t('expPivotTotal')}; pv.branches.forEach(b=> totalRow[b] = pv.colTotals[b]); totalRow[h1[h1.length-1]] = pv.grand; rows1.push(totalRow);
+  addStyledSheet(wb, t('expSheetSummary'), h1, rows1, {});
+
+  // 2) one row per invoice x branch (the sheet an accountant pivots for the P&L)
+  const h2 = [t('expXlMonth'), efl('date'), efl('expNo'), efl('invoiceNo'), efl('vendor'), efl('department'), efl('category'), efl('employee'), efl('project'),
+              t('expXlBranch'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('paymentMethod'), efl('reviewStatus'), efl('bimoRef')];
+  const rows2 = lines.map(l=>{ const r = l.rec, a = l.alloc; return {
+    [h2[0]]: expenseMonth(r), [h2[1]]: r.date||"", [h2[2]]: r.expNo||"", [h2[3]]: r.invoiceNo||"", [h2[4]]: r.vendor||"", [h2[5]]: optLabel(r.department||""), [h2[6]]: optLabel(r.category||""),
+    [h2[7]]: r.employee||"", [h2[8]]: r.project||"", [h2[9]]: a.branch, [h2[10]]: a.net, [h2[11]]: a.vat, [h2[12]]: a.total,
+    [h2[13]]: optLabel(r.paymentStatus||""), [h2[14]]: optLabel(r.paymentMethod||""), [h2[15]]: optLabel(r.reviewStatus||"جديدة"), [h2[16]]: r.bimoRef||"" }; });
+  addStyledSheet(wb, t('expSheetLines'), h2, rows2, {});
+
+  // 3) invoices with attachment links
+  const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('department'), efl('category'), efl('employee'), efl('project'), t('expXlMonth'),
+              t('expColSplit'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('paymentMethod'), efl('paidDate'), efl('reviewStatus'), efl('bimoRef'),
+              efl('accountantNotes'), efl('notes'), efl('submittedBy'), t('expXlAttach')];
+  const rows3 = invoices.map(r=>({
+    [h3[0]]: r.expNo||"", [h3[1]]: r.date||"", [h3[2]]: r.invoiceNo||"", [h3[3]]: r.vendor||"", [h3[4]]: optLabel(r.department||""), [h3[5]]: optLabel(r.category||""),
+    [h3[6]]: r.employee||"", [h3[7]]: r.project||"", [h3[8]]: expenseMonth(r), [h3[9]]: expenseAllocationText(expenseAllocs(r)),
+    [h3[10]]: round2(r.amount), [h3[11]]: round2(r.vat), [h3[12]]: round2(r.total), [h3[13]]: optLabel(r.paymentStatus||""), [h3[14]]: optLabel(r.paymentMethod||""), [h3[15]]: r.paidDate||"",
+    [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: r.accountantNotes||"", [h3[19]]: r.notes||"", [h3[20]]: r.submittedBy||"",
+    [h3[21]]: (Array.isArray(r.photos)?r.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n") }));
+  addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, {});
+
+  await downloadWorkbook(wb, `GroupForka_Expenses_${st.month||"all"}_${todayStr()}.xlsx`);
+  showToast(t('exportedAll'));
+}
 function renderAmcVisitsLogPage(){
   document.getElementById("topbarTitle").textContent = t('amcVisitsLogTitle');
   document.getElementById("topbarMeta").textContent = t('amcVisitsLogMeta');
@@ -8795,6 +9425,132 @@ function autoFixBranchDuplicates(){
 
   return { fixedGroups: duplicateGroupCount, fixedRecords };
 }
+/* ---------------- ACCOUNTANT PORTAL (#accountant) — code-protected, read + review ---------------- */
+function getAccountantCode(){ return localStorage.getItem("forka_accountant_code") || ""; }
+function saveAccountantCode(code){
+  localStorage.setItem("forka_accountant_code", code);
+  if(cloudEnabled && cloudDb){
+    cloudWrite(cloudDb.collection("forka_meta").doc("settings").set({accountantCode: code}, {merge:true}), "accountant code");
+  }
+}
+function renderAccountantPage(){
+  if(sessionStorage.getItem("forka_acct_ok")==="1" && getAccountantCode()){ renderAccountantMain(); return; }
+  renderAccountantGate();
+}
+function renderAccountantGate(){
+  const dir = LANG==='ar' ? 'rtl' : 'ltr';
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
+      <div style="max-width:380px; width:100%; text-align:center; background:#fff; border-radius:16px; padding:34px 26px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:6px;"><button id="acctLangBtn" type="button" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:5px 12px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button></div>
+        <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+        <div style="font-size:14px; font-weight:800; color:#1F3864; margin:6px 0 4px;">🔐 ${t('acctGateTitle')}</div>
+        <div style="font-size:12.5px; color:#7a8699; margin-bottom:18px;">${t('acctGateHint')}</div>
+        <input type="password" id="acctCodeInput" autocomplete="off" style="width:100%; padding:12px; border-radius:10px; border:1.5px solid #d8dde6; font-size:16px; text-align:center; letter-spacing:3px; margin-bottom:12px;">
+        <button id="acctEnterBtn" type="button" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:13px; font-weight:900; font-size:15px; cursor:pointer;">${t('acctGateBtn')}</button>
+        <div id="acctGateMsg" style="margin-top:12px; font-size:13px; min-height:18px; color:#7a8699;"></div>
+      </div>
+    </div>`;
+  const msg = document.getElementById("acctGateMsg");
+  document.getElementById("acctLangBtn").onclick = ()=>{ LANG = LANG==='ar' ? 'en' : 'ar'; localStorage.setItem("forka_lang", LANG); renderAccountantGate(); };
+  const input = document.getElementById("acctCodeInput");
+  const tryEnter = ()=>{
+    const code = getAccountantCode();
+    if(!code){ msg.style.color = "#c0392b"; msg.textContent = t('acctGateOff'); return; }
+    if(input.value.trim() === code){ sessionStorage.setItem("forka_acct_ok","1"); renderAccountantMain(); }
+    else { msg.style.color = "#c0392b"; msg.textContent = t('acctGateWrong'); input.value = ""; }
+  };
+  document.getElementById("acctEnterBtn").onclick = tryEnter;
+  input.onkeydown = (e)=>{ if(e.key==="Enter") tryEnter(); };
+  if(!getAccountantCode()){
+    msg.textContent = t('acctGateLoading');
+    let waited = 0;
+    const timer = setInterval(()=>{
+      waited += 700;
+      if(!document.getElementById("acctGateMsg")){ clearInterval(timer); return; }
+      if(getAccountantCode()){ clearInterval(timer); msg.textContent = ""; }
+      else if(waited >= 8000){ clearInterval(timer); msg.style.color = "#c0392b"; msg.textContent = t('acctGateOff'); }
+    }, 700);
+  }
+}
+function renderAccountantMain(){
+  const dir = LANG==='ar' ? 'rtl' : 'ltr';
+  document.body.innerHTML = `
+    <div style="min-height:100vh; background:var(--bg); padding:16px 14px 50px;" dir="${dir}">
+      <div style="max-width:1250px; margin:0 auto;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:16px;">
+          <div><div style="font-size:19px; font-weight:900; color:#1F3864;">GROUP FORKA</div><div style="font-size:13px; font-weight:800; color:#5a6577;">🧾 ${t('acctTitle')}</div></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-gold" id="acctExport" type="button">${t('expBtnExport')}</button>
+            <button class="btn btn-outline" id="acctLang" type="button">${LANG==='ar' ? 'English 🌐' : '🌐 العربية'}</button>
+            <button class="btn btn-outline" id="acctLogout" type="button">${t('acctLogout')}</button>
+          </div>
+        </div>
+        <div id="acctRoot"></div>
+      </div>
+    </div>
+    <div id="modalRoot"></div>`;
+  document.getElementById("acctExport").onclick = ()=> exportExpenseReportExcel(expenseReportState);
+  document.getElementById("acctLang").onclick = ()=>{ LANG = LANG==='ar' ? 'en' : 'ar'; localStorage.setItem("forka_lang", LANG); renderAccountantMain(); };
+  document.getElementById("acctLogout").onclick = ()=>{ sessionStorage.removeItem("forka_acct_ok"); window.__accountantRefresh = null; window.__accountantRemount = null; renderAccountantGate(); };
+  const mount = ()=>{ if(!document.getElementById("acctRoot")) return; window.__accountantRefresh = mountExpenseReport(document.getElementById("acctRoot"), "accountant"); };
+  window.__accountantRemount = mount;
+  mount();
+}
+
+/* ---------------- Settings card: upload link, accountant link + code ---------------- */
+function expenseLinkUrl(kind, lang){ return `${location.origin}${location.pathname}#${kind}-${lang}`; }
+function copyTextToClipboard(text){
+  const done = ()=> showToast(t('expLinkCopied'));
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, ()=>{ window.prompt(t('expLinkCopyManual'), text); }); return; }
+  try{ const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); }
+  catch(e){ window.prompt(t('expLinkCopyManual'), text); }
+}
+function openQrLinkModal(url, title){
+  const root = document.getElementById("modalRoot");
+  if(!root || !window.QRCode){ alert(t('qrCameraError')); return; }
+  root.innerHTML = `<div class="modal-overlay" id="qrLinkOverlay"><div class="modal" style="max-width:360px; text-align:center;">
+    <h2 style="font-size:16px;">${escapeHtml(title||"")}</h2><div id="qrLinkBox" style="display:flex; justify-content:center; margin:16px 0;"></div>
+    <div style="font-size:11px; color:var(--muted); word-break:break-all; direction:ltr;">${escapeHtml(url)}</div>
+    <div class="modal-actions"><button class="btn btn-primary" id="qrLinkClose">${t('close')}</button></div></div></div>`;
+  new QRCode(document.getElementById("qrLinkBox"), { text: url, width:220, height:220, colorDark:"#1F3864", colorLight:"#ffffff" });
+  document.getElementById("qrLinkClose").onclick = ()=>{ root.innerHTML = ""; };
+  document.getElementById("qrLinkOverlay").onclick = (e)=>{ if(e.target.id==="qrLinkOverlay") root.innerHTML = ""; };
+}
+function expenseLinksCardHtml(){
+  const row = (label, kind)=> ["ar","en"].map(lg=>{
+    const url = expenseLinkUrl(kind, lg);
+    return `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px;">
+      <span style="min-width:150px; font-weight:800; font-size:13px;">${label} — ${lg==='ar' ? t('expLinkArabic') : t('expLinkEnglish')}</span>
+      <input type="text" readonly value="${escapeAttr(url)}" style="flex:1; min-width:220px; direction:ltr; font-size:12px; padding:7px; border:1.5px solid var(--line); border-radius:8px; background:#f7f8fb;">
+      <button class="btn btn-sm btn-outline" data-copylink="${escapeAttr(url)}" type="button">${t('expLinkCopy')}</button>
+      <button class="btn btn-sm btn-outline" data-qrlink="${escapeAttr(url)}" data-qrtitle="${escapeAttr(label)} — ${lg==='ar' ? t('expLinkArabic') : t('expLinkEnglish')}" type="button">QR</button></div>`;
+  }).join("");
+  return `<div class="card">
+    <div class="label" style="margin-bottom:6px;">${t('expLinksTitle')}</div>
+    <div class="sub" style="margin-bottom:14px;">${t('expLinksSub')}</div>
+    ${row(t('expLinkUpload'), "expense")}
+    <div style="height:8px;"></div>
+    ${row(t('expLinkAccountant'), "accountant")}
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;">
+      <span style="font-weight:800; font-size:13px; min-width:150px;">${t('expAcctCodeLabel')}</span>
+      <input type="text" id="acctCodeSetting" value="${escapeAttr(getAccountantCode())}" placeholder="••••" style="width:160px; padding:8px; border:1.5px solid var(--line); border-radius:8px; letter-spacing:2px; text-align:center;">
+      <button class="btn btn-sm btn-primary" id="btnSaveAcctCode" type="button">${t('expAcctCodeSave')}</button>
+    </div>
+    <div style="font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.7;">${t('expAcctCodeNote')}</div>
+  </div>`;
+}
+function bindExpenseLinksCard(){
+  document.querySelectorAll("[data-copylink]").forEach(b=>{ b.onclick = ()=> copyTextToClipboard(b.dataset.copylink); });
+  document.querySelectorAll("[data-qrlink]").forEach(b=>{ b.onclick = ()=> openQrLinkModal(b.dataset.qrlink, b.dataset.qrtitle); });
+  const saveBtn = document.getElementById("btnSaveAcctCode");
+  if(saveBtn) saveBtn.onclick = ()=>{
+    const code = document.getElementById("acctCodeSetting").value.trim();
+    if(code.length < 4){ alert(t('expAcctCodeShort')); return; }
+    saveAccountantCode(code);
+    showToast(t('expAcctCodeSaved'));
+  };
+}
 function refreshCloudHealthLine(){
   const el = document.getElementById("cloudHealthLine");
   if(!el) return;
@@ -9065,6 +9821,7 @@ function renderSettingsPage(){
         <div id="storageInfoLine" style="font-weight:800; font-size:14px; color:var(--navy);">…</div>
         <div id="cloudHealthLine" style="font-weight:800; font-size:13.5px; margin-top:8px;"></div>
       </div>
+      ${expenseLinksCardHtml()}
       <div class="card">
         <div class="label" style="margin-bottom:6px;">${t('branchAuditTitle')}</div>
         <div class="sub" style="margin-bottom:16px;">${t('branchAuditSub')}</div>
@@ -9125,6 +9882,7 @@ function renderSettingsPage(){
   };
   document.getElementById("btnOpenBulkAssetImport").onclick = openBulkAssetImportModal;
   document.getElementById("btnOpenBranchAudit").onclick = openBranchAuditModal;
+  bindExpenseLinksCard();
   refreshStorageInfoLine();
 }
 
@@ -9138,6 +9896,7 @@ function render(){
   else if(state.view==="reports") renderReportsPage();
   else if(state.view==="calendar") renderCalendarPage();
   else if(state.view==="branchCompare") renderBranchComparePage();
+  else if(state.view==="expenseReport") renderExpenseReportPage();
   else if(state.view==="amcVisitsLog") renderAmcVisitsLogPage();
   else if(state.view==="assetMap") renderAssetMapPage();
   else if(state.view==="trash") renderTrashPage();
@@ -9285,6 +10044,10 @@ if(location.hash === "#public"){
   renderDriverModePage();
 } else if(isBranchInspectMode){
   renderBranchInspectPage();
+} else if(isExpenseMode){
+  renderExpenseUploadPage();
+} else if(isAccountantMode){
+  renderAccountantPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
 } else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); }
