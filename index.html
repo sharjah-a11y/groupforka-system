@@ -657,6 +657,9 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    mayarMigrationDone:(added,removed,branch)=>`✅ تم تنزيل معدات ميار\n\n• ${added} معدة في فرع: ${branch}\n• اتنقل: الكود، الاسم، الماركة، الرقم التسلسلي/الموديل، الكمية، القسم، الملاحظات، والاسم والملاحظات بنص الملف الأصلي${removed?`\n• تم نقل ${removed} معدة قديمة (أكوادها MY-...) من استيراد سابق إلى سلة المحذوفات لتفادي التكرار (تقدر ترجّعها خلال 30 يوم)`:""}\n• باقي الفروع والسيارات لم تتأثر`,
+    mayarRestored:(added,branch)=>`♻️ تم إرجاع ${added} معدة لميار في فرع: ${branch}\n\nكانت اختفت بعد مزامنة السحابة (ده معناه إن الرفع للسحابة كان فاشل).`,
+    mayarJobError:(msg)=>`❌ حصل خطأ أثناء نقل معدات ميار:\n${msg}\n\nابعتلي نص الرسالة دي وأصلحها.`,
     fujRefreshed:(total,created,updated,restored,branch)=>`🔄 تم نقل ملف معدات الفجيرة مرة تانية بكل التفاصيل\n\n• ${total} معدة في فرع: ${branch}\n• جديدة: ${created} — اتحدّثت: ${updated} — اترجعت من سلة المحذوفات: ${restored}\n• اتنقل: الرقم التسلسلي، القسم، الحالة، الملاحظات، الكمية، والاسم/الحالة/الملاحظات بنص الملف الأصلي\n• اللي ضفته بإيدك (صور، مورّد، سعر...) اتحافظ عليه ومفيش حاجة اتمسحت`,
     fujJobError:(msg)=>`❌ حصل خطأ أثناء نقل معدات الفجيرة:\n${msg}\n\nابعتلي نص الرسالة دي وأصلحها.`,
     cloudWriteFailed:(code)=>`⚠️ تعذّر رفع البيانات للسحابة (Firebase)\nكود الخطأ: ${code}\n\nالسبب المرجّح: قواعد الأمان في Firebase بتمنع الكتابة. لحد ما تتظبط، التعديلات بتفضل على الجهاز ده بس ومش هتظهر على أجهزة تانية، وممكن ترجع للنسخة القديمة من السحابة بعد المزامنة.\n\nالحل: Firebase Console ← Firestore Database ← Rules، وخلّي القاعدة: allow read, write: if request.auth != null;`,
@@ -1003,6 +1006,9 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    mayarMigrationDone:(added,removed,branch)=>`✅ Mayar equipment imported\n\n• ${added} items in branch: ${branch}\n• Transferred: code, name, brand, serial/model, quantity, section, remarks, plus the original name and remarks text from the file${removed?`\n• ${removed} old items (codes MY-...) from an earlier import moved to the recycle bin to avoid duplicates (restorable for 30 days)`:""}\n• Other branches and vehicles were not affected`,
+    mayarRestored:(added,branch)=>`♻️ ${added} Mayar items restored in branch: ${branch}\n\nThey had disappeared after a cloud sync (which means cloud uploads were failing).`,
+    mayarJobError:(msg)=>`❌ An error occurred while importing the Mayar equipment:\n${msg}\n\nSend me this message and I will fix it.`,
     fujRefreshed:(total,created,updated,restored,branch)=>`🔄 Fujairah equipment file transferred again with all details\n\n• ${total} items in branch: ${branch}\n• New: ${created} — Updated: ${updated} — Restored from the recycle bin: ${restored}\n• Transferred: serial number, department, condition, remarks, quantity, and the original name/condition/remarks text from the file\n• Anything you added by hand (photos, supplier, price...) was kept and nothing was deleted`,
     fujJobError:(msg)=>`❌ An error occurred while transferring the Fujairah equipment:\n${msg}\n\nSend me this message and I will fix it.`,
     cloudWriteFailed:(code)=>`⚠️ Could not upload data to the cloud (Firebase)\nError code: ${code}\n\nLikely cause: Firebase security rules are blocking writes. Until fixed, changes stay on this device only, will not appear on other devices, and may be replaced by the old cloud copy on the next sync.\n\nFix: Firebase Console → Firestore Database → Rules, and set: allow read, write: if request.auth != null;`,
@@ -1425,7 +1431,8 @@ const MODULES = [
     {key:"code", label:"كود الأصل", labelEn:"Asset Code", type:"text"},
     {key:"name", label:"اسم الأصل", labelEn:"Asset Name", type:"text", required:true},
     {key:"category", label:"الفئة", labelEn:"Category", type:"text"},
-    {key:"serial", label:"الرقم التسلسلي", labelEn:"Serial No.", type:"text"},
+    {key:"brand", label:"الماركة", labelEn:"Brand", type:"text"},
+    {key:"serial", label:"الرقم التسلسلي / الموديل", labelEn:"Serial / Model No.", type:"text"},
     {key:"branch", label:"اسم المطعم / الفرع", labelEn:"Restaurant / Branch", type:"text", master:"branches"},
     {key:"location", label:"القسم / الموقع الدقيق", labelEn:"Department / Location", type:"text"},
     {key:"custodian", label:"المسؤول المستلم", labelEn:"Custodian", type:"text"},
@@ -1445,6 +1452,7 @@ const MODULES = [
     {key:"nameEn", label:"الاسم الأصلي (إنجليزي)", labelEn:"Original Name (English)", type:"text"},
     {key:"fileCondition", label:"الحالة كما في الملف", labelEn:"Condition (as in source file)", type:"text"},
     {key:"fileRemarks", label:"الملاحظات كما في الملف", labelEn:"Remarks (as in source file)", type:"text"},
+    {key:"fileNo", label:"الرقم في الملف", labelEn:"No. in source file", type:"text"},
     {key:"photos", label:"صور ومرفقات الأصل (فاتورة/ضمان)", labelEn:"Asset Photos & Attachments (Invoice/Warranty)", type:"photo", full:true},
   ],
   listColumns:["code","name","branch","condition","warrantyExpiry","decision"],
@@ -1828,7 +1836,7 @@ let translationCache = loadTranslationCache();
 function detectTextLang(text){ return /[\u0600-\u06FF]/.test(text) ? "ar" : "en"; }
 function escapeAttr(s){ return (s||"").toString().replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
-const NO_TRANSLATE_KEY_PATTERN = /No\.?$|Number|Phone|reqNo|plate|serial|invoice|contractNo|^code$|chassis|engine|appId|apiKey|^quantity$|^nameEn$|^fileCondition$|^fileRemarks$/i;
+const NO_TRANSLATE_KEY_PATTERN = /No\.?$|Number|Phone|reqNo|plate|serial|invoice|contractNo|^code$|chassis|engine|appId|apiKey|^quantity$|^nameEn$|^fileCondition$|^fileRemarks$|^brand$|^fileNo$/i;
 function isTranslatableField(f){
   if(!f) return false;
   if(f.type!=="text" && f.type!=="textarea" && f.type!=="branchMultiSelect") return false;
@@ -1853,7 +1861,7 @@ function getListRelevantFields(m, statusFilterValue, forceAll){
    Checked BEFORE the online translator, so these always show the precise name from the original list,
    with no internet, no cache and no machine-translation guesswork. Arabic stays as stored; English shows
    automatically when the program language is switched. */
-const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"]];
+const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"], ["سلامندر","Salamander"], ["ماكينة ثلج مكعبات","Ice Cube Machine"], ["قهوة ومشروبات","Coffee & Beverages"], ["مياه","Water"], ["إلكترونيات","Electronics"], ["تحت الصيانة","Under maintenance"]];
 let _glossaryAR2EN = null, _glossaryEN2AR = null;
 function glossaryKey(s){ return normalizeSearchText(String(s||"")).toLowerCase().replace(/\s+/g," ").trim(); }
 function ensureGlossary(){
@@ -2658,6 +2666,862 @@ function scheduleUnassignedAssetsCleanup(){
     }, 2200);   // a moment after the Fujairah job so the two messages never collide
   }, 800);
 }
+/* ---------------- ONE-TIME: Mayar equipment (EQUIPMENTLIST_OF__B_S_.xlsx) ----------------
+   Imports the 51 items with every column of the file (brand, serial/model, quantity, section, remarks, original English
+   text) into the Mayar branch. Items from the earlier PDF-based bulk import (codes MY-...) in a Mayar branch are moved to
+   the recycle bin to avoid duplicates (restorable 30 days); nothing else is touched. Same safety net as the Fujairah job:
+   fixed ids = marker that it already ran, verified cloud writes, self-heal, visible errors. */
+const MAYAR_EQUIPMENT_2026 = [
+ {
+  "id": "may2026-01",
+  "code": "MAY-01",
+  "name": "ثلاجة عرض",
+  "category": "تبريد",
+  "brand": "INFERIGO",
+  "serial": "22122128341",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "DISPLAY CHILLER",
+  "fileRemarks": "",
+  "fileNo": "1"
+ },
+ {
+  "id": "may2026-02",
+  "code": "MAY-02",
+  "name": "فريزر",
+  "category": "تبريد",
+  "brand": "SIKOWER",
+  "serial": "1 020 1 00202900038",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "FREEZER",
+  "fileRemarks": "",
+  "fileNo": "2"
+ },
+ {
+  "id": "may2026-03",
+  "code": "MAY-03",
+  "name": "عصارة",
+  "category": "أجهزة تحضير",
+  "brand": "OLSENMARK",
+  "serial": "MO:OMJE2234N",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "JUICE MACHINE",
+  "fileRemarks": "",
+  "fileNo": "3"
+ },
+ {
+  "id": "may2026-04",
+  "code": "MAY-04",
+  "name": "خلاط",
+  "category": "أجهزة تحضير",
+  "brand": "ILIYA",
+  "serial": "UT 84058",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "BLENDER",
+  "fileRemarks": "",
+  "fileNo": "4"
+ },
+ {
+  "id": "may2026-05",
+  "code": "MAY-05",
+  "name": "مطحنة V60",
+  "category": "قهوة ومشروبات",
+  "brand": "MAHALKONIG",
+  "serial": "805454",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "V60 GRINDER",
+  "fileRemarks": "",
+  "fileNo": "5"
+ },
+ {
+  "id": "may2026-06",
+  "code": "MAY-06",
+  "name": "غلاية مياه",
+  "category": "قهوة ومشروبات",
+  "brand": "BREWISTA",
+  "serial": "MO:BA6VKBS-MB",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "WATER BOILER",
+  "fileRemarks": "",
+  "fileNo": "6"
+ },
+ {
+  "id": "may2026-07",
+  "code": "MAY-07",
+  "name": "ماكينة إسبريسو",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "722787",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "ESPRESSO MACHINE",
+  "fileRemarks": "",
+  "fileNo": "7"
+ },
+ {
+  "id": "may2026-08",
+  "code": "MAY-08",
+  "name": "بورتافلتر",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "PORTAFILTER",
+  "fileRemarks": "",
+  "fileNo": "7.1"
+ },
+ {
+  "id": "may2026-09",
+  "code": "MAY-09",
+  "name": "سلة تنظيف",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "BLIND BASKET",
+  "fileRemarks": "",
+  "fileNo": "7.2"
+ },
+ {
+  "id": "may2026-10",
+  "code": "MAY-10",
+  "name": "سلة مفتوحة 7 جرام",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "OPEN BASKET(7GM)",
+  "fileRemarks": "",
+  "fileNo": "7.3"
+ },
+ {
+  "id": "may2026-11",
+  "code": "MAY-11",
+  "name": "سلة مفتوحة 18 جرام",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "OPEN BASKET(18GM)",
+  "fileRemarks": "",
+  "fileNo": "7.4"
+ },
+ {
+  "id": "may2026-12",
+  "code": "MAY-12",
+  "name": "فوهة",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "NOZEL",
+  "fileRemarks": "",
+  "fileNo": "7.5"
+ },
+ {
+  "id": "may2026-13",
+  "code": "MAY-13",
+  "name": "سلة مفتوحة 20 جرام",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "OPEN BASKET(20GM)",
+  "fileRemarks": "",
+  "fileNo": "7.6"
+ },
+ {
+  "id": "may2026-14",
+  "code": "MAY-14",
+  "name": "مطحنة إسبريسو",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "M21192207000361/ M21192207000362",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "ESPRESSO GRINDER",
+  "fileRemarks": "",
+  "fileNo": "8"
+ },
+ {
+  "id": "may2026-15",
+  "code": "MAY-15",
+  "name": "ماكينة ثلج مكعبات",
+  "category": "تبريد",
+  "brand": "BERMA",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "ICECUBE MACHINE",
+  "fileRemarks": "",
+  "fileNo": "9"
+ },
+ {
+  "id": "may2026-16",
+  "code": "MAY-16",
+  "name": "ثلاجة تخزين",
+  "category": "تبريد",
+  "brand": "",
+  "serial": "*1021803300700020",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "STORAGE CHILLER",
+  "fileRemarks": "",
+  "fileNo": "10"
+ },
+ {
+  "id": "may2026-17",
+  "code": "MAY-17",
+  "name": "ماكينة آيس كريم",
+  "category": "تبريد",
+  "brand": "",
+  "serial": "BQC-1800",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "ICECREAM MACHINE",
+  "fileRemarks": "",
+  "fileNo": "11"
+ },
+ {
+  "id": "may2026-18",
+  "code": "MAY-18",
+  "name": "شطف مياه",
+  "category": "مياه",
+  "brand": "CELLI",
+  "serial": "",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "WATER RINSING",
+  "fileRemarks": "",
+  "fileNo": "12"
+ },
+ {
+  "id": "may2026-19",
+  "code": "MAY-19",
+  "name": "ميزان",
+  "category": "قهوة ومشروبات",
+  "brand": "TIMEMORE",
+  "serial": "TES011",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "3",
+  "nameEn": "WEIGHT MACHINE",
+  "fileRemarks": "",
+  "fileNo": "13"
+ },
+ {
+  "id": "may2026-20",
+  "code": "MAY-20",
+  "name": "ثلاجة خلفية للبار",
+  "category": "تبريد",
+  "brand": "",
+  "serial": "208HC20221017050",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "BAR BACK COOLER(CHILLER)",
+  "fileRemarks": "",
+  "fileNo": "14"
+ },
+ {
+  "id": "may2026-21",
+  "code": "MAY-21",
+  "name": "نظام فلترة مياه",
+  "category": "مياه",
+  "brand": "REVERSE OSMOSIS",
+  "serial": "MO:TL-11G",
+  "location": "البار",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "WATER FILTER SYSTEM",
+  "fileRemarks": "",
+  "fileNo": "15"
+ },
+ {
+  "id": "may2026-22",
+  "code": "MAY-22",
+  "name": "ماكينة إسبريسو",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "ESPRESSO MACHINE",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-23",
+  "code": "MAY-23",
+  "name": "مطحنة قهوة",
+  "category": "قهوة ومشروبات",
+  "brand": "MAHALKONIG",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "COFFEE GRINDER",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-24",
+  "code": "MAY-24",
+  "name": "بورتافلتر",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "PORTA FILTER",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-25",
+  "code": "MAY-25",
+  "name": "سلة مفتوحة 18 جرام",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "OPEN BASKET(18GM)",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-26",
+  "code": "MAY-26",
+  "name": "سلة تنظيف",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "BLIND BASKET",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-27",
+  "code": "MAY-27",
+  "name": "سلة مفتوحة 7 جرام",
+  "category": "قهوة ومشروبات",
+  "brand": "VICTORIA AUDRINO",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "OPEN BASKET(7GM)",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-28",
+  "code": "MAY-28",
+  "name": "فلتر مياه",
+  "category": "مياه",
+  "brand": "",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "2",
+  "nameEn": "WATER FILTER",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-29",
+  "code": "MAY-29",
+  "name": "شطف مياه",
+  "category": "مياه",
+  "brand": "",
+  "serial": "",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "WATER RINSING",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-30",
+  "code": "MAY-30",
+  "name": "ميكروويف",
+  "category": "طهي",
+  "brand": "SANFORD",
+  "serial": "*82409050016606",
+  "location": "عربة القهوة",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "MICRO OVEN",
+  "fileRemarks": "",
+  "fileNo": ""
+ },
+ {
+  "id": "may2026-31",
+  "code": "MAY-31",
+  "name": "تابلت",
+  "category": "إلكترونيات",
+  "brand": "SAMSUNG",
+  "serial": "R83X2072KMY - R83X301HZ0Z R83X204086B",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "3",
+  "nameEn": "TAB",
+  "fileRemarks": "",
+  "fileNo": "15"
+ },
+ {
+  "id": "may2026-32",
+  "code": "MAY-32",
+  "name": "تابلت (فودكس)",
+  "category": "إلكترونيات",
+  "brand": "APPLE",
+  "serial": "F9TM7L6WML",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "TAB(FOODICS)",
+  "fileRemarks": "",
+  "fileNo": "16"
+ },
+ {
+  "id": "may2026-33",
+  "code": "MAY-33",
+  "name": "موبايل",
+  "category": "إلكترونيات",
+  "brand": "GIGASET",
+  "serial": "S30852-S3002-A701-2A170/A270",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "CELL PHONE",
+  "fileRemarks": "",
+  "fileNo": "17"
+ },
+ {
+  "id": "may2026-34",
+  "code": "MAY-34",
+  "name": "موبايل",
+  "category": "إلكترونيات",
+  "brand": "ETISALAT",
+  "serial": "MO:W73H",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "CELLPHONE",
+  "fileRemarks": "",
+  "fileNo": "18"
+ },
+ {
+  "id": "may2026-35",
+  "code": "MAY-35",
+  "name": "موبايل",
+  "category": "إلكترونيات",
+  "brand": "VIVO",
+  "serial": "10AE1Z27XH000DD",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "MOBILE PHONE",
+  "fileRemarks": "",
+  "fileNo": "19"
+ },
+ {
+  "id": "may2026-36",
+  "code": "MAY-36",
+  "name": "موبايل",
+  "category": "إلكترونيات",
+  "brand": "APPLE",
+  "serial": "DXN2PXP6H2",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "MOBILE PHONE",
+  "fileRemarks": "",
+  "fileNo": "20"
+ },
+ {
+  "id": "may2026-37",
+  "code": "MAY-37",
+  "name": "جهاز دفع بالبطاقة",
+  "category": "إلكترونيات",
+  "brand": "NETWORK",
+  "serial": "3033030010 -9222404768 -9222404767",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "3",
+  "nameEn": "CARD PAYMENT MACHINE",
+  "fileRemarks": "",
+  "fileNo": "21"
+ },
+ {
+  "id": "may2026-38",
+  "code": "MAY-38",
+  "name": "طابعة",
+  "category": "إلكترونيات",
+  "brand": "FOODICS",
+  "serial": "N42422ABT0386",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "PRINTER",
+  "fileRemarks": "",
+  "fileNo": "22"
+ },
+ {
+  "id": "may2026-39",
+  "code": "MAY-39",
+  "name": "راوتر واي فاي",
+  "category": "إلكترونيات",
+  "brand": "EATISALAT",
+  "serial": "CP2442JEFPV",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "WIFI ROUGHTER",
+  "fileRemarks": "",
+  "fileNo": "23"
+ },
+ {
+  "id": "may2026-40",
+  "code": "MAY-40",
+  "name": "جهاز طلبات (طلبات)",
+  "category": "إلكترونيات",
+  "brand": "TALABAT",
+  "serial": "NMS212XG1443F3722",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "TALABAT MACHINE",
+  "fileRemarks": "",
+  "fileNo": "24"
+ },
+ {
+  "id": "may2026-41",
+  "code": "MAY-41",
+  "name": "تلفزيون",
+  "category": "إلكترونيات",
+  "brand": "SAMSUNG",
+  "serial": "",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "T.V",
+  "fileRemarks": "",
+  "fileNo": "25"
+ },
+ {
+  "id": "may2026-42",
+  "code": "MAY-42",
+  "name": "ميكسر صوت",
+  "category": "إلكترونيات",
+  "brand": "I MAX",
+  "serial": "2403400071",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "SOUND MIXTURE",
+  "fileRemarks": "",
+  "fileNo": "26"
+ },
+ {
+  "id": "may2026-43",
+  "code": "MAY-43",
+  "name": "لابتوب",
+  "category": "إلكترونيات",
+  "brand": "LENOVO",
+  "serial": "PF4QVT2P",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "LAPTOP",
+  "fileRemarks": "",
+  "fileNo": "27"
+ },
+ {
+  "id": "may2026-44",
+  "code": "MAY-44",
+  "name": "ماكينة طباعة",
+  "category": "إلكترونيات",
+  "brand": "EVEBOT",
+  "serial": "*202404110765",
+  "location": "الكاشير",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "PRINTING MACHINE",
+  "fileRemarks": "",
+  "fileNo": "28"
+ },
+ {
+  "id": "may2026-45",
+  "code": "MAY-45",
+  "name": "فرن",
+  "category": "طهي",
+  "brand": "ROLLER GRILL",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "يحتاج صيانة",
+  "notes": "تحت الصيانة",
+  "quantity": "1",
+  "nameEn": "OVEN",
+  "fileRemarks": "IN MAINTAINANCE",
+  "fileNo": "28"
+ },
+ {
+  "id": "may2026-46",
+  "code": "MAY-46",
+  "name": "ميكروويف",
+  "category": "طهي",
+  "brand": "SUPER GENERAL",
+  "serial": "MO:SGM M921",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "MICRO OVEN",
+  "fileRemarks": "",
+  "fileNo": "29"
+ },
+ {
+  "id": "may2026-47",
+  "code": "MAY-47",
+  "name": "ثلاجة تجهيز",
+  "category": "تبريد",
+  "brand": "INOFRIGO",
+  "serial": "23097198772",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "SETUP CHILLER",
+  "fileRemarks": "",
+  "fileNo": "30"
+ },
+ {
+  "id": "may2026-48",
+  "code": "MAY-48",
+  "name": "ثلاجة / فريزر",
+  "category": "تبريد",
+  "brand": "L.G",
+  "serial": "VB0518Z1019JBAT0TE40032",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "CHILLER/FREZZER",
+  "fileRemarks": "",
+  "fileNo": "31"
+ },
+ {
+  "id": "may2026-49",
+  "code": "MAY-49",
+  "name": "بوتاجاز غاز",
+  "category": "طهي",
+  "brand": "",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "GAS STOVE",
+  "fileRemarks": "",
+  "fileNo": "32"
+ },
+ {
+  "id": "may2026-50",
+  "code": "MAY-50",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "INOFRIGO",
+  "serial": "23097198707",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "1",
+  "nameEn": "CHILLER",
+  "fileRemarks": "",
+  "fileNo": "33"
+ },
+ {
+  "id": "may2026-51",
+  "code": "MAY-51",
+  "name": "سلامندر",
+  "category": "طهي",
+  "brand": "",
+  "serial": "MO:NT-4080G55",
+  "location": "المطبخ",
+  "condition": "",
+  "notes": "",
+  "quantity": "",
+  "nameEn": "SALAMANDER",
+  "fileRemarks": "",
+  "fileNo": "34"
+ }
+];
+const MAYAR_IMPORT_PREFIX = "may2026-";
+const MAYAR_MIGRATION_FLAG = "forka_migrated_mayar_equip_v1";
+function resolveMayarTarget(){
+  const masters = loadMasters();
+  const mayBranches = (masters.branches||[]).filter(b=> normalizeSearchText(b).includes("ميار"));
+  let target = mayBranches.find(b=> normalizeSearchText(b).includes("كوفي")) || mayBranches[0];
+  if(!target){
+    target = "ميار كوفي شوب";
+    masters.branches = [...(masters.branches||[]), target];
+    saveMasters(masters);
+    cloudPushMasters(masters);
+  }
+  return target;
+}
+function mayarImportRecord(it, target, now){
+  return { id: it.id, code: it.code, name: it.name, category: it.category, brand: it.brand, serial: it.serial, branch: target,
+           location: it.location, condition: it.condition, notes: it.notes, quantity: it.quantity, nameEn: it.nameEn,
+           fileRemarks: it.fileRemarks, fileNo: it.fileNo, photos: [], _updatedAt: now };
+}
+function runMayarEquipmentMigration(){
+  if(localStorage.getItem(MAYAR_MIGRATION_FLAG)) return null;
+  const arr = loadDataRaw("assets");
+  if(arr.some(a=> String(a.id||"").startsWith(MAYAR_IMPORT_PREFIX))){ localStorage.setItem(MAYAR_MIGRATION_FLAG, "1"); return null; }
+  const target = resolveMayarTarget();
+  const now = Date.now(); const pushes = []; let removed = 0;
+  arr.forEach(a=>{
+    if(a._deleted) return;
+    if(!/^MY-/i.test(String(a.code||"").trim())) return;                       // only the earlier bulk-import codes
+    if(!normalizeSearchText(a.branch||"").includes("ميار")) return;             // and only inside a Mayar branch
+    a._deleted = true; a._deletedAt = now; a._updatedAt = now;
+    pushes.push(cloudPushRecord("assets", a));
+    removed++;
+  });
+  MAYAR_EQUIPMENT_2026.forEach(it=>{
+    const rec = mayarImportRecord(it, target, now);
+    arr.push(rec);
+    pushes.push(cloudPushRecord("assets", rec));
+  });
+  saveData("assets", arr);
+  localStorage.setItem(MAYAR_MIGRATION_FLAG, "1");
+  return { added: MAYAR_EQUIPMENT_2026.length, removed, branch: target, pushes };
+}
+function ensureMayarEquipmentPresent(){
+  if(!localStorage.getItem(MAYAR_MIGRATION_FLAG)) return null;
+  const attempts = Number(localStorage.getItem("forka_may_heal_attempts")||0);
+  if(attempts >= 3) return null;
+  const arr = loadDataRaw("assets");
+  if(arr.some(a=> String(a.id||"").startsWith(MAYAR_IMPORT_PREFIX))) return null;
+  const target = resolveMayarTarget();
+  const now = Date.now(); const pushes = [];
+  MAYAR_EQUIPMENT_2026.forEach(it=>{ const rec = mayarImportRecord(it, target, now); arr.push(rec); pushes.push(cloudPushRecord("assets", rec)); });
+  saveData("assets", arr);
+  localStorage.setItem("forka_may_heal_attempts", String(attempts+1));
+  return { added: MAYAR_EQUIPMENT_2026.length, branch: target, pushes };
+}
+function scheduleMayarEquipmentMigration(){
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
+    if(!synced && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(async ()=>{
+      try{
+        const res = runMayarEquipmentMigration();
+        if(res){
+          const verdict = await cloudVerdict(res.pushes);
+          alert(t('mayarMigrationDone', res.added, res.removed, res.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
+          render();
+          return;
+        }
+        const healed = ensureMayarEquipmentPresent();
+        if(healed){
+          const verdict = await cloudVerdict(healed.pushes);
+          alert(t('mayarRestored', healed.added, healed.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : ""));
+          render();
+        }
+      }catch(err){
+        console.error("Mayar equipment job failed:", err);
+        alert(t('mayarJobError', (err && err.message) || String(err)));
+      }
+    }, 4000);   // after the Fujairah / cleanup messages so the dialogs never collide
+  }, 800);
+}
 function migrateStripUploadedPhotoDataUrls(){
   if(localStorage.getItem("forka_migrated_photostrip_v1")) return;
   let changedAny = false;
@@ -2722,7 +3586,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -8423,7 +9287,7 @@ if(location.hash === "#public"){
   renderBranchInspectPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
