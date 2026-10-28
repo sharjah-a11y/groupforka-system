@@ -657,6 +657,7 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    unassignedCleanupDone:(removed,unmatched,vehicles)=>`🧹 تنظيف المعدات اللي من غير فرع\n\n• تم نقل ${removed} معدة بدون فرع إلى سلة المحذوفات (تقدر ترجّعها خلال 30 يوم)${unmatched?`\n• ${unmatched} معدة ليها فرع مكتوب بشكل مختلف عن الفروع المسجلة — لم تُحذف، وحّد اسم فرعها من الإعدادات ← مراجعة فروع الأصول`:""}${vehicles?`\n• ${vehicles} أصل شكله مركبة لم يُحذف`:""}\n• سجل السيارات لم يتأثر`,
     fujMigrationDone:(added,removed,branch,vehicles)=>`✅ تم تحديث معدات الفجيرة\n\n• تم تنزيل ${added} معدة جديدة في فرع: ${branch}\n• تم نقل ${removed} معدة قديمة إلى سلة المحذوفات (تقدر ترجّعها خلال 30 يوم)\n• السيارات والفروع الأخرى لم تتأثر`,
     vehEventsSummaryTitle:"📊 ملخص الحوادث والمخالفات", vehEventsAccidents:"حوادث", vehEventsViolations:"مخالفات", vehEventsUnpaid:"مخالفات غير مدفوعة", vehEventsTotalCost:"إجمالي التكلفة",
     vehAccidentsTitle:"🚨 الحوادث المسجلة على هذه السيارة", noVehAccidents:"لا توجد حوادث مسجلة لهذه السيارة 👍",
@@ -995,6 +996,7 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    unassignedCleanupDone:(removed,unmatched,vehicles)=>`🧹 Unassigned equipment cleanup\n\n• ${removed} items with no branch moved to the recycle bin (restorable for 30 days)${unmatched?`\n• ${unmatched} items have a branch spelled differently from the registered branches — NOT deleted; unify their branch from Settings → Asset Branch Audit`:""}${vehicles?`\n• ${vehicles} vehicle-like assets were kept`:""}\n• The vehicle registry was not affected`,
     fujMigrationDone:(added,removed,branch,vehicles)=>`✅ Fujairah equipment updated\n\n• ${added} new items added to branch: ${branch}\n• ${removed} old items moved to the recycle bin (restorable for 30 days)\n• Vehicles and other branches were not affected`,
     vehEventsSummaryTitle:"📊 Accidents & Violations Summary", vehEventsAccidents:"Accidents", vehEventsViolations:"Violations", vehEventsUnpaid:"Unpaid violations", vehEventsTotalCost:"Total cost",
     vehAccidentsTitle:"🚨 Accidents Recorded for This Vehicle", noVehAccidents:"No accidents recorded for this vehicle 👍",
@@ -2370,6 +2372,59 @@ function scheduleFujairahEquipmentMigration(){
     }, 600);
   }, 800);
 }
+/* ---------------- ONE-TIME: remove equipment that has NO branch ----------------
+   Moves every asset whose branch is empty to the recycle bin (restorable for 30 days). Safe by design:
+   - vehicles (fleet module) and vehicle-like assets are never touched
+   - assets whose branch is filled in but spelled differently from a registered branch are KEPT (they are real
+     equipment with a typo — the Branch Audit tool merges those) and only counted in the report
+   - only records last modified BEFORE this job was released are affected, so equipment you add later without a
+     branch is never deleted by another device running the job late. Idempotent across devices. */
+const UNASSIGNED_CLEANUP_CUTOFF = 1793175360534;
+const UNASSIGNED_CLEANUP_FLAG = "forka_migrated_unassigned_assets_v1";
+function isBlankBranchValue(v){
+  const s = String(v||"").trim();
+  return !s || /^[-–—_./\\\s]+$/.test(s) || /^(غير محدد|لا يوجد|بدون فرع|n\/?a|none|null|undefined)$/i.test(s);
+}
+function runUnassignedAssetsCleanup(){
+  if(localStorage.getItem(UNASSIGNED_CLEANUP_FLAG)) return null;
+  const arr = loadDataRaw("assets");
+  const registered = (loadMasters().branches||[]);
+  const now = Date.now();
+  let removed = 0, keptVehicles = 0, keptUnmatched = 0;
+  arr.forEach(a=>{
+    if(a._deleted) return;
+    if(isBlankBranchValue(a.branch)){
+      if((a._updatedAt||0) > UNASSIGNED_CLEANUP_CUTOFF) return;       // added/edited after release -> leave it
+      if(looksLikeVehicleAsset(a)){ keptVehicles++; return; }
+      a._deleted = true; a._deletedAt = now; a._updatedAt = now;
+      cloudPushRecord("assets", a);
+      removed++;
+    } else {
+      const matched = splitBranchNames(a.branch).some(p=> registered.some(b=> normalizeSearchText(b)===normalizeSearchText(p)));
+      if(!matched) keptUnmatched++;
+    }
+  });
+  if(removed) saveData("assets", arr);
+  localStorage.setItem(UNASSIGNED_CLEANUP_FLAG, "1");
+  return { removed, keptVehicles, keptUnmatched };
+}
+function scheduleUnassignedAssetsCleanup(){
+  if(localStorage.getItem(UNASSIGNED_CLEANUP_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
+    if(!synced && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(()=>{
+      const res = runUnassignedAssetsCleanup();
+      if(res && (res.removed || res.keptUnmatched || res.keptVehicles)){
+        alert(t('unassignedCleanupDone', res.removed, res.keptUnmatched, res.keptVehicles));
+        render();
+      }
+    }, 2200);   // a moment after the Fujairah job so the two messages never collide
+  }, 800);
+}
 function migrateStripUploadedPhotoDataUrls(){
   if(localStorage.getItem("forka_migrated_photostrip_v1")) return;
   let changedAny = false;
@@ -2434,7 +2489,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -8113,7 +8168,7 @@ if(location.hash === "#public"){
   renderBranchInspectPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
