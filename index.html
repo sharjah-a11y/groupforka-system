@@ -1828,11 +1828,48 @@ function getListRelevantFields(m, statusFilterValue, forceAll){
   return m.fields.filter(f=> f.type!=="photo" && f.type!=="photo2" && f.type!=="quotes" && isFieldRelevantForList(f, m, statusFilterValue, forceAll));
 }
 
+/* ---------------- BILINGUAL GLOSSARY ----------------
+   Exact, offline Arabic <-> English names for the equipment lists we imported (Fujairah restaurant, Mayar coffee shop).
+   Checked BEFORE the online translator, so these always show the precise name from the original list,
+   with no internet, no cache and no machine-translation guesswork. Arabic stays as stored; English shows
+   automatically when the program language is switched. */
+const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"]];
+let _glossaryAR2EN = null, _glossaryEN2AR = null;
+function glossaryKey(s){ return normalizeSearchText(String(s||"")).toLowerCase().replace(/\s+/g," ").trim(); }
+function ensureGlossary(){
+  if(_glossaryAR2EN) return;
+  _glossaryAR2EN = new Map(); _glossaryEN2AR = new Map();
+  BILINGUAL_GLOSSARY.forEach(([ar,en])=>{
+    _glossaryAR2EN.set(glossaryKey(ar), en);
+    if(!_glossaryEN2AR.has(glossaryKey(en))) _glossaryEN2AR.set(glossaryKey(en), ar);   // first Arabic wins when several map to one English name
+  });
+}
+function glossaryLookup(text, target){
+  const raw = String(text||"").trim();
+  if(!raw) return null;
+  ensureGlossary();
+  const map = target==="en" ? _glossaryAR2EN : _glossaryEN2AR;
+  const direct = map.get(glossaryKey(raw));
+  if(direct) return direct;
+  const m = raw.match(/^(.*?)\s*\((?:العدد|Qty)\s*:\s*(\d+)\)\s*$/i);   // "(العدد: 2)" <-> "(Qty: 2)"
+  if(m){
+    const base = map.get(glossaryKey(m[1]));
+    if(base) return target==="en" ? `${base} (Qty: ${m[2]})` : `${base} (العدد: ${m[2]})`;
+  }
+  return null;
+}
+/* text to SHOW in the current program language (glossary only; falls back to the stored text) */
+function glDisplay(text){
+  if(!text) return text;
+  return glossaryLookup(text, LANG) || text;
+}
 function translateText(text, targetLang){
   return new Promise((resolve)=>{
     if(!text || !text.toString().trim()){ resolve(text); return; }
     const srcLang = detectTextLang(text);
     if(srcLang === targetLang){ resolve(text); return; }
+    const glossaryHit = glossaryLookup(text, targetLang);
+    if(glossaryHit){ resolve(glossaryHit); return; }
     const cacheKey = targetLang+"::"+text;
     if(translationCache[cacheKey]!==undefined){ resolve(translationCache[cacheKey]); return; }
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${srcLang}|${targetLang}`;
@@ -1845,13 +1882,19 @@ function translateText(text, targetLang){
   });
 }
 function autoTranslateDOM(root){
-  if(!getAutoTranslateEnabled()) return;
+  const onlineEnabled = getAutoTranslateEnabled();
   const scope = root || document;
   const els = scope.querySelectorAll('[data-autotranslate]');
   els.forEach(el=>{
     const original = el.dataset.original;
     if(!original || !original.trim()) return;
     if(detectTextLang(original) === LANG) return; // already matches current language, nothing to do
+    const exact = glossaryLookup(original, LANG);
+    if(exact){
+      if(el.tagName==="INPUT" || el.tagName==="TEXTAREA"){ el.value = exact; } else { el.textContent = exact; }
+      return;
+    }
+    if(!onlineEnabled) return;
     el.style.transition = "opacity .15s";
     el.style.opacity = "0.45";
     translateText(original, LANG).then(translated=>{
@@ -2728,7 +2771,7 @@ function renderAssetViewPage(){
   }
 
   const isVehicle = moduleKey === "fleet";
-  const title = rec.name || rec.carName || rec.code || "";
+  const title = glDisplay(rec.name || rec.carName || rec.code || "");
   const maint = computeMaintenanceStats(rec.id, isVehicle);
 
   const skipTypes = ["photo","photo2","quotes","branchMultiSelect"];
@@ -2738,6 +2781,7 @@ function renderAssetViewPage(){
     .map(f=>{
       let val = rec[f.key];
       if(f.type==="select") val = optLabel(val);
+      else if(isTranslatableField(f)) val = glDisplay(val);
       return [FL(f), val];
     });
 
@@ -3391,21 +3435,22 @@ async function exportAssetsByBranchExcel(){
     const matched = splitBranchNames(a.branch).find(b=> groups[b]);
     const key = matched || noBranchLabel;
     const maint = computeMaintenanceStats(a.id, false);
-    groups[key].push({ type:t('assetsExportTypeAsset'), name:a.name||"", details:a.category||"", status:a.condition||"", maint });
+    groups[key].push({ type:t('assetsExportTypeAsset'), name:glDisplay(a.name||""), details:glDisplay(a.category||""), status:optLabel(a.condition||""), maint });
   });
   vehicles.forEach(v=>{
     const matched = splitBranchNames(v.branch).find(b=> groups[b]);
     const key = matched || noBranchLabel;
     const maint = computeMaintenanceStats(v.id, true);
-    groups[key].push({ type:t('assetsExportTypeVehicle'), name:v.carName||"", details:v.plate||"", status:v.status||"", maint });
+    groups[key].push({ type:t('assetsExportTypeVehicle'), name:v.carName||"", details:v.plate||"", status:optLabel(v.status||""), maint });
   });
 
   const headers = [t('bcBranch'), t('assetsExportType'), t('assetsExportName'), t('assetsExportDetails'), t('thStatus'), t('assetsMaintCount'), t('assetsMaintCost'), t('assetsMaintLast')];
   const rows = [];
-  [...branches, noBranchLabel].forEach(branch=>{
+  for(const branch of [...branches, noBranchLabel]){
+    const branchShown = (LANG!=="ar" && branch!==noBranchLabel) ? await translateValueForExport({type:"text", key:"branch"}, branch) : branch;
     groups[branch].forEach(item=>{
       rows.push({
-        [headers[0]]: branch,
+        [headers[0]]: branchShown,
         [headers[1]]: item.type,
         [headers[2]]: item.name,
         [headers[3]]: item.details,
@@ -3415,7 +3460,7 @@ async function exportAssetsByBranchExcel(){
         [headers[7]]: item.maint.lastDate || "",
       });
     });
-  });
+  }
 
   const workbook = new ExcelJS.Workbook();
   addStyledSheet(workbook, t('tabByBranch'), headers, rows, {});
@@ -3465,7 +3510,7 @@ function renderAssetsByBranchView(){
     const g = groups[branch];
     const total = g.assets.length + g.vehicles.length;
     const rows = [
-      ...g.assets.map(a=>({icon:"🏷️", name:a.name, sub:a.category||"", moduleKey:"assets", id:a.id, condition:a.condition||"", maint:computeMaintenanceStats(a.id, false)})),
+      ...g.assets.map(a=>({icon:"🏷️", name:glDisplay(a.name), sub:glDisplay(a.category||""), moduleKey:"assets", id:a.id, condition:a.condition||"", maint:computeMaintenanceStats(a.id, false)})),
       ...g.vehicles.map(v=>({icon:"🚙", name:v.carName, sub:v.plate||"", moduleKey:"fleet", id:v.id, condition:v.status||"", maint:computeMaintenanceStats(v.id, true)})),
     ];
     return `
@@ -5125,7 +5170,11 @@ function renderPhotoWidget2(){
 async function translateValueForExport(f, val){
   if(!val) return val;
   if(f.type === "select") return optLabel(val);
-  if(isTranslatableField(f) && getAutoTranslateEnabled()) return await translateText(val, LANG);
+  if(isTranslatableField(f)){
+    const exact = glossaryLookup(val, LANG);
+    if(exact && detectTextLang(val) !== LANG) return exact;
+    if(getAutoTranslateEnabled()) return await translateText(val, LANG);
+  }
   return val;
 }
 async function rowsToTranslatedSheetData(m, records, statusFilterValue, forceAll){
