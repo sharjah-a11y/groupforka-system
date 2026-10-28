@@ -657,6 +657,7 @@ const STR = {
     settingsSavedOk_generic:"تم الحفظ",
     linkedViolationsTitle:"🚨 الحوادث والمخالفات المرتبطة بهذه السيارة (حسب رقم اللوحة)",
     noLinkedViolations:"لا توجد حوادث أو مخالفات مسجلة لهذه السيارة 👍",
+    fujMigrationDone:(added,removed,branch,vehicles)=>`✅ تم تحديث معدات الفجيرة\n\n• تم تنزيل ${added} معدة جديدة في فرع: ${branch}\n• تم نقل ${removed} معدة قديمة إلى سلة المحذوفات (تقدر ترجّعها خلال 30 يوم)\n• السيارات والفروع الأخرى لم تتأثر`,
     vehEventsSummaryTitle:"📊 ملخص الحوادث والمخالفات", vehEventsAccidents:"حوادث", vehEventsViolations:"مخالفات", vehEventsUnpaid:"مخالفات غير مدفوعة", vehEventsTotalCost:"إجمالي التكلفة",
     vehAccidentsTitle:"🚨 الحوادث المسجلة على هذه السيارة", noVehAccidents:"لا توجد حوادث مسجلة لهذه السيارة 👍",
     vehViolationsTitle:"📋 المخالفات المسجلة على هذه السيارة", noVehViolations:"لا توجد مخالفات مسجلة لهذه السيارة 👍",
@@ -994,6 +995,7 @@ const STR = {
     settingsSavedOk_generic:"Saved",
     linkedViolationsTitle:"🚨 Accidents & Violations Linked to This Vehicle (by plate number)",
     noLinkedViolations:"No accidents or violations recorded for this vehicle 👍",
+    fujMigrationDone:(added,removed,branch,vehicles)=>`✅ Fujairah equipment updated\n\n• ${added} new items added to branch: ${branch}\n• ${removed} old items moved to the recycle bin (restorable for 30 days)\n• Vehicles and other branches were not affected`,
     vehEventsSummaryTitle:"📊 Accidents & Violations Summary", vehEventsAccidents:"Accidents", vehEventsViolations:"Violations", vehEventsUnpaid:"Unpaid violations", vehEventsTotalCost:"Total cost",
     vehAccidentsTitle:"🚨 Accidents Recorded for This Vehicle", noVehAccidents:"No accidents recorded for this vehicle 👍",
     vehViolationsTitle:"📋 Violations Recorded for This Vehicle", noVehViolations:"No violations recorded for this vehicle 👍",
@@ -1422,6 +1424,7 @@ const MODULES = [
     {key:"condition", label:"الحالة", labelEn:"Condition", type:"select", options:["ممتاز","جيد","يحتاج صيانة","خارج الخدمة","مقترح استبداله"]},
     {key:"lastMove", label:"تاريخ آخر حركة / نقل", labelEn:"Last Transfer Date", type:"date"},
     {key:"decision", label:"القرار", labelEn:"Decision", type:"select", options:["استمرار الاستخدام","إصلاح","بيع","إتلاف","استبدال"]},
+    {key:"notes", label:"ملاحظات", labelEn:"Remarks", type:"textarea", full:true},
     {key:"photos", label:"صور ومرفقات الأصل (فاتورة/ضمان)", labelEn:"Asset Photos & Attachments (Invoice/Warranty)", type:"photo", full:true},
   ],
   listColumns:["code","name","branch","condition","warrantyExpiry","decision"],
@@ -1921,6 +1924,409 @@ function setPinValue(pin){ localStorage.setItem("forka_pin", pin); }
 function removePinValue(){ localStorage.removeItem("forka_pin"); }
 let unlockedThisSession = false;
 function needsLock(){ return !!getPin() && !unlockedThisSession; }
+/* ---------------- ONE-TIME: replace the Fujairah equipment with the supplied list ----------------
+   Imports the 33 items from Restaurant_Equipment_List.xlsx into the Fujairah branch and moves the old
+   Fujairah equipment to the recycle bin (restorable for 30 days). Vehicles (fleet module) are never touched,
+   and neither are other branches. Idempotent: imported records have fixed ids, and their presence is the
+   marker that the job already ran (so another device never repeats it or deletes newer assets). */
+const FUJAIRAH_EQUIPMENT_2026 = [
+ {
+  "code": "FUJ-01",
+  "id": "fuj2026-01",
+  "name": "ثلاجة عرض",
+  "category": "تبريد",
+  "serial": "",
+  "location": "القاعة الرئيسية",
+  "condition": "يحتاج صيانة",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-02",
+  "id": "fuj2026-02",
+  "name": "ثلاجة كينزا",
+  "category": "تبريد",
+  "serial": "100006354910",
+  "location": "القاعة الرئيسية",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-03",
+  "id": "fuj2026-03",
+  "name": "ثلاجة بيبسي",
+  "category": "تبريد",
+  "serial": "1112430042",
+  "location": "القاعة الرئيسية",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-04",
+  "id": "fuj2026-04",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "serial": "F101387",
+  "location": "القاعة الرئيسية",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-05",
+  "id": "fuj2026-05",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "serial": "5401A033901b719013001b",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-06",
+  "id": "fuj2026-06",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "serial": "5402A033901B719013031B",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-07",
+  "id": "fuj2026-07",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "serial": "VKK01800kDNpod98zj40157",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-08",
+  "id": "fuj2026-08",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "يحتاج صيانة",
+  "notes": "صيانة مقبض الباب"
+ },
+ {
+  "code": "FUJ-09",
+  "id": "fuj2026-09",
+  "name": "فريزر عميق",
+  "category": "تبريد",
+  "serial": "6294002706297",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-10",
+  "id": "fuj2026-10",
+  "name": "فريزر / ثلاجة",
+  "category": "تبريد",
+  "serial": "SGR 710bs-ss",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-11",
+  "id": "fuj2026-11",
+  "name": "فريزر / ثلاجة",
+  "category": "تبريد",
+  "serial": "rz90eers",
+  "location": "المطبخ",
+  "condition": "يحتاج صيانة",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-12",
+  "id": "fuj2026-12",
+  "name": "فريزر / ثلاجة",
+  "category": "تبريد",
+  "serial": "SGR 710SBS-SS",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-13",
+  "id": "fuj2026-13",
+  "name": "وحدة حفظ بارد",
+  "category": "تبريد",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-14",
+  "id": "fuj2026-14",
+  "name": "وحدة حفظ ساخن",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "خارج الخدمة",
+  "notes": "غير مستخدم"
+ },
+ {
+  "code": "FUJ-15",
+  "id": "fuj2026-15",
+  "name": "ثلاجة الشواية",
+  "category": "تبريد",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-16",
+  "id": "fuj2026-16",
+  "name": "ماكينة فرم لحم (كيمة)",
+  "category": "أجهزة تحضير",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-17",
+  "id": "fuj2026-17",
+  "name": "موقد زيت",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-18",
+  "id": "fuj2026-18",
+  "name": "موقد شواية",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-19",
+  "id": "fuj2026-19",
+  "name": "موقد غاز",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "خارج الخدمة",
+  "notes": "غير مستخدم"
+ },
+ {
+  "code": "FUJ-20",
+  "id": "fuj2026-20",
+  "name": "موقد غاز",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-21",
+  "id": "fuj2026-21",
+  "name": "موقد غاز",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-22",
+  "id": "fuj2026-22",
+  "name": "ثلاجة تبريد سريع (Blast Chiller)",
+  "category": "تبريد",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "خارج الخدمة",
+  "notes": "غير مستخدم"
+ },
+ {
+  "code": "FUJ-23",
+  "id": "fuj2026-23",
+  "name": "فرن",
+  "category": "طهي",
+  "serial": "54059720102a206110095",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-24",
+  "id": "fuj2026-24",
+  "name": "فرن",
+  "category": "طهي",
+  "serial": "54059720102a2061100058",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-25",
+  "id": "fuj2026-25",
+  "name": "فرن",
+  "category": "طهي",
+  "serial": "54059720102a2061100004",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-26",
+  "id": "fuj2026-26",
+  "name": "فرن",
+  "category": "طهي",
+  "serial": "j6j27wrf300815V",
+  "location": "المطبخ",
+  "condition": "خارج الخدمة",
+  "notes": "غير مستخدم"
+ },
+ {
+  "code": "FUJ-27",
+  "id": "fuj2026-27",
+  "name": "موقد شوربة",
+  "category": "طهي",
+  "serial": "",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-28",
+  "id": "fuj2026-28",
+  "name": "براد مياه",
+  "category": "تبريد",
+  "serial": "5032500501841",
+  "location": "المكتب",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-29",
+  "id": "fuj2026-29",
+  "name": "خلاط حمص",
+  "category": "أجهزة تحضير",
+  "serial": "8698985910784",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-30",
+  "id": "fuj2026-30",
+  "name": "خلاط",
+  "category": "أجهزة تحضير",
+  "serial": "25120113",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-31",
+  "id": "fuj2026-31",
+  "name": "خلاط",
+  "category": "أجهزة تحضير",
+  "serial": "Af-162pbbk",
+  "location": "قسم العصائر",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-32",
+  "id": "fuj2026-32",
+  "name": "موقد إندكشن",
+  "category": "طهي",
+  "serial": "Knic6024n",
+  "location": "قسم العصائر",
+  "condition": "جيد",
+  "notes": ""
+ },
+ {
+  "code": "FUJ-33",
+  "id": "fuj2026-33",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "serial": "14000185",
+  "location": "غرفة الموظفين",
+  "condition": "جيد",
+  "notes": ""
+ }
+];
+const FUJ_IMPORT_PREFIX = "fuj2026-";
+const FUJ_MIGRATION_FLAG = "forka_migrated_fujairah_equip_v1";
+function looksLikeVehicleAsset(a){
+  return /سيار|شاحن|مركب|دباب|بيك ?اب|\bvan\b|vehicle|truck|\bcar\b|pickup/i.test(`${a.name||""} ${a.category||""}`);
+}
+function runFujairahEquipmentMigration(){
+  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return null;
+  const arr = loadDataRaw("assets");
+  // already done (here or on another device, synced through the cloud)?
+  if(arr.some(a=> String(a.id||"").startsWith(FUJ_IMPORT_PREFIX))){ localStorage.setItem(FUJ_MIGRATION_FLAG, "1"); return null; }
+
+  const masters = loadMasters();
+  const fujBranches = (masters.branches||[]).filter(b=> normalizeSearchText(b).includes("فجير"));
+  let target = fujBranches.find(b=> normalizeSearchText(b).includes("كويتي")) || fujBranches[0];
+  if(!target){
+    target = "مطعم المطبخ الكويتي - الفجيرة";
+    masters.branches = [...(masters.branches||[]), target];
+    saveMasters(masters);
+    if(typeof cloudEnabled !== "undefined" && cloudEnabled && cloudDb){ cloudDb.collection("forka_meta").doc("masters").set(masters).catch(()=>{}); }
+  }
+  const normTarget = normalizeSearchText(target);
+  const needKuwaiti = fujBranches.length > 1 && normTarget.includes("كويتي");
+  const belongsToTarget = (a)=>{
+    const nb = normalizeSearchText(a.branch||"");
+    if(!nb.includes("فجير")) return false;
+    if(fujBranches.length <= 1) return true;                 // only one Fujairah branch exists -> unambiguous
+    return needKuwaiti ? nb.includes("كويتي") : nb === normTarget;
+  };
+
+  const now = Date.now();
+  let removed = 0, keptVehicles = 0;
+  arr.forEach(a=>{
+    if(a._deleted || !belongsToTarget(a)) return;
+    if(looksLikeVehicleAsset(a)){ keptVehicles++; return; }
+    a._deleted = true; a._deletedAt = now; a._updatedAt = now;
+    cloudPushRecord("assets", a);
+    removed++;
+  });
+  FUJAIRAH_EQUIPMENT_2026.forEach(it=>{
+    const rec = { id: it.id, code: it.code, name: it.name, category: it.category, serial: it.serial, branch: target,
+                  location: it.location, condition: it.condition, notes: it.notes, photos: [], _updatedAt: now };
+    arr.push(rec);
+    cloudPushRecord("assets", rec);
+  });
+  saveData("assets", arr);
+  localStorage.setItem(FUJ_MIGRATION_FLAG, "1");
+  return { added: FUJAIRAH_EQUIPMENT_2026.length, removed, keptVehicles, branch: target };
+}
+function scheduleFujairahEquipmentMigration(){
+  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    // wait until the first cloud sync of the asset register has arrived (so we see the old cloud-only records too)
+    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
+    if(!synced && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(()=>{
+      const res = runFujairahEquipmentMigration();
+      if(res){
+        alert(t('fujMigrationDone', res.added, res.removed, res.branch, res.keptVehicles));
+        render();
+      }
+    }, 600);
+  }, 800);
+}
 function migrateStripUploadedPhotoDataUrls(){
   if(localStorage.getItem("forka_migrated_photostrip_v1")) return;
   let changedAny = false;
@@ -1985,7 +2391,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500);
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -7658,7 +8064,7 @@ if(location.hash === "#public"){
   renderBranchInspectPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
