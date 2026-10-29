@@ -678,6 +678,13 @@ const STR = {
     expLinkUpload:"رفع الفواتير", expLinkAccountant:"بوابة المحاسب", expLinkArabic:"عربي", expLinkEnglish:"English", expLinkCopy:"نسخ", expLinkCopied:"✅ تم نسخ الرابط", expLinkCopyManual:"انسخ الرابط يدويًا:",
     expAcctCodeLabel:"رمز دخول المحاسب", expAcctCodeSave:"حفظ الرمز", expAcctCodeSaved:"✅ تم حفظ الرمز", expAcctCodeShort:"الرمز لازم يكون 4 خانات على الأقل",
     expAcctCodeNote:"الرمز حماية بسيطة للصفحة. شارك الرابط والرمز مع المحاسب بس.",
+    fujNoBranch:"لم أجد فرع الفجيرة في قائمة الفروع، فلم أنزّل معداتها. سجّل الفرع من «الأسماء والفروع» وافتح البرنامج تاني.",
+    mayarNoBranch:"لم أجد فرع «ميار كوفي شوب» في قائمة الفروع، فلم أنزّل معداته (ومفيش حاجة اتغيرت). سجّل الفرع من «الأسماء والفروع» وافتح البرنامج تاني.",
+    mayarUndoDone:(n)=>`↩️ تم إرجاع ${n} معدة قديمة لميار كانت اتنقلت لسلة المحذوفات من غير ما تطلب ذلك. دلوقتي رجعت زي ما كانت.`,
+    branchRepairDone:"🔧 فحص الفروع (للسيارات والمعدات) — اللي اتعمل بالظبط:",
+    branchRepairRecovered:(n)=>`➕ ${n} فرع كانت السيارات/المعدات مسجلة عليه ومش موجود في قايمة الفروع، اتضاف تاني للقايمة (إضافة بس):`,
+    branchRepairCollapsed:(n)=>`↩️ ${n} سجل كان فرعه متلخبط بفرعين متداخلين، اتصلح للفرع الأدق:`,
+    branchRepairAmbiguous:(n)=>`⚠️ ${n} سجل فرعه فيه أكتر من فرع ومش اتغيّر (راجعه بنفسك):`,
     expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
     expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
     expAllocMismatch:(sum,total)=>`مجموع المبالغ الموزعة على الفروع (${sum}) لا يساوي إجمالي الفاتورة (${total}). عدّل التوزيع أولًا.`,
@@ -1051,6 +1058,13 @@ const STR = {
     expLinkUpload:"Invoice upload", expLinkAccountant:"Accountant portal", expLinkArabic:"Arabic", expLinkEnglish:"English", expLinkCopy:"Copy", expLinkCopied:"✅ Link copied", expLinkCopyManual:"Copy the link manually:",
     expAcctCodeLabel:"Accountant access code", expAcctCodeSave:"Save code", expAcctCodeSaved:"✅ Code saved", expAcctCodeShort:"The code must be at least 4 characters",
     expAcctCodeNote:"The code is simple protection for the page. Share the link and code with the accountant only.",
+    fujNoBranch:"The Fujairah branch was not found in the branch list, so its equipment was not imported. Register the branch under Masters and open the program again.",
+    mayarNoBranch:"The \"Mayar Coffee Shop\" branch was not found in the branch list, so its equipment was not imported (nothing was changed). Register the branch under Masters and open the program again.",
+    mayarUndoDone:(n)=>`↩️ ${n} old Mayar items that were moved to the recycle bin without being asked have been put back as they were.`,
+    branchRepairDone:"🔧 Branch check (vehicles and equipment) — exactly what was done:",
+    branchRepairRecovered:(n)=>`➕ ${n} branch name(s) that vehicles/equipment use but were missing from the branch list were added back (add-only):`,
+    branchRepairCollapsed:(n)=>`↩️ ${n} record(s) had two overlapping branches glued together and went back to the more specific branch:`,
+    branchRepairAmbiguous:(n)=>`⚠️ ${n} record(s) have more than one branch and were NOT changed (please review):`,
     expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
     expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
     expAllocMismatch:(sum,total)=>`The amounts split between the branches (${sum}) do not equal the invoice total (${total}). Please adjust the split.`,
@@ -2621,14 +2635,8 @@ function looksLikeVehicleAsset(a){
 function resolveFujairahTarget(){
   const masters = loadMasters();
   const fujBranches = (masters.branches||[]).filter(b=> normalizeSearchText(b).includes("فجير"));
-  let target = fujBranches.find(b=> normalizeSearchText(b).includes("كويتي")) || fujBranches[0];
-  if(!target){
-    target = "مطعم المطبخ الكويتي - الفجيرة";
-    masters.branches = [...(masters.branches||[]), target];
-    saveMasters(masters);
-    cloudPushMasters(masters);
-  }
-  return { target, fujBranches };
+  const target = fujBranches.find(b=> normalizeSearchText(b).includes("كويتي")) || fujBranches[0] || null;
+  return { target, fujBranches };       // never creates a branch and never writes the branch list
 }
 function fujairahImportRecord(it, target, now){
   return { id: it.id, code: it.code, name: it.name, category: it.category, serial: it.serial, branch: target,
@@ -2689,6 +2697,7 @@ function runFujairahEquipmentMigration(){
   if(arr.some(a=> String(a.id||"").startsWith(FUJ_IMPORT_PREFIX))){ localStorage.setItem(FUJ_MIGRATION_FLAG, "1"); return null; }
 
   const { target, fujBranches } = resolveFujairahTarget();
+  if(!target){ window.__fujNoBranch = true; return null; }          // branch not registered -> do nothing (retry next time)
   const pushes = [];
   const normTarget = normalizeSearchText(target);
   const needKuwaiti = fujBranches.length > 1 && normTarget.includes("كويتي");
@@ -2726,39 +2735,26 @@ function cloudVerdict(pushes){
   ]);
 }
 function scheduleFujairahEquipmentMigration(){
+  if(localStorage.getItem(FUJ_MIGRATION_FLAG)) return;       // already done: nothing automatic any more (no re-adding, no refreshing)
   let waited = 0;
   const timer = setInterval(()=>{
     waited += 800;
-    // wait until the first cloud sync of the asset register has arrived (so we see the old cloud-only records too)
-    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
-    if(!synced && waited < 15000) return;
+    if(!cloudReadyForJobs() && waited < 15000) return;       // wait until assets, vehicles AND the branch list have loaded
     clearInterval(timer);
     setTimeout(async ()=>{
-     try{
-      const res = runFujairahEquipmentMigration();
-      if(res){
-        const verdict = await cloudVerdict(res.pushes);
-        alert(t('fujMigrationDone', res.added, res.removed, res.branch, res.keptVehicles) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
-        render();
-        return;
+      try{
+        const res = runFujairahEquipmentMigration();
+        if(res){
+          const verdict = await cloudVerdict(res.pushes);
+          alert(t('fujMigrationDone', res.added, res.removed, res.branch, res.keptVehicles) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
+          render();
+        } else if(window.__fujNoBranch){
+          alert(t('fujNoBranch'));
+        }
+      }catch(err){
+        console.error("Fujairah equipment job failed:", err);
+        alert(t('fujJobError', (err && err.message) || String(err)));
       }
-      const healed = ensureFujairahEquipmentPresent();
-      if(healed){
-        const verdict = await cloudVerdict(healed.pushes);
-        alert(t('fujRestored', healed.added, healed.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : ""));
-        render();
-        return;
-      }
-      const refreshed = refreshFujairahEquipmentDetails();
-      if(refreshed){
-        const verdict = await cloudVerdict(refreshed.pushes);
-        alert(t('fujRefreshed', refreshed.total, refreshed.created, refreshed.updated, refreshed.restored, refreshed.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
-        render();
-      }
-     }catch(err){
-      console.error("Fujairah equipment job failed:", err);
-      alert(t('fujJobError', (err && err.message) || String(err)));
-     }
     }, 600);
   }, 800);
 }
@@ -2803,7 +2799,7 @@ function scheduleUnassignedAssetsCleanup(){
   let waited = 0;
   const timer = setInterval(()=>{
     waited += 800;
-    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
+    const synced = cloudReadyForJobs();
     if(!synced && waited < 15000) return;
     clearInterval(timer);
     setTimeout(()=>{
@@ -3590,16 +3586,9 @@ const MAYAR_EQUIPMENT_2026 = [
 const MAYAR_IMPORT_PREFIX = "may2026-";
 const MAYAR_MIGRATION_FLAG = "forka_migrated_mayar_equip_v1";
 function resolveMayarTarget(){
-  const masters = loadMasters();
-  const mayBranches = (masters.branches||[]).filter(b=> normalizeSearchText(b).includes("ميار"));
-  let target = mayBranches.find(b=> normalizeSearchText(b).includes("كوفي")) || mayBranches[0];
-  if(!target){
-    target = "ميار كوفي شوب";
-    masters.branches = [...(masters.branches||[]), target];
-    saveMasters(masters);
-    cloudPushMasters(masters);
-  }
-  return target;
+  const known = loadMasters().branches || [];
+  const cands = known.filter(b=>{ const n = normalizeSearchText(b); return n.includes("ميار") && n.includes("كوفي"); });
+  return cands[0] || null;            // never creates a branch and never writes the branch list
 }
 function mayarImportRecord(it, target, now){
   return { id: it.id, code: it.code, name: it.name, category: it.category, brand: it.brand, serial: it.serial, branch: target,
@@ -3611,64 +3600,132 @@ function runMayarEquipmentMigration(){
   const arr = loadDataRaw("assets");
   if(arr.some(a=> String(a.id||"").startsWith(MAYAR_IMPORT_PREFIX))){ localStorage.setItem(MAYAR_MIGRATION_FLAG, "1"); return null; }
   const target = resolveMayarTarget();
-  const now = Date.now(); const pushes = []; let removed = 0;
-  arr.forEach(a=>{
-    if(a._deleted) return;
-    if(!/^MY-/i.test(String(a.code||"").trim())) return;                       // only the earlier bulk-import codes
-    if(!normalizeSearchText(a.branch||"").includes("ميار")) return;             // and only inside a Mayar branch
-    a._deleted = true; a._deletedAt = now; a._updatedAt = now;
-    pushes.push(cloudPushRecord("assets", a));
-    removed++;
-  });
-  MAYAR_EQUIPMENT_2026.forEach(it=>{
+  if(!target) return { noBranch:true };
+  const now = Date.now(); const pushes = [];
+  MAYAR_EQUIPMENT_2026.forEach(it=>{                       // ADD ONLY — nothing existing is touched
     const rec = mayarImportRecord(it, target, now);
     arr.push(rec);
     pushes.push(cloudPushRecord("assets", rec));
   });
   saveData("assets", arr);
   localStorage.setItem(MAYAR_MIGRATION_FLAG, "1");
-  return { added: MAYAR_EQUIPMENT_2026.length, removed, branch: target, pushes };
-}
-function ensureMayarEquipmentPresent(){
-  if(!localStorage.getItem(MAYAR_MIGRATION_FLAG)) return null;
-  const attempts = Number(localStorage.getItem("forka_may_heal_attempts")||0);
-  if(attempts >= 3) return null;
-  const arr = loadDataRaw("assets");
-  if(arr.some(a=> String(a.id||"").startsWith(MAYAR_IMPORT_PREFIX))) return null;
-  const target = resolveMayarTarget();
-  const now = Date.now(); const pushes = [];
-  MAYAR_EQUIPMENT_2026.forEach(it=>{ const rec = mayarImportRecord(it, target, now); arr.push(rec); pushes.push(cloudPushRecord("assets", rec)); });
-  saveData("assets", arr);
-  localStorage.setItem("forka_may_heal_attempts", String(attempts+1));
   return { added: MAYAR_EQUIPMENT_2026.length, branch: target, pushes };
 }
+/* The first version of this import moved the earlier MY-… items of Mayar to the recycle bin without being asked.
+   This puts back exactly those (deleted MY-… items inside a Mayar branch). Runs once per device. */
+function undoMayarOldItemRemoval(){
+  const FLAG = "forka_mayar_undo_v1";
+  if(localStorage.getItem(FLAG)) return null;
+  const arr = loadDataRaw("assets"); const now = Date.now(); const pushes = []; let restored = 0;
+  arr.forEach(a=>{
+    if(a._deleted && /^MY-/i.test(String(a.code||"").trim()) && normalizeSearchText(a.branch||"").includes("ميار")){
+      delete a._deleted; delete a._deletedAt; a._updatedAt = now;
+      pushes.push(cloudPushRecord("assets", a)); restored++;
+    }
+  });
+  if(restored) saveData("assets", arr);
+  localStorage.setItem(FLAG, "1");
+  return { restored, pushes };
+}
+function ensureMayarEquipmentPresent(){ return null; }   // automatic re-adding switched off
 function scheduleMayarEquipmentMigration(){
   let waited = 0;
   const timer = setInterval(()=>{
     waited += 800;
-    const synced = !cloudEnabled || cloudFirstSyncReceived.assets;
-    if(!synced && waited < 15000) return;
+    if(!cloudReadyForJobs() && waited < 15000) return;
     clearInterval(timer);
     setTimeout(async ()=>{
       try{
+        const undone = undoMayarOldItemRemoval();
+        if(undone && undone.restored) alert(t('mayarUndoDone', undone.restored));
         const res = runMayarEquipmentMigration();
+        if(res && res.noBranch){ alert(t('mayarNoBranch')); return; }
         if(res){
           const verdict = await cloudVerdict(res.pushes);
-          alert(t('mayarMigrationDone', res.added, res.removed, res.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
-          render();
-          return;
-        }
-        const healed = ensureMayarEquipmentPresent();
-        if(healed){
-          const verdict = await cloudVerdict(healed.pushes);
-          alert(t('mayarRestored', healed.added, healed.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : ""));
+          alert(t('mayarMigrationDone', res.added, 0, res.branch) + (verdict==="fail" ? "\n\n"+t('fujCloudNotSaved') : verdict==="pending" ? "\n\n"+t('fujCloudPending') : ""));
           render();
         }
       }catch(err){
         console.error("Mayar equipment job failed:", err);
         alert(t('mayarJobError', (err && err.message) || String(err)));
       }
-    }, 4000);   // after the Fujairah / cleanup messages so the dialogs never collide
+    }, 4000);
+  }, 800);
+}
+/* ---------------- ONE-TIME SAFETY REPAIR: branches of vehicles / equipment ----------------
+   (a) branch names that vehicles/equipment still reference but are missing from the branch list are added back to the list
+       (add-only, never replaces the list); (b) a vehicle/asset whose branch got glued to a second, overlapping branch name
+       (e.g. "مطعم … - الشارقة، الشارقة") goes back to the single, more specific branch; (c) anything that still looks wrong is
+       only REPORTED, never changed. Nothing is deleted. */
+const BRANCH_REPAIR_FLAG = "forka_branch_repair_v1";
+function branchKeyOf(s){ return normalizeSearchText(String(s||"")).replace(/[\s\-–—_.]+/g, ""); }
+function cloudAddBranchesToMasters(names){
+  if(!cloudEnabled || !cloudDb || !names.length) return Promise.resolve(true);
+  const FV = window.firebase && firebase.firestore && firebase.firestore.FieldValue;
+  if(!FV || !FV.arrayUnion) return Promise.resolve(false);
+  return cloudWrite(cloudDb.collection("forka_meta").doc("masters").set({branches: FV.arrayUnion(...names)}, {merge:true}), "masters union");
+}
+function runBranchSafetyRepair(){
+  if(localStorage.getItem(BRANCH_REPAIR_FLAG)) return null;
+  const masters = loadMasters(); const known = masters.branches || [];
+  const report = { recovered:[], collapsed:[], ambiguous:[] };
+  const stores = [{key:"fleet", label:r=> `${r.carName||""} ${r.plate||""}`.trim()}, {key:"assets", label:r=> `${r.name||""} ${r.code||""}`.trim()}];
+
+  // (a) branch names in use but missing from the list
+  const seen = {};
+  stores.forEach(s=> loadDataRaw(s.key).forEach(r=>{
+    if(r._deleted) return;
+    const b = String(r.branch||"").trim();
+    if(!b || isBlankBranchValue(b) || /[،,]/.test(b)) return;
+    if(known.some(k=> branchKeyOf(k)===branchKeyOf(b) || b.includes(k.trim()))) return;
+    const k = branchKeyOf(b); (seen[k] = seen[k] || {}); seen[k][b] = (seen[k][b]||0) + 1;
+  }));
+  const toAdd = Object.values(seen).map(variants=> Object.entries(variants).sort((a,b)=> b[1]-a[1])[0][0]);
+  if(toAdd.length){
+    masters.branches = [...known, ...toAdd]; saveMasters(masters); cloudAddBranchesToMasters(toAdd);
+    report.recovered = toAdd;
+  }
+
+  // (b)+(c) vehicles / assets that carry more than one branch
+  const now = Date.now();
+  stores.forEach(s=>{
+    const arr = loadDataRaw(s.key); let changed = false;
+    arr.forEach(r=>{
+      if(r._deleted) return;
+      const parts = splitBranchNames(r.branch);
+      if(parts.length < 2) return;
+      const keep = parts.filter(p=> !parts.some(q=> q!==p && q.includes(p)));
+      if(keep.length === 1){
+        report.collapsed.push(`${s.label(r)}: ${r.branch} ← ${keep[0]}`);
+        r.branch = keep[0]; r._updatedAt = now; cloudPushRecord(s.key, r); changed = true;
+      } else {
+        report.ambiguous.push(`${s.label(r)}: ${r.branch}`);
+      }
+    });
+    if(changed) saveData(s.key, arr);
+  });
+  localStorage.setItem(BRANCH_REPAIR_FLAG, "1");
+  return report;
+}
+function scheduleBranchSafetyRepair(){
+  if(localStorage.getItem(BRANCH_REPAIR_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    if(!cloudReadyForJobs() && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(()=>{
+      try{
+        const rep = runBranchSafetyRepair();
+        if(rep && (rep.recovered.length || rep.collapsed.length || rep.ambiguous.length)){
+          const list = (arr)=> arr.slice(0,8).map(x=>"• "+x).join("\n") + (arr.length>8 ? `\n… +${arr.length-8}` : "");
+          alert(t('branchRepairDone') + (rep.recovered.length ? "\n\n"+t('branchRepairRecovered', rep.recovered.length)+"\n"+list(rep.recovered) : "")
+            + (rep.collapsed.length ? "\n\n"+t('branchRepairCollapsed', rep.collapsed.length)+"\n"+list(rep.collapsed) : "")
+            + (rep.ambiguous.length ? "\n\n"+t('branchRepairAmbiguous', rep.ambiguous.length)+"\n"+list(rep.ambiguous) : ""));
+          render();
+        }
+      }catch(err){ console.error("Branch repair failed:", err); }
+    }, 1200);
   }, 800);
 }
 function migrateStripUploadedPhotoDataUrls(){
@@ -3735,7 +3792,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -7541,6 +7598,8 @@ function hasAnyUploadServiceConfigured(){
 }
 
 const cloudFirstSyncReceived = {};
+let cloudMastersSynced = false;     // true once this device has received the shared branches/contractors list
+function cloudReadyForJobs(){ return !cloudEnabled || (cloudFirstSyncReceived.assets && cloudFirstSyncReceived.fleet && cloudMastersSynced); }
 function initCloud(onDone){
   const cfg = getCloudConfig();
   if(!cfg || !cfg.apiKey || !window.firebase){ if(onDone) onDone(false); return; }
@@ -7596,6 +7655,7 @@ function attachCloudListeners(){
     }, err=> console.error("Cloud sync error ["+m.key+"]:", err));
   });
   cloudUnsubscribers.masters = cloudDb.collection("forka_meta").doc("masters").onSnapshot(doc=>{
+    cloudMastersSynced = true;
     if(doc.exists){
       saveMasters(doc.data());
       if(state.view==="masters") renderMastersPage();
@@ -7650,7 +7710,17 @@ function cloudDeleteRecord(moduleKey, id){
 }
 function cloudPushMasters(obj){
   if(!cloudEnabled || !cloudDb) return Promise.resolve(true);
-  return cloudWrite(cloudDb.collection("forka_meta").doc("masters").set(obj), "masters");
+  const ref = cloudDb.collection("forka_meta").doc("masters");
+  if(!cloudMastersSynced){
+    // This device has not yet received the shared list: NEVER replace it — only add to it (arrayUnion), so a half-loaded
+    // local copy can never wipe the real branch list.
+    const FV = window.firebase && firebase.firestore && firebase.firestore.FieldValue;
+    if(!FV || !FV.arrayUnion) return Promise.resolve(false);
+    const add = {};
+    Object.keys(obj||{}).forEach(k=>{ if(Array.isArray(obj[k]) && obj[k].length) add[k] = FV.arrayUnion(...obj[k]); });
+    return cloudWrite(ref.set(add, {merge:true}), "masters (additive)");
+  }
+  return cloudWrite(ref.set(obj), "masters");
 }
 function cloudPushChecklist(kind, obj){
   if(!cloudEnabled || !cloudDb) return;
@@ -8695,8 +8765,15 @@ function splitBranchNames(value){
   if(!text) return [];
   const knownBranches = (typeof loadMasters==="function" ? (loadMasters().branches||[]) : []);
   if(knownBranches.length){
-    const sorted = [...knownBranches].sort((a,b)=> b.length - a.length); // longer/more specific names first
-    const found = sorted.filter(b=> b.trim() && text.includes(b.trim()));
+    const key = (s)=> normalizeSearchText(String(s||"")).replace(/[\s\-–—_.]+/g, "");
+    const exact = knownBranches.find(b=> b.trim() && key(b)===key(text));
+    if(exact) return [exact];                                         // the value IS one registered branch (spacing / spelling-tolerant)
+    const sorted = knownBranches.filter(b=> b.trim()).sort((a,b)=> b.length - a.length);   // longer / more specific names first
+    let rest = text; const found = [];
+    sorted.forEach(b=>{
+      const bt = b.trim();
+      if(rest.includes(bt)){ found.push(b); rest = rest.split(bt).join(" | "); }   // a shorter name only counts if it appears OUTSIDE an already matched longer name
+    });
     if(found.length) return found;
   }
   // Fallback (no registered branches matched): naive delimiter split
@@ -9399,6 +9476,8 @@ function autoFixBranchDuplicates(){
     arr.forEach(r=>{
       const parts = splitBranchNames(r[m.branchField]);
       if(!parts.length) return;
+      const fieldDef = m.fields.find(f=>f.key===m.branchField);
+      if(parts.length > 1 && !(fieldDef && fieldDef.type==="branchMultiSelect")) return;   // single-branch field: leave it alone
       const newParts = parts.map(p=> canonicalFor[normalizeSearchText(p)] || p);
       const changed = newParts.some((p,i)=> p !== parts[i]);
       if(changed){
@@ -10050,7 +10129,7 @@ if(location.hash === "#public"){
   renderAccountantPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
