@@ -687,6 +687,15 @@ const STR = {
     branchRepairAmbiguous:(n)=>`⚠️ ${n} سجل فرعه فيه أكتر من فرع ومش اتغيّر (راجعه بنفسك):`,
     mayarBranchAdded:(b)=>`➕ فرع «${b}» ماكانش في قايمة الفروع واتضاف ليها (إضافة بس، من غير ما أمس أي فرع تاني).`,
     importedBranchFixDone:(may,fuj,added)=>`🏷️ تصحيح فرع المعدات المستوردة${may?`\n• معدات ميار: ${may} معدة كان فرعها غير مسجّل، وبقت تحت فرع ميار كوفي شوب`:""}${fuj?`\n• معدات الفجيرة: ${fuj} معدة اتظبط فرعها على فرع الفجيرة المسجّل`:""}${added?`\n• اتضاف فرع «${added}» لقايمة الفروع (إضافة بس)`:""}\n• مفيش حاجة تانية اتغيرت.`,
+    projOvProgress:"نسبة الإنجاز", projOvStepsOf:(d,n)=>`${d} من ${n} خطوات`, projOvCurrent:"الخطوة الحالية", projOvDaysLeft:(d)=>`باقي ${d} يوم على الافتتاح المستهدف`, projOvDaysLate:(d)=>`متأخر ${d} يوم عن الافتتاح المستهدف`,
+    projOvBudget:"الميزانية", projOvPlanned:"الرسوم المتوقعة", projOvActual:"المصروف الفعلي", projOvRemaining:"المتبقي من الميزانية",
+    projColStep:"الخطوة", projColAuthority:"الجهة", projColStatus:"الحالة", projColFee:"المتوقع", projColActual:"الفعلي", projColInv:"فواتير", projColRef:"رقم المعاملة", projColDone:"تاريخ الإنجاز",
+    projAddInvoice:"🧾 فاتورة", projUnassigned:"فواتير مربوطة بالمشروع بدون تحديد خطوة", projNoSteps:"لسه مفيش خطوات لهذا المشروع. اضغط «تعديل» واختار نوع المشروع وهتتحمل خطوات الترخيص.",
+    projExport:"📥 تصدير تقرير المشروع (Excel)", projColItem:"البند", projColValue:"القيمة", projSheetSummary:"ملخص المشروع", projSheetSteps:"خطوات المشروع", projSheetInvoices:"فواتير المشروع",
+    stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم المتوقعة", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
+    stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
+    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. الرسوم الفعلية بتتحسب من الفواتير اللي تربطها بالمشروع والخطوة (وإلا من خانة «المدفوع فعليًا»).",
+    stepNoTemplate:"اختار نوع المشروع الأول (له قالب خطوات جاهز).", stepTemplateAllThere:"كل خطوات القالب موجودة عندك بالفعل.",
     expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
     expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
     expAllocMismatch:(sum,total)=>`مجموع المبالغ الموزعة على الفروع (${sum}) لا يساوي إجمالي الفاتورة (${total}). عدّل التوزيع أولًا.`,
@@ -1069,6 +1078,15 @@ const STR = {
     branchRepairAmbiguous:(n)=>`⚠️ ${n} record(s) have more than one branch and were NOT changed (please review):`,
     mayarBranchAdded:(b)=>`➕ The branch "${b}" was missing from the branch list and was added to it (add-only; no other branch was touched).`,
     importedBranchFixDone:(may,fuj,added)=>`🏷️ Imported equipment branch fix${may?`\n• Mayar equipment: ${may} items had an unregistered branch and are now under the Mayar Coffee Shop branch`:""}${fuj?`\n• Fujairah equipment: ${fuj} items were put under the registered Fujairah branch`:""}${added?`\n• The branch "${added}" was added to the branch list (add-only)`:""}\n• Nothing else was changed.`,
+    projOvProgress:"Progress", projOvStepsOf:(d,n)=>`${d} of ${n} steps`, projOvCurrent:"Current step", projOvDaysLeft:(d)=>`${d} days left to the target opening`, projOvDaysLate:(d)=>`${d} days past the target opening`,
+    projOvBudget:"Budget", projOvPlanned:"Planned fees", projOvActual:"Actual spend", projOvRemaining:"Budget remaining",
+    projColStep:"Step", projColAuthority:"Authority", projColStatus:"Status", projColFee:"Planned", projColActual:"Actual", projColInv:"Invoices", projColRef:"Transaction no.", projColDone:"Completed on",
+    projAddInvoice:"🧾 Invoice", projUnassigned:"Invoices linked to the project without a step", projNoSteps:"This project has no steps yet. Click Edit and choose the project type to load the licence steps.",
+    projExport:"📥 Export project report (Excel)", projColItem:"Item", projColValue:"Value", projSheetSummary:"Project Summary", projSheetSteps:"Project Steps", projSheetInvoices:"Project Invoices",
+    stepName:"Step name", stepAuthority:"Authority", stepFee:"Expected fee", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
+    stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
+    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Actual spend is calculated from the invoices linked to the project and step (otherwise from the \"Actually paid\" box).",
+    stepNoTemplate:"Pick the project type first (it has a ready steps template).", stepTemplateAllThere:"All the template steps are already in your list.",
     expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
     expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
     expAllocMismatch:(sum,total)=>`The amounts split between the branches (${sum}) do not equal the invoice total (${total}). Please adjust the split.`,
@@ -1264,6 +1282,7 @@ const STATUS_COLORS = {
   "مكتملة":"badge-success","ناقصة":"badge-warning","منتهية":"badge-danger","نشطة":"badge-success",
   "مدفوعة":"badge-success","غير مدفوعة":"badge-danger",
   "تم الدفع":"badge-success","لم يتم الدفع":"badge-danger",
+  "لم يبدأ":"badge-muted","تم":"badge-success","متعثر":"badge-danger","متوقف":"badge-warning",
   "جديدة":"badge-info","تمت المراجعة":"badge-success","مسجلة في بيمو":"badge-success","استفسار":"badge-warning","مدفوعة جزئيًا":"badge-warning"
 };
 /* canonical Arabic value -> English display label (values are ALWAYS stored in Arabic for consistent filtering/coloring) */
@@ -1279,6 +1298,9 @@ const OPT_EN = {
   "مدفوعة":"Paid","غير مدفوعة":"Unpaid","مدفوعة جزئيًا":"Partially Paid",
   "نقدي":"Cash","بطاقة":"Card","تحويل بنكي":"Bank Transfer","شيك":"Cheque","آجل":"On Credit",
   "بالتساوي":"Equally","مبلغ محدد لكل فرع":"Specific amount per branch",
+  "رخصة مطعم جديدة":"New Restaurant License","رخصة كافيه / كوفي شوب جديدة":"New Café / Coffee Shop License","فرع جديد (افتتاح)":"New Branch (Opening)",
+  "تجديد رخصة":"License Renewal","تعديل رخصة":"License Amendment","نقل موقع":"Relocation","متوقف":"On Hold",
+  "لم يبدأ":"Not Started","تم":"Done","متعثر":"Stalled",
   "حرج":"Critical","عالٍ":"High","متوسط":"Medium","منخفض":"Low",
   "نعم":"Yes","لا":"No",
   "مفتوح":"Open","قيد التنفيذ":"In Progress","متأخر":"Delayed","مغلق":"Closed",
@@ -1340,6 +1362,61 @@ const EXPENSE_PAYMENT_METHODS = ["نقدي","بطاقة","تحويل بنكي","
 const EXPENSE_SPLIT_EQUAL = "بالتساوي";
 const EXPENSE_SPLIT_CUSTOM = "مبلغ محدد لكل فرع";
 const round2 = (n)=> Math.round((Number(n)||0)*100)/100;
+/* ---------------- Projects: linking invoices and computing progress / cost ---------------- */
+function projectKey(s){ return normalizeSearchText(String(s||"")).replace(/\s+/g," ").trim(); }
+function projectInvoices(rec){
+  const k = projectKey(rec.projectName);
+  if(!k) return [];
+  return loadData("expenses").filter(e=> projectKey(e.project)===k);
+}
+/* Actual spend per step = invoices uploaded for that step; when none, the amount typed as "paid" on the step.
+   Invoices of the project that name no step are added on top. Never counts an invoice twice. */
+function projectCostBreakdown(rec){
+  const invoices = projectInvoices(rec);
+  const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  const perStep = steps.map(s=>{
+    const sk = projectKey(s.name);
+    const inv = sk ? invoices.filter(e=> projectKey(e.projectStep)===sk) : [];
+    const invoiceTotal = round2(inv.reduce((a,e)=> a + (Number(e.total)||0), 0));
+    return { step:s, invoices:inv, invoiceTotal, actual: inv.length ? invoiceTotal : round2(s.paid) };
+  });
+  const used = new Set(); perStep.forEach(p=> p.invoices.forEach(e=> used.add(e.id)));
+  const unassigned = invoices.filter(e=> !used.has(e.id));
+  const unassignedTotal = round2(unassigned.reduce((a,e)=> a + (Number(e.total)||0), 0));
+  return {
+    invoices, perStep, unassigned, unassignedTotal,
+    planned: round2(steps.reduce((a,s)=> a + (Number(s.fee)||0), 0)),
+    actual: round2(perStep.reduce((a,p)=> a + p.actual, 0) + unassignedTotal),
+    budget: round2(rec.budget),
+  };
+}
+function projectComputed(rec){
+  const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  const cost = projectCostBreakdown(rec);
+  const done = steps.filter(s=> s.status==="تم").length;
+  const current = steps.find(s=> s.status!=="تم");
+  const hasCost = steps.length || cost.invoices.length;
+  return {
+    progress: steps.length ? Math.round(done/steps.length*100) + "%" : "",
+    currentStep: steps.length ? (current ? current.name : PROJECT_ALL_DONE_TEXT) : "",
+    plannedCost: hasCost ? String(cost.planned) : "",
+    actualCost: hasCost ? String(cost.actual) : "",
+  };
+}
+/* keeps the figures shown in the projects list in step with the invoices (only after the data has synced) */
+function refreshProjectsComputed(){
+  if(cloudEnabled && !(cloudFirstSyncReceived.projects && cloudFirstSyncReceived.expenses)) return false;
+  const arr = loadDataRaw("projects"); let changed = false;
+  arr.forEach(r=>{
+    if(r._deleted) return;
+    const cp = projectComputed(r);
+    if(["progress","currentStep","plannedCost","actualCost"].some(k=> String(r[k]===undefined?"":r[k]) !== String(cp[k]))){
+      Object.assign(r, cp); r._updatedAt = Date.now(); cloudPushRecord("projects", r); changed = true;
+    }
+  });
+  if(changed) saveData("projects", arr);
+  return changed;
+}
 function parseAllocations(v){
   if(Array.isArray(v)) return v;
   try{ const a = JSON.parse(v||"[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; }
@@ -1371,6 +1448,262 @@ function expenseAllocationText(allocs){
   return (allocs||[]).map(a=> `${a.branch}: ${Number(a.total).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`).join(" | ");
 }
 function expenseMonth(rec){ return (rec.accountingMonth && /^\d{4}-\d{2}$/.test(rec.accountingMonth)) ? rec.accountingMonth : String(rec.date||"").slice(0,7); }
+/* ---------------- PROJECTS & OPENINGS: types, licence-journey templates (editable per project) ---------------- */
+const PROJECT_STEP_STATUSES = ["لم يبدأ","قيد التنفيذ","تم","متعثر"];
+const PROJECT_TYPES = ["رخصة مطعم جديدة","رخصة كافيه / كوفي شوب جديدة","فرع جديد (افتتاح)","تجديد رخصة","تعديل رخصة","نقل موقع","أخرى"];
+const PROJECT_LEGACY_TYPES = ["فرع جديد","تجديد","نقل","افتتاح"];     // older records keep displaying
+const PROJECT_TEMPLATES = {
+ "رخصة مطعم جديدة": [
+  {
+   "name": "حجز الاسم التجاري",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "الموافقة المبدئية على النشاط",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "الموافقة الأمنية",
+   "authority": "الجهات الأمنية"
+  },
+  {
+   "name": "عقد الإيجار وتوثيقه",
+   "authority": "المالك / البلدية"
+  },
+  {
+   "name": "اعتماد الموقع والمخططات",
+   "authority": "البلدية"
+  },
+  {
+   "name": "موافقة الدفاع المدني (مخطط السلامة)",
+   "authority": "الدفاع المدني"
+  },
+  {
+   "name": "موافقة الصحة وسلامة الغذاء",
+   "authority": "البلدية"
+  },
+  {
+   "name": "إصدار الرخصة التجارية",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "فتح ملف المنشأة والعمالة",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "التأمين الصحي وتأشيرات الموظفين",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "تجهيز الموقع والديكور والمعدات",
+   "authority": "المقاولون"
+  },
+  {
+   "name": "التفتيش النهائي وشهادة المطابقة",
+   "authority": "البلدية / الدفاع المدني"
+  },
+  {
+   "name": "تدريب الفريق وتجربة التشغيل",
+   "authority": "التشغيل"
+  },
+  {
+   "name": "الافتتاح",
+   "authority": ""
+  }
+ ],
+ "رخصة كافيه / كوفي شوب جديدة": [
+  {
+   "name": "حجز الاسم التجاري",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "الموافقة المبدئية على النشاط",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "الموافقة الأمنية",
+   "authority": "الجهات الأمنية"
+  },
+  {
+   "name": "عقد الإيجار وتوثيقه",
+   "authority": "المالك / البلدية"
+  },
+  {
+   "name": "اعتماد الموقع والمخططات",
+   "authority": "البلدية"
+  },
+  {
+   "name": "موافقة الدفاع المدني (مخطط السلامة)",
+   "authority": "الدفاع المدني"
+  },
+  {
+   "name": "موافقة الصحة وسلامة الغذاء",
+   "authority": "البلدية"
+  },
+  {
+   "name": "إصدار الرخصة التجارية",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "فتح ملف المنشأة والعمالة",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "التأمين الصحي وتأشيرات الموظفين",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "تجهيز الموقع والديكور والمعدات",
+   "authority": "المقاولون"
+  },
+  {
+   "name": "التفتيش النهائي وشهادة المطابقة",
+   "authority": "البلدية / الدفاع المدني"
+  },
+  {
+   "name": "تدريب الفريق وتجربة التشغيل",
+   "authority": "التشغيل"
+  },
+  {
+   "name": "الافتتاح",
+   "authority": ""
+  }
+ ],
+ "فرع جديد (افتتاح)": [
+  {
+   "name": "تحديد الموقع والتفاوض",
+   "authority": ""
+  },
+  {
+   "name": "عقد الإيجار وتوثيقه",
+   "authority": "المالك / البلدية"
+  },
+  {
+   "name": "إضافة الموقع الجديد للرخصة",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "اعتماد الموقع والمخططات",
+   "authority": "البلدية"
+  },
+  {
+   "name": "موافقة الدفاع المدني (مخطط السلامة)",
+   "authority": "الدفاع المدني"
+  },
+  {
+   "name": "موافقة الصحة وسلامة الغذاء",
+   "authority": "البلدية"
+  },
+  {
+   "name": "تجهيز الموقع والديكور والمعدات",
+   "authority": "المقاولون"
+  },
+  {
+   "name": "التأمين الصحي وتأشيرات الموظفين",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "التفتيش النهائي وشهادة المطابقة",
+   "authority": "البلدية / الدفاع المدني"
+  },
+  {
+   "name": "تدريب الفريق وتجربة التشغيل",
+   "authority": "التشغيل"
+  },
+  {
+   "name": "الافتتاح",
+   "authority": ""
+  }
+ ],
+ "تجديد رخصة": [
+  {
+   "name": "مراجعة متطلبات التجديد والمستندات",
+   "authority": ""
+  },
+  {
+   "name": "تجديد عقد الإيجار",
+   "authority": "المالك / البلدية"
+  },
+  {
+   "name": "تجديد شهادات الدفاع المدني والصحة",
+   "authority": "الدفاع المدني / البلدية"
+  },
+  {
+   "name": "تجديد التأمين الصحي والعمالي",
+   "authority": "وزارة الموارد البشرية"
+  },
+  {
+   "name": "سداد رسوم التجديد",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "إصدار الرخصة المجددة",
+   "authority": "دائرة التنمية الاقتصادية"
+  }
+ ],
+ "تعديل رخصة": [
+  {
+   "name": "تحديد التعديل المطلوب (نشاط / اسم / موقع / شركاء)",
+   "authority": ""
+  },
+  {
+   "name": "تقديم الطلب",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "موافقات الجهات المعنية",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "سداد الرسوم",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "إصدار الرخصة المعدّلة",
+   "authority": "دائرة التنمية الاقتصادية"
+  }
+ ],
+ "نقل موقع": [
+  {
+   "name": "اختيار الموقع الجديد وعقد الإيجار",
+   "authority": "المالك / البلدية"
+  },
+  {
+   "name": "طلب نقل الموقع",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "اعتماد الموقع والمخططات",
+   "authority": "البلدية"
+  },
+  {
+   "name": "موافقة الدفاع المدني (مخطط السلامة)",
+   "authority": "الدفاع المدني"
+  },
+  {
+   "name": "موافقة الصحة وسلامة الغذاء",
+   "authority": "البلدية"
+  },
+  {
+   "name": "سداد الرسوم",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "إصدار الرخصة بالموقع الجديد",
+   "authority": "دائرة التنمية الاقتصادية"
+  },
+  {
+   "name": "تجهيز الموقع الجديد ونقل المعدات",
+   "authority": "المقاولون"
+  },
+  {
+   "name": "الافتتاح",
+   "authority": ""
+  }
+ ],
+ "أخرى": []
+};
+const PROJECT_ALL_DONE_TEXT = "✔ اكتملت كل الخطوات";
 const MODULES = [
 {
   key:"requests", icon:"🛠️", name:"بلاغات الإصلاحات العامة", nameEn:"General Repair Requests",
@@ -1638,25 +1971,33 @@ const MODULES = [
 {
   key:"projects", icon:"🏗️", name:"المشاريع والافتتاحات", nameEn:"Projects & Openings",
   singular:"مشروع", singularEn:"Project",
-  statusField:"status", alertValues:["متأخر"],
-  overdueRule: r => (r.status||"").trim()!=="مكتمل" && r.targetOpenDate && new Date(r.targetOpenDate) < new Date(todayStr()),
+  statusField:"status", alertValues:["متأخر","متوقف"],
+  overdueRule: r => !["مكتمل","متوقف"].includes((r.status||"").trim()) && r.targetOpenDate && new Date(r.targetOpenDate) < new Date(todayStr()),
   fields:[
-    {key:"projectName", label:"اسم المشروع", labelEn:"Project Name", type:"text", required:true},
+    {key:"projectName", label:"اسم المشروع / اسم المطعم", labelEn:"Project / Restaurant Name", type:"text", required:true},
+    {key:"type", label:"نوع المشروع", labelEn:"Project Type", type:"select", required:true, options:[...PROJECT_TYPES, ...PROJECT_LEGACY_TYPES]},
     {key:"branch", label:"الفرع / الموقع", labelEn:"Branch / Site", type:"text", master:"branches"},
-    {key:"type", label:"نوع المشروع", labelEn:"Project Type", type:"select", options:["فرع جديد","تجديد","نقل","افتتاح"]},
+    {key:"owner", label:"المسؤول عن المتابعة (المندوب)", labelEn:"Follow-up Owner (PRO)", type:"text"},
     {key:"startDate", label:"تاريخ البدء", labelEn:"Start Date", type:"date"},
     {key:"targetOpenDate", label:"تاريخ الافتتاح المستهدف", labelEn:"Target Opening Date", type:"date"},
+    {key:"actualOpenDate", label:"تاريخ الافتتاح الفعلي", labelEn:"Actual Opening Date", type:"date"},
+    {key:"budget", label:"الميزانية المعتمدة (د.إ)", labelEn:"Approved Budget (AED)", type:"number"},
+    {key:"steps", label:"مراحل المشروع (من أول خطوة لآخر خطوة)", labelEn:"Project stages (first step to last)", type:"projectSteps", full:true, hideInList:true},
+    {key:"progress", label:"نسبة الإنجاز", labelEn:"Progress", type:"text", formHidden:true},
+    {key:"currentStep", label:"الخطوة الحالية", labelEn:"Current Step", type:"text", formHidden:true},
+    {key:"plannedCost", label:"الرسوم المتوقعة (د.إ)", labelEn:"Planned Fees (AED)", type:"number", formHidden:true},
+    {key:"actualCost", label:"المصروف الفعلي (د.إ)", labelEn:"Actual Spend (AED)", type:"number", formHidden:true},
+    {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["قيد التنفيذ","جاهز للافتتاح","مكتمل","متأخر","متوقف"]},
     {key:"contractors", label:"المقاولون المشاركون", labelEn:"Contractors Involved", type:"text"},
     {key:"snagCount", label:"عدد ملاحظات Snag List المفتوحة", labelEn:"Open Snag List Items", type:"number"},
     {key:"warranties", label:"استلام الضمانات والكتيبات والمخططات؟", labelEn:"Warranties/Manuals/Drawings Received?", type:"select", options:["نعم","لا","جزئيًا"]},
     {key:"assetRegister", label:"إعداد سجل أصول الموقع الجديد؟", labelEn:"New Site Asset Register Created?", type:"select", options:["نعم","لا"]},
     {key:"opTest", label:"إجراء اختبار تشغيلي قبل الافتتاح؟", labelEn:"Operational Test Done?", type:"select", options:["نعم","لا"]},
     {key:"finalReport", label:"رفع تقرير الجاهزية النهائي؟", labelEn:"Final Readiness Report Submitted?", type:"select", options:["نعم","لا"]},
-    {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["قيد التنفيذ","جاهز للافتتاح","مكتمل","متأخر"]},
     {key:"photos", label:"صور ومرفقات المشروع", labelEn:"Project Photos & Attachments", type:"photo", full:true},
     {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
   ],
-  listColumns:["projectName","branch","type","targetOpenDate","status"],
+  listColumns:["projectName","type","branch","progress","currentStep","plannedCost","actualCost","targetOpenDate","status"],
   dateFieldForReports:"startDate", freqField:"type", branchField:"branch"
 },
 {
@@ -1735,6 +2076,7 @@ const MODULES = [
     {key:"employee", label:"الموظف المعني (إن وجد)", labelEn:"Employee (if any)", type:"text"},
     {key:"branch", label:"الفرع / الفروع", labelEn:"Branch(es)", type:"branchMultiSelect", required:true, full:true},
     {key:"project", label:"المشروع / مركز التكلفة", labelEn:"Project / Cost Centre", type:"text", datalistId:"expenseProjects"},
+    {key:"projectStep", label:"خطوة المشروع", labelEn:"Project Stage", type:"text", datalistId:"expenseSteps"},
     {key:"accountingMonth", label:"شهر القيد في الـ P&L", labelEn:"P&L Month", type:"month"},
     {key:"amount", label:"المبلغ قبل الضريبة (د.إ)", labelEn:"Amount before VAT (AED)", type:"number", required:true},
     {key:"vat", label:"الضريبة (د.إ)", labelEn:"VAT (AED)", type:"number"},
@@ -1998,7 +2340,7 @@ let translationCache = loadTranslationCache();
 function detectTextLang(text){ return /[\u0600-\u06FF]/.test(text) ? "ar" : "en"; }
 function escapeAttr(s){ return (s||"").toString().replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
-const NO_TRANSLATE_KEY_PATTERN = /No\.?$|Number|Phone|reqNo|plate|serial|invoice|contractNo|^code$|chassis|engine|appId|apiKey|^quantity$|^nameEn$|^fileCondition$|^fileRemarks$|^brand$|^fileNo$/i;
+const NO_TRANSLATE_KEY_PATTERN = /No\.?$|Number|Phone|reqNo|plate|serial|invoice|contractNo|^code$|chassis|engine|appId|apiKey|^quantity$|^nameEn$|^fileCondition$|^fileRemarks$|^brand$|^fileNo$|^progress$/i;
 function isTranslatableField(f){
   if(!f) return false;
   if(f.type!=="text" && f.type!=="textarea" && f.type!=="branchMultiSelect") return false;
@@ -2023,7 +2365,7 @@ function getListRelevantFields(m, statusFilterValue, forceAll){
    Checked BEFORE the online translator, so these always show the precise name from the original list,
    with no internet, no cache and no machine-translation guesswork. Arabic stays as stored; English shows
    automatically when the program language is switched. */
-const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"], ["سلامندر","Salamander"], ["ماكينة ثلج مكعبات","Ice Cube Machine"], ["قهوة ومشروبات","Coffee & Beverages"], ["مياه","Water"], ["إلكترونيات","Electronics"], ["تحت الصيانة","Under maintenance"]];
+const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"], ["سلامندر","Salamander"], ["ماكينة ثلج مكعبات","Ice Cube Machine"], ["قهوة ومشروبات","Coffee & Beverages"], ["مياه","Water"], ["إلكترونيات","Electronics"], ["تحت الصيانة","Under maintenance"], ["حجز الاسم التجاري", "Trade Name Reservation"], ["الموافقة المبدئية على النشاط", "Initial Activity Approval"], ["الموافقة الأمنية", "Security Approval"], ["عقد الإيجار وتوثيقه", "Lease Contract & Attestation"], ["اعتماد الموقع والمخططات", "Site & Drawings Approval"], ["موافقة الدفاع المدني (مخطط السلامة)", "Civil Defence Approval (Safety Plan)"], ["موافقة الصحة وسلامة الغذاء", "Health & Food Safety Approval"], ["إصدار الرخصة التجارية", "Trade License Issuance"], ["فتح ملف المنشأة والعمالة", "Establishment & Labour File"], ["التأمين الصحي وتأشيرات الموظفين", "Health Insurance & Staff Visas"], ["تجهيز الموقع والديكور والمعدات", "Site Fit-out, Décor & Equipment"], ["التفتيش النهائي وشهادة المطابقة", "Final Inspection & Compliance Certificate"], ["تدريب الفريق وتجربة التشغيل", "Team Training & Trial Run"], ["الافتتاح", "Opening"], ["تحديد الموقع والتفاوض", "Site Selection & Negotiation"], ["إضافة الموقع الجديد للرخصة", "Adding the New Site to the License"], ["مراجعة متطلبات التجديد والمستندات", "Renewal Requirements & Documents Review"], ["تجديد عقد الإيجار", "Lease Renewal"], ["تجديد شهادات الدفاع المدني والصحة", "Civil Defence & Health Certificates Renewal"], ["تجديد التأمين الصحي والعمالي", "Health & Labour Insurance Renewal"], ["سداد رسوم التجديد", "Renewal Fees Payment"], ["إصدار الرخصة المجددة", "Renewed License Issuance"], ["تحديد التعديل المطلوب (نشاط / اسم / موقع / شركاء)", "Define the Amendment (Activity / Name / Location / Partners)"], ["تقديم الطلب", "Application Submission"], ["موافقات الجهات المعنية", "Authorities' Approvals"], ["سداد الرسوم", "Fees Payment"], ["إصدار الرخصة المعدّلة", "Amended License Issuance"], ["اختيار الموقع الجديد وعقد الإيجار", "New Site Selection & Lease"], ["طلب نقل الموقع", "Relocation Request"], ["إصدار الرخصة بالموقع الجديد", "License Issued at the New Site"], ["تجهيز الموقع الجديد ونقل المعدات", "New Site Setup & Equipment Move"], ["دائرة التنمية الاقتصادية", "Department of Economic Development"], ["البلدية", "Municipality"], ["الدفاع المدني", "Civil Defence"], ["الجهات الأمنية", "Security Authorities"], ["وزارة الموارد البشرية", "Ministry of Human Resources"], ["المالك / البلدية", "Landlord / Municipality"], ["المقاولون", "Contractors"], ["التشغيل", "Operations"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["الدفاع المدني / البلدية", "Civil Defence / Municipality"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["✔ اكتملت كل الخطوات", "✔ All steps completed"]];
 let _glossaryAR2EN = null, _glossaryEN2AR = null;
 function glossaryKey(s){ return normalizeSearchText(String(s||"")).toLowerCase().replace(/\s+/g," ").trim(); }
 function ensureGlossary(){
@@ -2152,8 +2494,9 @@ function buildDatalistsHtml(){
   const expRecs = loadData("expenses");
   const uniq = (arr)=> [...new Set(arr.map(x=>(x||"").trim()).filter(Boolean))];
   const vendorDatalist = `<datalist id="dl_expenseVendors">${uniq(expRecs.map(r=>r.vendor)).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
-  const projectDatalist = `<datalist id="dl_expenseProjects">${uniq(expRecs.map(r=>r.project)).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
-  return masterLists + assetDatalist + plateDatalist + vendorDatalist + projectDatalist;
+  const projectDatalist = `<datalist id="dl_expenseProjects">${uniq([...loadData("projects").map(p=>p.projectName), ...expRecs.map(r=>r.project)]).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
+  const stepDatalist = `<datalist id="dl_expenseSteps">${uniq(loadData("projects").flatMap(p=>(p.steps||[]).map(s=>s.name))).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
+  return masterLists + assetDatalist + plateDatalist + vendorDatalist + projectDatalist + stepDatalist;
 }
 
 /* ---------------- PIN LOCK ---------------- */
@@ -4288,6 +4631,7 @@ function renderExpenseUploadPage(draft){
           ${fld(efl('category'), sel("category", EXPENSE_CATEGORIES), true)}
           ${fld(efl('employee'), txt("employee"))}
           ${fld(efl('project'), txt("project", 'list="dl_expenseProjects" autocomplete="off"'))}
+          ${fld(efl('projectStep'), txt("projectStep", 'list="dl_expenseSteps" autocomplete="off"'))}
         </div>
         <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(efl('branch'), `<input type="hidden" data-field="branch" value="${escapeAttr(draft.branch||"")}"><div id="branchMultiWidget_branch" class="branch-multi-widget"></div>`, true)}
@@ -4311,7 +4655,13 @@ function renderExpenseUploadPage(draft){
   document.getElementById("expUpLangBtn").onclick = ()=>{ const d = expenseUploadCaptureDraft(); LANG = LANG==='ar' ? 'en' : 'ar'; localStorage.setItem("forka_lang", LANG); renderExpenseUploadPage(d); };
   renderBranchMultiWidget("branch", draft.branch || "");
   wireExpenseForm(false);
-  setTimeout(()=>{ const hb = document.querySelector('[data-field="branch"]'); if(hb && document.getElementById("branchMultiWidget_branch")) renderBranchMultiWidget("branch", hb.value); }, 1300);  // after the cloud branch list has synced
+  setTimeout(()=>{
+    const hb = document.querySelector('[data-field="branch"]'); if(hb && document.getElementById("branchMultiWidget_branch")) renderBranchMultiWidget("branch", hb.value);   // after the cloud branch list has synced
+    const refill = (id, names)=>{ const dl = document.getElementById(id); if(dl) dl.innerHTML = [...new Set(names.map(x=>(x||"").trim()).filter(Boolean))].map(v=>`<option value="${escapeAttr(v)}">`).join(""); };
+    refill("dl_expenseProjects", [...loadData("projects").map(p=>p.projectName), ...loadData("expenses").map(r=>r.project)]);
+    refill("dl_expenseVendors", loadData("expenses").map(r=>r.vendor));
+    updateExpenseStepSuggestions();
+  }, 1300);
   renderExpenseUploadPhotos();
 
   document.getElementById("expUpVat5").onclick = ()=>{
@@ -4358,7 +4708,7 @@ function submitExpenseUpload(){
   const m = expenseModule();
   const rec = {
     id: uid(), date: g("date"), invoiceNo: g("invoiceNo"), vendor: g("vendor"), department: g("department"), category: g("category"),
-    employee: g("employee"), branch: g("branch"), project: g("project"), amount: g("amount"), vat: g("vat"),
+    employee: g("employee"), branch: g("branch"), project: g("project"), projectStep: g("projectStep"), amount: g("amount"), vat: g("vat"),
     splitMode: g("splitMode") || EXPENSE_SPLIT_EQUAL, allocations: g("allocations"),
     paymentStatus: g("paymentStatus"), paymentMethod: g("paymentMethod"), notes: g("notes"), submittedBy: g("submittedBy"),
     reviewStatus: "جديدة",
@@ -5137,6 +5487,7 @@ function renderModule(mKey){
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
   if(isExpenseMode || isAccountantMode) return;
   if(isAssetViewMode){ renderAssetViewPage(); return; }
+  if(mKey==="projects") refreshProjectsComputed();
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -5475,8 +5826,95 @@ function bindCommentsHandlers(m, existingRec){
     }
   };
 }
+function buildProjectOverviewHtml(rec){
+  const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  const cb = projectCostBreakdown(rec);
+  const done = steps.filter(s=> s.status==="تم").length;
+  const pct = steps.length ? Math.round(done/steps.length*100) : 0;
+  const cur = steps.find(s=> s.status!=="تم");
+  const daysLeft = rec.targetOpenDate ? Math.ceil((new Date(rec.targetOpenDate) - new Date(todayStr()))/86400000) : null;
+  const remaining = cb.budget ? round2(cb.budget - cb.actual) : null;
+  const card = (label, value, color)=> `<div style="flex:1; min-width:130px; background:#f6f8fc; border:1px solid var(--line); border-radius:10px; padding:10px 12px; text-align:center;"><div style="font-size:11.5px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:17px; font-weight:900; color:${color||'var(--navy)'}; margin-top:3px;">${value}</div></div>`;
+  const dayText = daysLeft===null ? "" : (rec.status==="مكتمل" ? "" : (daysLeft>=0 ? t('projOvDaysLeft', daysLeft) : t('projOvDaysLate', -daysLeft)));
+  let html = `<div style="border:2px solid var(--navy); border-radius:12px; padding:14px; margin:4px 0 16px; background:#fff;">
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <div style="font-size:16px; font-weight:900; color:var(--navy);">🏗️ ${escapeHtml(rec.projectName||"")}</div>
+      <div style="display:flex; gap:6px; align-items:center;">${badge(rec.type||"")} ${badge(rec.status||"")}</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; margin-bottom:4px;"><span>${t('projOvProgress')}: ${pct}%${steps.length?` — ${t('projOvStepsOf', done, steps.length)}`:""}</span><span style="color:${daysLeft!==null && daysLeft<0 && rec.status!=="مكتمل" ? '#c0392b' : 'var(--muted)'};">${dayText}</span></div>
+    <div style="height:14px; background:#e6eaf2; border-radius:8px; overflow:hidden; margin-bottom:10px;"><div style="width:${pct}%; height:100%; background:linear-gradient(90deg,#1f8a4c,#4cc07f);"></div></div>
+    ${steps.length ? `<div style="font-size:13px; margin-bottom:12px;">📍 ${t('projOvCurrent')}: <b>${escapeHtml(cur ? glDisplay(cur.name) : glDisplay(PROJECT_ALL_DONE_TEXT))}</b>${cur && cur.authority ? ` <span style="color:var(--muted);">(${escapeHtml(glDisplay(cur.authority))})</span>` : ""}</div>` : ""}
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+      ${card(t('projOvBudget'), cb.budget ? fmt2(cb.budget) : "—")}
+      ${card(t('projOvPlanned'), fmt2(cb.planned))}
+      ${card(t('projOvActual'), fmt2(cb.actual), cb.planned && cb.actual>cb.planned ? '#c0392b' : 'var(--navy)')}
+      ${card(t('projOvRemaining'), remaining===null ? "—" : fmt2(remaining), remaining!==null && remaining<0 ? '#c0392b' : '#1f8a4c')}
+    </div>`;
+  if(!steps.length){
+    html += `<div style="font-size:12.5px; color:var(--muted);">${t('projNoSteps')}</div>`;
+  } else {
+    html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColFee')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
+      ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
+        <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
+        <td>${badge(s.status||"لم يبدأ")}</td><td>${s.fee?fmt2(s.fee):"—"}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
+        <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
+        <td><button class="btn btn-sm btn-outline" type="button" data-projaddinv="${i}">${t('projAddInvoice')}</button></td></tr>`; }).join("")}
+      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.planned)}</td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td></tr>
+      </tbody></table></div>`;
+  }
+  if(cb.unassigned.length){
+    html += `<div class="section-title" style="margin-top:12px;">${t('projUnassigned')}</div>
+      <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColType')}</th><th>${t('expColTotal')}</th></tr></thead><tbody>
+      ${cb.unassigned.map(e=>`<tr><td>${escapeHtml(e.expNo||"")}</td><td>${escapeHtml(e.date||"")}</td><td>${escapeHtml(e.vendor||"")}</td><td>${escapeHtml(optLabel(e.category||""))}</td><td><b>${fmt2(e.total)}</b></td></tr>`).join("")}</tbody></table></div>`;
+  }
+  html += `<div style="margin-top:12px;"><button class="btn btn-gold btn-sm" type="button" id="btnProjExport">${t('projExport')}</button></div></div>`;
+  return html;
+}
+function bindProjectOverview(rec){
+  const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  document.querySelectorAll("[data-projaddinv]").forEach(b=>{
+    b.onclick = ()=>{
+      const s = steps[Number(b.dataset.projaddinv)]; if(!s) return;
+      const br = splitBranchNames(rec.branch||"")[0] || "";
+      closeModal();
+      openForm(expenseModule(), null, false, { project: rec.projectName, projectStep: s.name, category: "رسوم حكومية", department: "الإدارة", branch: br,
+                                                amount: s.fee ? String(s.fee) : "", notes: s.name });
+    };
+  });
+  const ex = document.getElementById("btnProjExport");
+  if(ex) ex.onclick = ()=> exportProjectExcel(rec);
+}
+async function exportProjectExcel(rec){
+  showToast(t('exportPreparing'));
+  const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  const cb = projectCostBreakdown(rec);
+  const pm = MODULES.find(x=>x.key==="projects");
+  const pf = (k)=> { const f = pm.fields.find(x=>x.key===k); return f ? FL(f) : k; };
+  const wb = new ExcelJS.Workbook();
+  const done = steps.filter(s=>s.status==="تم").length;
+  const hs = [t('projColItem'), t('projColValue')];
+  const sumRows = [
+    [pf("projectName"), rec.projectName], [pf("type"), optLabel(rec.type||"")], [pf("branch"), rec.branch||""], [pf("owner"), rec.owner||""],
+    [pf("startDate"), rec.startDate||""], [pf("targetOpenDate"), rec.targetOpenDate||""], [pf("actualOpenDate"), rec.actualOpenDate||""], [pf("status"), optLabel(rec.status||"")],
+    [t('projOvProgress'), steps.length ? Math.round(done/steps.length*100)+"%" : ""], [t('projOvBudget'), cb.budget||0], [t('projOvPlanned'), cb.planned], [t('projOvActual'), cb.actual],
+    [t('projOvRemaining'), cb.budget ? round2(cb.budget-cb.actual) : ""], [t('projColInv'), cb.invoices.length],
+  ].map(r=> ({[hs[0]]: r[0], [hs[1]]: r[1]}));
+  addStyledSheet(wb, t('projSheetSummary'), hs, sumRows, {});
+  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes')];
+  const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:glDisplay(p.step.name), [h2[2]]:glDisplay(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
+    [h2[4]]:round2(p.step.fee), [h2[5]]:p.actual, [h2[6]]:p.invoices.length, [h2[7]]:p.step.refNo||"", [h2[8]]:p.step.startDate||"", [h2[9]]:p.step.doneDate||"", [h2[10]]:p.step.notes||"" }));
+  addStyledSheet(wb, t('projSheetSteps'), h2, rows2, {});
+  const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus'), t('expXlAttach')];
+  const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:e.vendor||"", [h3[4]]:glDisplay(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
+    [h3[6]]:round2(e.amount), [h3[7]]:round2(e.vat), [h3[8]]:round2(e.total), [h3[9]]:optLabel(e.paymentStatus||""), [h3[10]]:optLabel(e.reviewStatus||"جديدة"),
+    [h3[11]]:(Array.isArray(e.photos)?e.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n") }));
+  addStyledSheet(wb, t('projSheetInvoices'), h3, rows3, {});
+  await downloadWorkbook(wb, `GroupForka_Project_${String(rec.projectName||"project").replace(/[\\/:*?"<>|]+/g,"_")}_${todayStr()}.xlsx`);
+  showToast(t('exportedAll'));
+}
 function buildLinkedRecordsHtml(m, rec, viewMode){
   if(!viewMode || !rec) return "";
+  if(m.key==="projects") return buildProjectOverviewHtml(rec);
   if(m.key==="fleet") return buildFleetLinkedHtml(rec);
   if(m.key==="assets") return buildAssetTcoHtml(rec);
   return "";
@@ -5709,7 +6147,7 @@ function getNextRecordNumber(m){
   }
   return candidate;
 }
-function openForm(m, existing, viewMode){
+function openForm(m, existing, viewMode, prefill){
   formViewOnly = !!viewMode;
   const isEdit = !!existing;
   const rec = existing ? {...existing} : {};
@@ -5731,6 +6169,9 @@ function openForm(m, existing, viewMode){
     });
   }
 
+  if(prefill && !isEdit) Object.assign(rec, prefill);
+  if(!isEdit && m.key==="projects") rec.status = rec.status || "قيد التنفيذ";
+  formSteps = (m.key==="projects" && Array.isArray(rec.steps)) ? rec.steps.map(s=>({...s})) : [];
   formPhotos = (rec.photos && Array.isArray(rec.photos)) ? [...rec.photos] : [];
   const photo2FieldDef = m.fields.find(f=>f.type==="photo2");
   formPhotos2 = (photo2FieldDef && Array.isArray(rec[photo2FieldDef.key])) ? [...rec[photo2FieldDef.key]] : [];
@@ -5741,6 +6182,7 @@ function openForm(m, existing, viewMode){
     if(f.type==="photo") return `<div id="photoWidget" class="photo-widget"></div><input type="file" id="photoFileInput" accept="image/*,application/pdf,video/*" multiple style="display:none">`;
     if(f.type==="photo2") return `<div id="photoWidget2" class="photo-widget"></div><input type="file" id="photoFileInput2" accept="image/*,application/pdf" multiple style="display:none">`;
     if(f.type==="quotes") return `<div id="quotesWidget" class="quotes-widget"></div>`;
+    if(f.type==="projectSteps") return `<div id="projectStepsWidget" class="steps-widget"></div>`;
     if(f.type==="allocations") return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(JSON.stringify(parseAllocations(val)))}"><div id="allocWidget" class="alloc-widget"></div>`;
     if(f.type==="branchMultiSelect"){
       return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(val)}"><div id="branchMultiWidget_${f.key}" class="branch-multi-widget"></div>`;
@@ -5779,7 +6221,7 @@ function openForm(m, existing, viewMode){
     (condGroupsMap[gkey] = condGroupsMap[gkey] || []).push(f);
   });
 
-  const fieldsHtml = m.fields.filter(f=>!f.showIf && !f.formHidden).map(f=>{
+  const fieldsHtml = m.fields.filter(f=>!f.showIf && !f.formHidden && !(formViewOnly && f.type==="projectSteps")).map(f=>{
     const val = rec[f.key]!==undefined ? rec[f.key] : "";
     const input = renderFieldInput(f, val);
     return `<div class="field ${f.full?'full':''}"><label>${FL(f)}${(f.required && !formViewOnly)?' *':''}</label>${input}</div>`;
@@ -5813,8 +6255,9 @@ function openForm(m, existing, viewMode){
       <div class="modal">
         <h2>${formViewOnly? t('viewTitle') : (isEdit? t('editTitle') : t('addTitle'))}${ML(m,"singular")}</h2>
         <div class="modal-sub">${ML(m,"name")}${formViewOnly? "" : t('fieldsRequiredNote')}</div>
+        ${m.key==="projects" ? linkedRecordsHtml : ""}
         <div class="form-grid">${fieldsHtml}</div>
-        ${linkedRecordsHtml}
+        ${m.key==="projects" ? "" : linkedRecordsHtml}
         ${commentsHtml}
         <div class="modal-actions">
           ${formViewOnly ? `
@@ -5859,6 +6302,7 @@ function openForm(m, existing, viewMode){
     recalcInstallment();
   }
   if(m.key==="expenses") wireExpenseForm(isEdit);
+  if(m.key==="projects"){ wireProjectForm(isEdit); if(formViewOnly) bindProjectOverview(rec); }
 
   const condBlocks = document.querySelectorAll("[data-condtrigger]");
   if(condBlocks.length){
@@ -5940,6 +6384,10 @@ function openForm(m, existing, viewMode){
       return p;
     });
     if(m.fields.some(f=>f.type==="quotes")) newRec.quotes = formQuotes;
+    if(m.key==="projects"){
+      newRec.steps = formSteps.filter(s=> (s.name||"").trim()).map(s=>({...s, name: s.name.trim()}));
+      Object.assign(newRec, projectComputed(newRec));
+    }
     const statusVal = newRec[m.statusField];
     m.fields.forEach(f=>{
       if(!f.required) return;
@@ -6080,7 +6528,10 @@ function openForm(m, existing, viewMode){
     }
     closeModal();
     showToast(isEdit? t('savedEdits'):t('savedNew'));
-    if(m.key==="expenses" && state.view==="expenseReport") renderExpenseReportPage(); else renderModule(m.key);
+    if(m.key==="expenses") refreshProjectsComputed();
+    if(m.key==="expenses" && state.view==="expenseReport") renderExpenseReportPage();
+    else if(m.key==="expenses" && state.view==="projects") renderModule("projects");
+    else renderModule(m.key);
     renderNav();
   };
 }
@@ -6128,8 +6579,19 @@ function checkForLikelyDuplicate(m, newRec){
   return null;
 }
 
+/* stage suggestions follow the project typed in the invoice form: only that project's stages are offered */
+function updateExpenseStepSuggestions(){
+  const dl = document.getElementById("dl_expenseSteps"), pEl = document.querySelector('[data-field="project"]');
+  if(!dl) return;
+  const key = pEl ? projectKey(pEl.value) : "";
+  const proj = key ? loadData("projects").find(p=> projectKey(p.projectName)===key) : null;
+  const names = proj ? (proj.steps||[]).map(s=>s.name) : loadData("projects").flatMap(p=>(p.steps||[]).map(s=>s.name));
+  dl.innerHTML = [...new Set(names.map(x=>(x||"").trim()).filter(Boolean))].map(v=>`<option value="${escapeAttr(v)}">`).join("");
+}
 function wireExpenseForm(isEdit){
   const q = k=> document.querySelector(`[data-field="${k}"]`);
+  const projEl = q("project");
+  if(projEl){ projEl.addEventListener("input", updateExpenseStepSuggestions); projEl.addEventListener("change", updateExpenseStepSuggestions); updateExpenseStepSuggestions(); }
   const amountEl = q("amount"), vatEl = q("vat"), totalEl = q("total"), modeEl = q("splitMode"), dateEl = q("date"), monthEl = q("accountingMonth");
   const recompute = ()=>{ if(totalEl && amountEl) totalEl.value = String(round2((Number(amountEl.value)||0) + (Number(vatEl&&vatEl.value)||0))); };
   [amountEl, vatEl].forEach(el=>{ if(el) el.addEventListener("input", ()=>{ recompute(); renderAllocWidget(); }); });
@@ -6212,6 +6674,83 @@ function renderBranchMultiWidget(fieldKey, currentValue){
       if(fieldKey==="branch" && document.getElementById("allocWidget")) renderAllocWidget();
     };
   });
+}
+let formSteps = [];   /* temp array of project stages while a project form is open */
+function newProjectStep(o){
+  return Object.assign({ id: uid(), name:"", authority:"", status:"لم يبدأ", fee:"", paid:"", refNo:"", startDate:"", doneDate:"", notes:"" }, o||{});
+}
+function projectTemplateSteps(type){ return (PROJECT_TEMPLATES[type]||[]).map(s=> newProjectStep({ name:s.name, authority:s.authority||"" })); }
+function projectStepsUntouched(){
+  return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate);
+}
+function wireProjectForm(isEdit){
+  renderProjectStepsWidget();
+  const typeSel = document.querySelector('[data-field="type"]');
+  if(typeSel && !formViewOnly){
+    typeSel.addEventListener("change", ()=>{
+      // a new type loads its stages — but never replaces stages the user has already started working on
+      if(PROJECT_TEMPLATES[typeSel.value] && PROJECT_TEMPLATES[typeSel.value].length && projectStepsUntouched()){
+        formSteps = projectTemplateSteps(typeSel.value); renderProjectStepsWidget();
+      }
+    });
+  }
+}
+function renderProjectStepsWidget(){
+  const w = document.getElementById("projectStepsWidget");
+  if(!w) return;
+  const typeSel = document.querySelector('[data-field="type"]');
+  const mini = (txt)=> `<span style="font-size:10.5px; color:var(--muted); margin-inline-end:3px;">${txt}</span>`;
+  const inpStyle = "padding:7px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;";
+  w.innerHTML = (formSteps.length ? formSteps.map((s,i)=>`
+    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fff;">
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+        <b style="min-width:24px; text-align:center;">${i+1}</b>
+        <input type="text" data-sf="name" data-si="${i}" value="${escapeAttr(s.name)}" placeholder="${t('stepName')}" style="flex:2; min-width:170px; ${inpStyle}">
+        <input type="text" data-sf="authority" data-si="${i}" value="${escapeAttr(s.authority)}" placeholder="${t('stepAuthority')}" style="flex:1.3; min-width:130px; ${inpStyle}">
+        <select data-sf="status" data-si="${i}" style="${inpStyle}">${PROJECT_STEP_STATUSES.map(o=>`<option value="${o}" ${s.status===o?'selected':''}>${escapeHtml(optLabel(o))}</option>`).join("")}</select>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="number" step="0.01" min="0" data-sf="fee" data-si="${i}" value="${escapeAttr(s.fee)}" placeholder="${t('stepFee')}" title="${t('stepFee')}" style="width:130px; ${inpStyle}">
+        <input type="number" step="0.01" min="0" data-sf="paid" data-si="${i}" value="${escapeAttr(s.paid)}" placeholder="${t('stepPaid')}" title="${t('stepPaid')}" style="width:130px; ${inpStyle}">
+        <input type="text" data-sf="refNo" data-si="${i}" value="${escapeAttr(s.refNo)}" placeholder="${t('stepRef')}" style="width:130px; ${inpStyle}">
+        <label style="display:flex; align-items:center;">${mini(t('stepStarted'))}<input type="date" data-sf="startDate" data-si="${i}" value="${escapeAttr(s.startDate)}" style="${inpStyle}"></label>
+        <label style="display:flex; align-items:center;">${mini(t('stepDone'))}<input type="date" data-sf="doneDate" data-si="${i}" value="${escapeAttr(s.doneDate)}" style="${inpStyle}"></label>
+        <input type="text" data-sf="notes" data-si="${i}" value="${escapeAttr(s.notes)}" placeholder="${t('stepNotes')}" style="flex:1; min-width:140px; ${inpStyle}">
+        <button type="button" class="btn btn-sm btn-outline" data-sup="${i}" title="↑">↑</button>
+        <button type="button" class="btn btn-sm btn-outline" data-sdown="${i}" title="↓">↓</button>
+        <button type="button" class="btn btn-sm btn-danger" data-sdel="${i}">✕</button>
+      </div>
+    </div>`).join("") : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:8px;">${t('stepsEmpty')}</div>`)
+    + `<div style="display:flex; gap:8px; flex-wrap:wrap;">
+         <button type="button" class="btn btn-outline btn-sm" id="stepAddBtn">${t('stepAdd')}</button>
+         <button type="button" class="btn btn-outline btn-sm" id="stepTemplateBtn">${t('stepLoadTemplate')}</button>
+       </div>
+       <div style="font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.7;">${t('stepsHint')}</div>`;
+  w.querySelectorAll("[data-sf]").forEach(el=>{
+    const upd = ()=>{
+      const i = Number(el.dataset.si), f = el.dataset.sf, s = formSteps[i];
+      s[f] = el.value;
+      if(f==="status"){
+        if(el.value==="تم" && !s.doneDate) s.doneDate = todayStr();
+        if(el.value==="قيد التنفيذ" && !s.startDate) s.startDate = todayStr();
+        renderProjectStepsWidget();                     // show the dates just filled in
+      }
+    };
+    el.addEventListener(el.tagName==="SELECT" ? "change" : "input", upd);
+  });
+  w.querySelectorAll("[data-sdel]").forEach(b=>{ b.onclick = ()=>{ formSteps.splice(Number(b.dataset.sdel),1); renderProjectStepsWidget(); }; });
+  w.querySelectorAll("[data-sup]").forEach(b=>{ b.onclick = ()=>{ const i = Number(b.dataset.sup); if(i>0){ [formSteps[i-1], formSteps[i]] = [formSteps[i], formSteps[i-1]]; renderProjectStepsWidget(); } }; });
+  w.querySelectorAll("[data-sdown]").forEach(b=>{ b.onclick = ()=>{ const i = Number(b.dataset.sdown); if(i<formSteps.length-1){ [formSteps[i+1], formSteps[i]] = [formSteps[i], formSteps[i+1]]; renderProjectStepsWidget(); } }; });
+  document.getElementById("stepAddBtn").onclick = ()=>{ formSteps.push(newProjectStep()); renderProjectStepsWidget(); };
+  document.getElementById("stepTemplateBtn").onclick = ()=>{
+    const type = typeSel ? typeSel.value : "";
+    const tpl = projectTemplateSteps(type);
+    if(!tpl.length){ alert(t('stepNoTemplate')); return; }
+    const have = new Set(formSteps.map(s=> projectKey(s.name)));
+    const missing = tpl.filter(s=> !have.has(projectKey(s.name)));
+    if(!missing.length){ alert(t('stepTemplateAllThere')); return; }
+    formSteps = [...formSteps, ...missing]; renderProjectStepsWidget();     // adds only the stages that are not already in the list
+  };
 }
 function renderQuotesWidget(){
   const w = document.getElementById("quotesWidget");
@@ -9253,22 +9792,24 @@ async function exportExpenseReportExcel(st){
   // 2) one row per invoice x branch (the sheet an accountant pivots for the P&L)
   const h2 = [t('expXlMonth'), efl('date'), efl('expNo'), efl('invoiceNo'), efl('vendor'), efl('department'), efl('category'), efl('employee'), efl('project'),
               t('expXlBranch'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('paymentMethod'), efl('reviewStatus'), efl('bimoRef')];
+  h2.push(efl('projectStep'));
   const rows2 = lines.map(l=>{ const r = l.rec, a = l.alloc; return {
     [h2[0]]: expenseMonth(r), [h2[1]]: r.date||"", [h2[2]]: r.expNo||"", [h2[3]]: r.invoiceNo||"", [h2[4]]: r.vendor||"", [h2[5]]: optLabel(r.department||""), [h2[6]]: optLabel(r.category||""),
     [h2[7]]: r.employee||"", [h2[8]]: r.project||"", [h2[9]]: a.branch, [h2[10]]: a.net, [h2[11]]: a.vat, [h2[12]]: a.total,
-    [h2[13]]: optLabel(r.paymentStatus||""), [h2[14]]: optLabel(r.paymentMethod||""), [h2[15]]: optLabel(r.reviewStatus||"جديدة"), [h2[16]]: r.bimoRef||"" }; });
+    [h2[13]]: optLabel(r.paymentStatus||""), [h2[14]]: optLabel(r.paymentMethod||""), [h2[15]]: optLabel(r.reviewStatus||"جديدة"), [h2[16]]: r.bimoRef||"", [h2[17]]: r.projectStep||"" }; });
   addStyledSheet(wb, t('expSheetLines'), h2, rows2, {});
 
   // 3) invoices with attachment links
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('department'), efl('category'), efl('employee'), efl('project'), t('expXlMonth'),
               t('expColSplit'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('paymentMethod'), efl('paidDate'), efl('reviewStatus'), efl('bimoRef'),
               efl('accountantNotes'), efl('notes'), efl('submittedBy'), t('expXlAttach')];
+  h3.push(efl('projectStep'));
   const rows3 = invoices.map(r=>({
     [h3[0]]: r.expNo||"", [h3[1]]: r.date||"", [h3[2]]: r.invoiceNo||"", [h3[3]]: r.vendor||"", [h3[4]]: optLabel(r.department||""), [h3[5]]: optLabel(r.category||""),
     [h3[6]]: r.employee||"", [h3[7]]: r.project||"", [h3[8]]: expenseMonth(r), [h3[9]]: expenseAllocationText(expenseAllocs(r)),
     [h3[10]]: round2(r.amount), [h3[11]]: round2(r.vat), [h3[12]]: round2(r.total), [h3[13]]: optLabel(r.paymentStatus||""), [h3[14]]: optLabel(r.paymentMethod||""), [h3[15]]: r.paidDate||"",
     [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: r.accountantNotes||"", [h3[19]]: r.notes||"", [h3[20]]: r.submittedBy||"",
-    [h3[21]]: (Array.isArray(r.photos)?r.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n") }));
+    [h3[21]]: (Array.isArray(r.photos)?r.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n"), [h3[22]]: r.projectStep||"" }));
   addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, {});
 
   await downloadWorkbook(wb, `GroupForka_Expenses_${st.month||"all"}_${todayStr()}.xlsx`);
