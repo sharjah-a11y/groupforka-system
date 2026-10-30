@@ -4306,7 +4306,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -6050,7 +6050,7 @@ async function exportProjectExcel(rec){
   const stillLocal = await uploadPendingAttachments(["projects","expenses"]);
   rec = loadData("projects").find(x=>x.id===rec.id) || rec;     // pick up the links that were just created
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
-  await prefetchExcelThumbs([...steps.flatMap(s=> [...(s.invoiceFiles||[]), ...(s.docFiles||[])]), ...collectAttachments(projectInvoices(rec), ["photos","docFiles"])]);
+  await prefetchExcelThumbs([...steps.flatMap(s=> [...(s.invoiceFiles||[]), ...(s.docFiles||[])]), ...collectAttachments(projectInvoices(rec), ["photos"]), ...projectInvoices(rec).flatMap(e=> invoiceDocs(e))]);
   const cb = projectCostBreakdown(rec);
   const owners = Array.isArray(rec.owners) ? rec.owners : [];
   const texts = [rec.projectName, rec.branch, rec.owner, rec.notes];
@@ -6087,7 +6087,7 @@ async function exportProjectExcel(rec){
     [h3[6]]:round2(e.amount), [h3[7]]:round2(e.vat), [h3[8]]:round2(e.total), [h3[9]]:optLabel(e.paymentStatus||""), [h3[10]]:optLabel(e.reviewStatus||"جديدة") }));
   addStyledSheet(wb, t('projSheetInvoices'), h3, rows3, { rawRecords: cb.invoices, attachmentCols: [
     { label: t('projColInvFile'), files: (e)=> e.photos || [] },
-    { label: t('projColDocFile'), files: (e)=> e.docFiles || [] } ] });
+    { label: t('projColDocFile'), files: (e)=> invoiceDocs(e) } ] });
   await downloadWorkbook(wb, `GroupForka_Project_${String(rec.projectName||"project").replace(/[\\/:*?"<>|]+/g,"_")}_${todayStr()}.xlsx`);
   showToast(t('exportedAll'));
   warnLocalOnlyAttachments(stillLocal);
@@ -7071,6 +7071,48 @@ function syncProjectStepInvoices(project){
   });
   if(touched.length){ saveData("expenses", arr); touched.forEach(e=> cloudPushRecord("expenses", e)); }
   return touched.length;
+}
+/* Documents of an invoice: the ones saved on the invoice, otherwise the documents of the project stage the invoice belongs to
+   (invoices created before the document box existed carry none of their own). */
+function invoiceDocs(e){
+  if(Array.isArray(e.docFiles) && e.docFiles.length) return e.docFiles;
+  const projs = loadData("projects");
+  let step = null;
+  if(String(e.id||"").startsWith("pinv-")){
+    const sid = e.id.slice(5);
+    for(const p of projs){ step = (p.steps||[]).find(s=> s.id===sid); if(step) break; }
+  }
+  if(!step && projectKey(e.project) && projectKey(e.projectStep)){
+    const p = projs.find(x=> projectKey(x.projectName)===projectKey(e.project));
+    if(p) step = (p.steps||[]).find(s=> projectKey(s.name)===projectKey(e.projectStep));
+  }
+  return step ? (Array.isArray(step.docFiles) ? step.docFiles : []) : [];
+}
+/* one-time: stage invoices created earlier get their stage's documents written onto the record (so every report shows them) */
+const STAGE_DOCS_BACKFILL_FLAG = "forka_stage_docs_backfill_v1";
+function runStageDocsBackfill(){
+  if(localStorage.getItem(STAGE_DOCS_BACKFILL_FLAG)) return 0;
+  const arr = loadDataRaw("expenses"); const now = Date.now(); let n = 0;
+  arr.forEach(e=>{
+    if(e._deleted || !String(e.id||"").startsWith("pinv-")) return;
+    if(Array.isArray(e.docFiles) && e.docFiles.length) return;
+    const docs = invoiceDocs(e).map(cleanAttachment);
+    if(!docs.length) return;
+    e.docFiles = docs; e._updatedAt = now; cloudPushRecord("expenses", e); n++;
+  });
+  if(n) saveData("expenses", arr);
+  localStorage.setItem(STAGE_DOCS_BACKFILL_FLAG, "1");
+  return n;
+}
+function scheduleStageDocsBackfill(){
+  if(localStorage.getItem(STAGE_DOCS_BACKFILL_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    if(!(cloudReadyForJobs() && (!cloudEnabled || (cloudFirstSyncReceived.projects && cloudFirstSyncReceived.expenses))) && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(()=>{ try{ runStageDocsBackfill(); }catch(err){ console.error("Stage documents backfill failed:", err); } }, 7500);
+  }, 800);
 }
 function finalizeProjectAfterSave(rec){
   const n = syncProjectStepInvoices(rec);
@@ -10215,7 +10257,7 @@ function openExpenseDetailsModal(id, mode, onChanged){
       : `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="margin:4px;">${isPdfAttachment(p)?"📄":"🎬"} ${escapeHtml(p.name||"file")}</a>`;
   }).join("") : `<span style="color:var(--muted); font-size:12.5px;">${t('expNoAttachments')}</span>`;
   const attach = `<div style="margin-bottom:8px;"><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColInvFile')}</div>${attachList(rec.photos)}</div>
-    <div><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColDocFile')}</div>${attachList(rec.docFiles)}</div>`;
+    <div><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColDocFile')}</div>${attachList(invoiceDocs(rec))}</div>`;
   root.innerHTML = `<div class="modal-overlay" id="expDetailsOverlay"><div class="modal" style="max-width:720px;">
     <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${autoTr(rec.vendor||"")}</h2>
     <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#f6f7fa; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
@@ -10278,7 +10320,7 @@ async function exportExpenseReportExcel(st){
   showToast(t('exportPreparing'));
   const stillLocal = await uploadPendingAttachments(["expenses"]);
   const invoices = expenseFilteredInvoices(st);
-  await prefetchExcelThumbs(collectAttachments(invoices, ["photos","docFiles"]));
+  await prefetchExcelThumbs([...collectAttachments(invoices, ["photos"]), ...invoices.flatMap(e=> invoiceDocs(e))]);
   const lines = expenseLines(invoices, st);
   const pv = expensePivot(lines, st);
   const texts = [...pv.branches];
@@ -10321,7 +10363,7 @@ async function exportExpenseReportExcel(st){
     [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: tr(r.accountantNotes), [h3[19]]: tr(r.notes), [h3[20]]: tr(r.submittedBy), [h3[21]]: tr(r.projectStep) }));
   addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, { rawRecords: invoices, attachmentCols: [
     { label: t('projColInvFile'), files: (r)=> r.photos || [] },
-    { label: t('projColDocFile'), files: (r)=> r.docFiles || [] } ] });
+    { label: t('projColDocFile'), files: (r)=> invoiceDocs(r) } ] });
 
   await downloadWorkbook(wb, `GroupForka_Expenses_${st.month||"all"}_${todayStr()}.xlsx`);
   showToast(t('exportedAll'));
@@ -11239,7 +11281,7 @@ if(location.hash === "#public"){
   renderAccountantPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
