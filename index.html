@@ -700,6 +700,7 @@ const STR = {
     ownerAdd:"➕ إضافة مالك آخر", ownersTitle:"الملاك", projSheetOwners:"الملاك", ownersShareWarn:(s)=>`مجموع نسب الملاك ${s}% وليس 100%. تحفظ برضو؟`,
     exportUploading:(i,n)=>`⬆️ جاري رفع مرفقات محفوظة على الجهاز عشان تفتح من الإكسل (${i}/${n})...`,
     exportLocalLeft:(n)=>`⚠️ ${n} مرفق محفوظ على الجهاز بس ومعندوش رابط سحابي، فمش هيفتح من الإكسل (بيظهر مكتوب «محفوظ على الجهاز فقط»).\n\nالسبب غالبًا: النت مقطوع أو خدمة الرفع مش شغالة. افتح البرنامج تاني مع النت وجرّب التصدير.`,
+    expUpDoc:"المستند (اختياري) — موافقة أو شهادة أو إيصال",
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1099,6 +1100,7 @@ const STR = {
     ownerAdd:"➕ Add another owner", ownersTitle:"Owners", projSheetOwners:"Owners", ownersShareWarn:(s)=>`The owners' shares add up to ${s}%, not 100%. Save anyway?`,
     exportUploading:(i,n)=>`⬆️ Uploading attachments saved only on this device so they open from Excel (${i}/${n})...`,
     exportLocalLeft:(n)=>`⚠️ ${n} attachment(s) are saved only on this device and have no cloud link, so they will not open from Excel (they show as "Stored on the device only").\n\nUsually the internet is off or the upload service is not working. Open the program again with internet and re-export.`,
+    expUpDoc:"Document (optional) — approval, certificate or receipt",
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -2165,7 +2167,8 @@ const MODULES = [
     {key:"accountantNotes", label:"ملاحظات المحاسب", labelEn:"Accountant Notes", type:"textarea", full:true},
     {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
     {key:"submittedBy", label:"مقدّم الفاتورة", labelEn:"Submitted By", type:"text"},
-    {key:"photos", label:"صورة/ملف الفاتورة والمرفقات", labelEn:"Invoice file & attachments", type:"photo"},
+    {key:"photos", label:"🧾 الفاتورة (صورة / ملف)", labelEn:"🧾 Invoice (photo / file)", type:"photo", full:true},
+    {key:"docFiles", label:"📄 المستند (موافقة / شهادة / إيصال)", labelEn:"📄 Document (approval / certificate / receipt)", type:"photo2", full:true},
   ],
   listColumns:["date","vendor","invoiceNo","category","branch","total","paymentStatus","reviewStatus"],
 }
@@ -4694,6 +4697,7 @@ function renderAssetViewPage(){
 }
 /* ---------------- INVOICE UPLOAD PAGE (#expense) — for HR / admin staff, no login, no admin sidebar ---------------- */
 let expenseUploadPhotos = [];
+let expenseUploadDocs = [];
 let expenseUploadBusy = false;
 function expenseUploadCaptureDraft(){
   const draft = {};
@@ -4710,6 +4714,17 @@ function renderExpenseUploadPhotos(){
   }).join("") + `<div class="photo-add-btn" id="expUpAddBtn">+</div>`;
   document.getElementById("expUpAddBtn").onclick = ()=> document.getElementById("expUpFile").click();
   w.querySelectorAll("[data-exprm]").forEach(b=>{ b.onclick = ()=>{ expenseUploadPhotos.splice(Number(b.dataset.exprm),1); renderExpenseUploadPhotos(); }; });
+}
+function renderExpenseUploadDocs(){
+  const w = document.getElementById("expUpDocs");
+  if(!w) return;
+  w.innerHTML = expenseUploadDocs.map((p,i)=>{
+    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+    const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:30px;">📄</div>` : `<img src="${p.dataUrl||p.storageUrl||''}" alt="">`;
+    return `<div class="photo-thumb">${body}${badgeHtml}<button class="rm" data-expdocrm="${i}" type="button">✕</button></div>`;
+  }).join("") + `<div class="photo-add-btn" id="expUpDocAddBtn">+</div>`;
+  document.getElementById("expUpDocAddBtn").onclick = ()=> document.getElementById("expUpDocFile").click();
+  w.querySelectorAll("[data-expdocrm]").forEach(b=>{ b.onclick = ()=>{ expenseUploadDocs.splice(Number(b.dataset.expdocrm),1); renderExpenseUploadDocs(); }; });
 }
 function renderExpenseUploadPage(draft){
   draft = draft || {};
@@ -4733,6 +4748,7 @@ function renderExpenseUploadPage(draft){
         <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(t('expUpSubmitter'), txt("submittedBy"), true)}
           ${fld(t('expUpAttach'), `<div id="expUpPhotos" class="photo-widget"></div><input type="file" id="expUpFile" accept="image/*,application/pdf" multiple style="display:none">`, true)}
+          ${fld(t('expUpDoc'), `<div id="expUpDocs" class="photo-widget"></div><input type="file" id="expUpDocFile" accept="image/*,application/pdf" multiple style="display:none">`, false)}
         </div>
         <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(efl('date'), `<input type="date" data-field="date" value="${escapeAttr(draft.date||todayStr())}" style="${box}">`, true)}
@@ -4774,6 +4790,7 @@ function renderExpenseUploadPage(draft){
     updateExpenseStepSuggestions();
   }, 1300);
   renderExpenseUploadPhotos();
+  renderExpenseUploadDocs();
 
   document.getElementById("expUpVat5").onclick = ()=>{
     const a = document.querySelector('[data-field="amount"]'), v = document.querySelector('[data-field="vat"]');
@@ -4798,6 +4815,25 @@ function renderExpenseUploadPage(draft){
     });
     e.target.value = "";
   };
+  document.getElementById("expUpDocFile").onchange = (e)=>{
+    const files = Array.from(e.target.files||[]);
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const original = reader.result;
+        const willUpload = hasAnyUploadServiceConfigured();
+        const entry = { name:file.name, dataUrl:original, uploading: willUpload, _tempId: uid() };
+        expenseUploadDocs.push(entry);
+        renderExpenseUploadDocs();
+        if(file.type.startsWith("image/")){
+          resizeImageDataUrl(original, 220).then(small=>{ const f = expenseUploadDocs.find(p=>p._tempId===entry._tempId); if(f){ f.dataUrl = small; renderExpenseUploadDocs(); } });
+        }
+        if(willUpload) startAttachmentUpload(entry, file, expenseUploadDocs, renderExpenseUploadDocs);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
   document.getElementById("expUpSubmit").onclick = submitExpenseUpload;
 }
 function submitExpenseUpload(){
@@ -4814,7 +4850,7 @@ function submitExpenseUpload(){
   if(!(Number(g("amount")) > 0)) missing.push(efl('amount'));
   if(missing.length){ msg.textContent = t('expUpMissing') + "\n• " + missing.join("\n• "); return; }
   if(!expenseUploadPhotos.length){ msg.textContent = t('expUpNeedFile'); return; }
-  if(expenseUploadPhotos.some(p=>p.uploading)){ msg.textContent = t('driverWaitUpload'); return; }
+  if(expenseUploadPhotos.some(p=>p.uploading) || expenseUploadDocs.some(p=>p.uploading)){ msg.textContent = t('driverWaitUpload'); return; }
 
   const m = expenseModule();
   const rec = {
@@ -4836,7 +4872,9 @@ function submitExpenseUpload(){
   if(dup && !confirm(dup)) return;
   const allocs = computeExpenseAllocations(rec);
   rec.allocations = allocs; rec.allocationText = expenseAllocationText(allocs);
-  rec.photos = expenseUploadPhotos.map(p=> p.storageUrl ? (({dataUrl, ...rest})=>({...rest, dataUrl:null}))(p) : p);
+  const keepFile = (p)=> p.storageUrl ? (({dataUrl, ...rest})=>({...rest, dataUrl:null}))(p) : p;
+  rec.photos = expenseUploadPhotos.map(keepFile);
+  rec.docFiles = expenseUploadDocs.map(keepFile);
   expenseUploadBusy = true;
   const btn = document.getElementById("expUpSubmit"); btn.disabled = true; btn.style.opacity = "0.6";
   rec.expNo = getNextRecordNumber(m);
@@ -4847,6 +4885,7 @@ function submitExpenseUpload(){
   cloudPushRecord("expenses", rec);
   fireWebhook("expense_submitted", { expNo: rec.expNo, vendor: rec.vendor, category: rec.category, branch: rec.branch, total: rec.total, submittedBy: rec.submittedBy, date: rec.date });
   expenseUploadPhotos = [];
+  expenseUploadDocs = [];
   expenseUploadBusy = false;
   renderExpenseThankYouPage(rec.expNo);
 }
@@ -6011,7 +6050,7 @@ async function exportProjectExcel(rec){
   const stillLocal = await uploadPendingAttachments(["projects","expenses"]);
   rec = loadData("projects").find(x=>x.id===rec.id) || rec;     // pick up the links that were just created
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
-  await prefetchExcelThumbs([...steps.flatMap(s=> [...(s.invoiceFiles||[]), ...(s.docFiles||[])]), ...collectAttachments(projectInvoices(rec), ["photos"])]);
+  await prefetchExcelThumbs([...steps.flatMap(s=> [...(s.invoiceFiles||[]), ...(s.docFiles||[])]), ...collectAttachments(projectInvoices(rec), ["photos","docFiles"])]);
   const cb = projectCostBreakdown(rec);
   const owners = Array.isArray(rec.owners) ? rec.owners : [];
   const texts = [rec.projectName, rec.branch, rec.owner, rec.notes];
@@ -6046,7 +6085,9 @@ async function exportProjectExcel(rec){
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus')];
   const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:tr(e.vendor||""), [h3[4]]:tr(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
     [h3[6]]:round2(e.amount), [h3[7]]:round2(e.vat), [h3[8]]:round2(e.total), [h3[9]]:optLabel(e.paymentStatus||""), [h3[10]]:optLabel(e.reviewStatus||"جديدة") }));
-  addStyledSheet(wb, t('projSheetInvoices'), h3, rows3, { rawRecords: cb.invoices, attachmentCols: [{ label: t('expXlAttach'), files: (e)=> e.photos || [] }] });
+  addStyledSheet(wb, t('projSheetInvoices'), h3, rows3, { rawRecords: cb.invoices, attachmentCols: [
+    { label: t('projColInvFile'), files: (e)=> e.photos || [] },
+    { label: t('projColDocFile'), files: (e)=> e.docFiles || [] } ] });
   await downloadWorkbook(wb, `GroupForka_Project_${String(rec.projectName||"project").replace(/[\\/:*?"<>|]+/g,"_")}_${todayStr()}.xlsx`);
   showToast(t('exportedAll'));
   warnLocalOnlyAttachments(stillLocal);
@@ -6996,6 +7037,7 @@ function syncProjectStepInvoices(project){
   (project.steps||[]).forEach(s=>{
     const id = "pinv-" + s.id;
     const files = (Array.isArray(s.invoiceFiles) ? s.invoiceFiles : []).filter(Boolean).map(cleanAttachment);
+    const docs = (Array.isArray(s.docFiles) ? s.docFiles : []).filter(Boolean).map(cleanAttachment);
     const paid = round2(stepAmount(s));
     const idx = arr.findIndex(e=> e.id===id);
     const pristine = idx>=0 && (arr[idx].reviewStatus||"جديدة")==="جديدة";
@@ -7005,21 +7047,23 @@ function syncProjectStepInvoices(project){
         const rec = { id, date, invoiceNo:"", vendor: (s.authority||"").trim() || project.projectName, department:"الإدارة", category:"رسوم حكومية", employee:"", branch: br,
           project: project.projectName, projectStep: s.name, accountingMonth: date.slice(0,7), amount:String(paid), vat:"0", total:String(paid), splitMode: EXPENSE_SPLIT_EQUAL,
           paymentStatus:"مدفوعة", paymentMethod:"", reviewStatus:"جديدة", notes: s.name + (s.refNo ? " — " + s.refNo : ""),
-          submittedBy: "مشروع: " + project.projectName, photos: files, autoFromProject:true, _updatedAt: now };
+          submittedBy: "مشروع: " + project.projectName, photos: files, docFiles: docs, autoFromProject:true, _updatedAt: now };
         rec.allocations = computeExpenseAllocations(rec); rec.allocationText = expenseAllocationText(rec.allocations);
         rec.expNo = getNextRecordNumber(m);
         arr.push(rec); saveData("expenses", arr); touched.push(rec);
       } else if(pristine || arr[idx]._deleted){
         const e = arr[idx];
         delete e._deleted; delete e._deletedAt;
-        Object.assign(e, { project: project.projectName, projectStep: s.name, amount:String(paid), vat:"0", total:String(paid), photos: files, date, accountingMonth: date.slice(0,7), _updatedAt: now });
+        Object.assign(e, { project: project.projectName, projectStep: s.name, amount:String(paid), vat:"0", total:String(paid), photos: files, docFiles: docs, date, accountingMonth: date.slice(0,7), _updatedAt: now });
         e.allocations = computeExpenseAllocations(e); e.allocationText = expenseAllocationText(e.allocations);
         touched.push(e);
       } else {
         const e = arr[idx];
         const have = new Set((e.photos||[]).map(p=> p.storageUrl || p.name));
         const extra = files.filter(p=> !have.has(p.storageUrl || p.name));
-        if(extra.length){ e.photos = [...(e.photos||[]), ...extra]; e._updatedAt = now; touched.push(e); }
+        const haveDocs = new Set((e.docFiles||[]).map(p=> p.storageUrl || p.name));
+        const extraDocs = docs.filter(p=> !haveDocs.has(p.storageUrl || p.name));
+        if(extra.length || extraDocs.length){ e.photos = [...(e.photos||[]), ...extra]; e.docFiles = [...(e.docFiles||[]), ...extraDocs]; e._updatedAt = now; touched.push(e); }
       }
     } else if(idx>=0 && !arr[idx]._deleted && pristine){
       arr[idx]._deleted = true; arr[idx]._deletedAt = now; arr[idx]._updatedAt = now; touched.push(arr[idx]);
@@ -8182,7 +8226,7 @@ async function exportModuleExcel(m, selectedBranches){
   showToast(t('exportPreparing'));
   const relKeys = (m.relatedExports || []).map(r=>r.module);
   const stillLocal = await uploadPendingAttachments([m.key, ...relKeys]);
-  await prefetchExcelThumbs(collectAttachments([...loadData(m.key), ...relKeys.flatMap(k=> loadData(k))], ["photos","techReport"]));
+  await prefetchExcelThumbs(collectAttachments([...loadData(m.key), ...relKeys.flatMap(k=> loadData(k))], ["photos","techReport","docFiles"]));
   const workbook = new ExcelJS.Workbook();
   let filtered = getFilteredData(m);
   if(selectedBranches && selectedBranches.length && m.branchField){
@@ -10164,13 +10208,14 @@ function openExpenseDetailsModal(id, mode, onChanged){
   };
   const keys = ["expNo","date","invoiceNo","vendor","department","category","employee","project","accountingMonth","amount","vat","total","paymentStatus","paymentMethod","paidDate","submittedBy","notes"];
   const allocs = expenseAllocs(rec);
-  const photos = Array.isArray(rec.photos) ? rec.photos : [];
-  const attach = photos.length ? photos.map(p=>{
+  const attachList = (arr)=> (Array.isArray(arr) && arr.length) ? arr.map(p=>{
     const href = p.storageUrl || p.dataUrl || "#";
     const isImg = !isPdfAttachment(p) && !isVideoAttachment(p);
     return isImg ? `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" style="display:inline-block; margin:4px;"><img src="${escapeAttr(p.dataUrl||p.storageUrl||'')}" style="width:96px; height:96px; object-fit:cover; border-radius:8px; border:1px solid var(--line);" alt=""></a>`
       : `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="margin:4px;">${isPdfAttachment(p)?"📄":"🎬"} ${escapeHtml(p.name||"file")}</a>`;
   }).join("") : `<span style="color:var(--muted); font-size:12.5px;">${t('expNoAttachments')}</span>`;
+  const attach = `<div style="margin-bottom:8px;"><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColInvFile')}</div>${attachList(rec.photos)}</div>
+    <div><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColDocFile')}</div>${attachList(rec.docFiles)}</div>`;
   root.innerHTML = `<div class="modal-overlay" id="expDetailsOverlay"><div class="modal" style="max-width:720px;">
     <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${autoTr(rec.vendor||"")}</h2>
     <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#f6f7fa; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
@@ -10233,7 +10278,7 @@ async function exportExpenseReportExcel(st){
   showToast(t('exportPreparing'));
   const stillLocal = await uploadPendingAttachments(["expenses"]);
   const invoices = expenseFilteredInvoices(st);
-  await prefetchExcelThumbs(collectAttachments(invoices, ["photos"]));
+  await prefetchExcelThumbs(collectAttachments(invoices, ["photos","docFiles"]));
   const lines = expenseLines(invoices, st);
   const pv = expensePivot(lines, st);
   const texts = [...pv.branches];
@@ -10274,7 +10319,9 @@ async function exportExpenseReportExcel(st){
     [h3[6]]: tr(r.employee), [h3[7]]: tr(r.project), [h3[8]]: expenseMonth(r), [h3[9]]: allocText(expenseAllocs(r)),
     [h3[10]]: round2(r.amount), [h3[11]]: round2(r.vat), [h3[12]]: round2(r.total), [h3[13]]: optLabel(r.paymentStatus||""), [h3[14]]: optLabel(r.paymentMethod||""), [h3[15]]: r.paidDate||"",
     [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: tr(r.accountantNotes), [h3[19]]: tr(r.notes), [h3[20]]: tr(r.submittedBy), [h3[21]]: tr(r.projectStep) }));
-  addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, { rawRecords: invoices, attachmentCols: [{ label: t('expXlAttach'), files: (r)=> r.photos || [] }] });
+  addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, { rawRecords: invoices, attachmentCols: [
+    { label: t('projColInvFile'), files: (r)=> r.photos || [] },
+    { label: t('projColDocFile'), files: (r)=> r.docFiles || [] } ] });
 
   await downloadWorkbook(wb, `GroupForka_Expenses_${st.month||"all"}_${todayStr()}.xlsx`);
   showToast(t('exportedAll'));
