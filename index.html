@@ -692,9 +692,11 @@ const STR = {
     projColStep:"الخطوة", projColAuthority:"الجهة", projColStatus:"الحالة", projColFee:"المتوقع", projColActual:"الفعلي", projColInv:"فواتير", projColRef:"رقم المعاملة", projColDone:"تاريخ الإنجاز",
     projAddInvoice:"🧾 فاتورة", projUnassigned:"فواتير مربوطة بالمشروع بدون تحديد خطوة", projNoSteps:"لسه مفيش خطوات لهذا المشروع. اضغط «تعديل» واختار نوع المشروع وهتتحمل خطوات الترخيص.",
     projExport:"📥 تصدير تقرير المشروع (Excel)", projColItem:"البند", projColValue:"القيمة", projSheetSummary:"ملخص المشروع", projSheetSteps:"خطوات المشروع", projSheetInvoices:"فواتير المشروع",
+    stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ اكتب «المدفوع فعليًا» لهذه الخطوة عشان الفاتورة توصل للمحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
+    projColInvFile:"الفاتورة", projColDocFile:"المستند", projInvoicesSent:(n)=>`🧾 ${n} فاتورة وصلت للمحاسب`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم المتوقعة", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
-    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. الرسوم الفعلية بتتحسب من الفواتير اللي تربطها بالمشروع والخطوة (وإلا من خانة «المدفوع فعليًا»).",
+    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. الرسوم الفعلية بتتحسب من الفواتير اللي تربطها بالمشروع والخطوة (وإلا من خانة «المدفوع فعليًا»). ولما ترفع فاتورة تحت الخطوة وتكتب المدفوع فعليًا، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع.",
     stepNoTemplate:"اختار نوع المشروع الأول (له قالب خطوات جاهز).", stepTemplateAllThere:"كل خطوات القالب موجودة عندك بالفعل.",
     expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
     expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
@@ -1083,9 +1085,11 @@ const STR = {
     projColStep:"Step", projColAuthority:"Authority", projColStatus:"Status", projColFee:"Planned", projColActual:"Actual", projColInv:"Invoices", projColRef:"Transaction no.", projColDone:"Completed on",
     projAddInvoice:"🧾 Invoice", projUnassigned:"Invoices linked to the project without a step", projNoSteps:"This project has no steps yet. Click Edit and choose the project type to load the licence steps.",
     projExport:"📥 Export project report (Excel)", projColItem:"Item", projColValue:"Value", projSheetSummary:"Project Summary", projSheetSteps:"Project Steps", projSheetInvoices:"Project Invoices",
+    stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the \"Actually paid\" amount for this step so the invoice reaches the accountant.", stepNeedPaidShort:"⚠️ No amount",
+    projColInvFile:"Invoice", projColDocFile:"Document", projInvoicesSent:(n)=>`🧾 ${n} invoice(s) sent to the accountant`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Expected fee", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
-    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Actual spend is calculated from the invoices linked to the project and step (otherwise from the \"Actually paid\" box).",
+    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Actual spend is calculated from the invoices linked to the project and step (otherwise from the \"Actually paid\" box). When you upload an invoice under a step and enter the amount actually paid, it reaches the accountant automatically as an invoice on the project's branch.",
     stepNoTemplate:"Pick the project type first (it has a ready steps template).", stepTemplateAllThere:"All the template steps are already in your list.",
     expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
     expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
@@ -5826,6 +5830,15 @@ function bindCommentsHandlers(m, existingRec){
     }
   };
 }
+function stepFilesHtml(files){
+  const arr = Array.isArray(files) ? files : [];
+  if(!arr.length) return "—";
+  return arr.map(p=>{
+    const href = p.storageUrl || p.dataUrl || "#";
+    const body = isPdfAttachment(p) ? `<span style="font-size:22px;">📄</span>` : `<img src="${escapeAttr(p.dataUrl||p.storageUrl||'')}" alt="" style="width:34px; height:34px; object-fit:cover; border-radius:5px; border:1px solid var(--line); vertical-align:middle;">`;
+    return `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" title="${escapeAttr(p.name||"")}" style="display:inline-block; margin:2px;">${body}</a>`;
+  }).join("");
+}
 function buildProjectOverviewHtml(rec){
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
   const cb = projectCostBreakdown(rec);
@@ -5853,13 +5866,14 @@ function buildProjectOverviewHtml(rec){
   if(!steps.length){
     html += `<div style="font-size:12.5px; color:var(--muted);">${t('projNoSteps')}</div>`;
   } else {
-    html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColFee')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
+    html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColFee')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColInvFile')}</th><th>${t('projColDocFile')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
       ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
         <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
         <td>${badge(s.status||"لم يبدأ")}</td><td>${s.fee?fmt2(s.fee):"—"}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
+        <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(Number(s.paid)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
         <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
         <td><button class="btn btn-sm btn-outline" type="button" data-projaddinv="${i}">${t('projAddInvoice')}</button></td></tr>`; }).join("")}
-      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.planned)}</td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td></tr>
+      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.planned)}</td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td><td></td><td></td></tr>
       </tbody></table></div>`;
   }
   if(cb.unassigned.length){
@@ -5900,9 +5914,11 @@ async function exportProjectExcel(rec){
     [t('projOvRemaining'), cb.budget ? round2(cb.budget-cb.actual) : ""], [t('projColInv'), cb.invoices.length],
   ].map(r=> ({[hs[0]]: r[0], [hs[1]]: r[1]}));
   addStyledSheet(wb, t('projSheetSummary'), hs, sumRows, {});
-  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes')];
+  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile')];
+  const links = (arr)=> (Array.isArray(arr)?arr:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n");
   const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:glDisplay(p.step.name), [h2[2]]:glDisplay(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
-    [h2[4]]:round2(p.step.fee), [h2[5]]:p.actual, [h2[6]]:p.invoices.length, [h2[7]]:p.step.refNo||"", [h2[8]]:p.step.startDate||"", [h2[9]]:p.step.doneDate||"", [h2[10]]:p.step.notes||"" }));
+    [h2[4]]:round2(p.step.fee), [h2[5]]:p.actual, [h2[6]]:p.invoices.length, [h2[7]]:p.step.refNo||"", [h2[8]]:p.step.startDate||"", [h2[9]]:p.step.doneDate||"", [h2[10]]:p.step.notes||"",
+    [h2[11]]:links(p.step.invoiceFiles), [h2[12]]:links(p.step.docFiles) }));
   addStyledSheet(wb, t('projSheetSteps'), h2, rows2, {});
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus'), t('expXlAttach')];
   const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:e.vendor||"", [h3[4]]:glDisplay(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
@@ -6385,7 +6401,8 @@ function openForm(m, existing, viewMode, prefill){
     });
     if(m.fields.some(f=>f.type==="quotes")) newRec.quotes = formQuotes;
     if(m.key==="projects"){
-      newRec.steps = formSteps.filter(s=> (s.name||"").trim()).map(s=>({...s, name: s.name.trim()}));
+      newRec.steps = formSteps.filter(s=> (s.name||"").trim()).map(s=>({...s, name: s.name.trim(),
+        invoiceFiles: (s.invoiceFiles||[]).map(cleanAttachment), docFiles: (s.docFiles||[]).map(cleanAttachment)}));
       Object.assign(newRec, projectComputed(newRec));
     }
     const statusVal = newRec[m.statusField];
@@ -6505,6 +6522,7 @@ function openForm(m, existing, viewMode, prefill){
     }
     saveData(m.key, arr);
     cloudPushRecord(m.key, newRec);
+    if(m.key==="projects"){ const sent = finalizeProjectAfterSave(newRec); if(sent) setTimeout(()=> showToast(t('projInvoicesSent', sent)), 2500); }   // after the generic 'saved' toast
     if(m.key==="requests"){
       if(!isEdit && (m.alertValues||[]).includes((newRec.status||"").trim())){
         fireWebhook("critical_item_created", { module:m.key, branch:newRec.branch, issue:newRec.issue, status:newRec.status });
@@ -6677,11 +6695,11 @@ function renderBranchMultiWidget(fieldKey, currentValue){
 }
 let formSteps = [];   /* temp array of project stages while a project form is open */
 function newProjectStep(o){
-  return Object.assign({ id: uid(), name:"", authority:"", status:"لم يبدأ", fee:"", paid:"", refNo:"", startDate:"", doneDate:"", notes:"" }, o||{});
+  return Object.assign({ id: uid(), name:"", authority:"", status:"لم يبدأ", fee:"", paid:"", refNo:"", startDate:"", doneDate:"", notes:"", invoiceFiles:[], docFiles:[] }, o||{});
 }
 function projectTemplateSteps(type){ return (PROJECT_TEMPLATES[type]||[]).map(s=> newProjectStep({ name:s.name, authority:s.authority||"" })); }
 function projectStepsUntouched(){
-  return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate);
+  return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate && !(s.invoiceFiles||[]).length && !(s.docFiles||[]).length);
 }
 function wireProjectForm(isEdit){
   renderProjectStepsWidget();
@@ -6720,6 +6738,14 @@ function renderProjectStepsWidget(){
         <button type="button" class="btn btn-sm btn-outline" data-sdown="${i}" title="↓">↓</button>
         <button type="button" class="btn btn-sm btn-danger" data-sdel="${i}">✕</button>
       </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        ${["invoiceFiles","docFiles"].map(kind=>`<div style="flex:1; min-width:210px; border:1.5px dashed var(--line); border-radius:10px; padding:8px 10px; background:#fafbfd;">
+          <div style="font-size:12px; font-weight:800; margin-bottom:6px;">${kind==="invoiceFiles" ? t('stepInvoiceFiles') : t('stepDocFiles')}</div>
+          <div class="photo-widget" data-stepfiles="${i}:${kind}"></div>
+          <input type="file" data-stepfile="${i}:${kind}" accept="image/*,application/pdf" multiple style="display:none">
+        </div>`).join("")}
+      </div>
+      <div data-stephint="${i}" style="font-size:11.5px; color:#c0392b; margin-top:6px;"></div>
     </div>`).join("") : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:8px;">${t('stepsEmpty')}</div>`)
     + `<div style="display:flex; gap:8px; flex-wrap:wrap;">
          <button type="button" class="btn btn-outline btn-sm" id="stepAddBtn">${t('stepAdd')}</button>
@@ -6730,6 +6756,7 @@ function renderProjectStepsWidget(){
     const upd = ()=>{
       const i = Number(el.dataset.si), f = el.dataset.sf, s = formSteps[i];
       s[f] = el.value;
+      if(f==="paid") renderStepFiles();                  // the "enter the paid amount" hint follows the amount
       if(f==="status"){
         if(el.value==="تم" && !s.doneDate) s.doneDate = todayStr();
         if(el.value==="قيد التنفيذ" && !s.startDate) s.startDate = todayStr();
@@ -6741,6 +6768,10 @@ function renderProjectStepsWidget(){
   w.querySelectorAll("[data-sdel]").forEach(b=>{ b.onclick = ()=>{ formSteps.splice(Number(b.dataset.sdel),1); renderProjectStepsWidget(); }; });
   w.querySelectorAll("[data-sup]").forEach(b=>{ b.onclick = ()=>{ const i = Number(b.dataset.sup); if(i>0){ [formSteps[i-1], formSteps[i]] = [formSteps[i], formSteps[i-1]]; renderProjectStepsWidget(); } }; });
   w.querySelectorAll("[data-sdown]").forEach(b=>{ b.onclick = ()=>{ const i = Number(b.dataset.sdown); if(i<formSteps.length-1){ [formSteps[i+1], formSteps[i]] = [formSteps[i], formSteps[i+1]]; renderProjectStepsWidget(); } }; });
+  w.querySelectorAll("[data-stepfile]").forEach(inp=>{
+    inp.onchange = (e)=>{ const [i, kind] = inp.dataset.stepfile.split(":"); addStepFiles(Number(i), kind, Array.from(e.target.files||[])); e.target.value = ""; };
+  });
+  renderStepFiles();
   document.getElementById("stepAddBtn").onclick = ()=>{ formSteps.push(newProjectStep()); renderProjectStepsWidget(); };
   document.getElementById("stepTemplateBtn").onclick = ()=>{
     const type = typeSel ? typeSel.value : "";
@@ -6751,6 +6782,106 @@ function renderProjectStepsWidget(){
     if(!missing.length){ alert(t('stepTemplateAllThere')); return; }
     formSteps = [...formSteps, ...missing]; renderProjectStepsWidget();     // adds only the stages that are not already in the list
   };
+}
+/* ---- invoice + document files under every stage ---- */
+function stepFilesPending(){
+  return formSteps.reduce((n,s)=> n + [...(s.invoiceFiles||[]), ...(s.docFiles||[])].filter(p=>p.uploading).length, 0);
+}
+function cleanAttachment(p){ return { name: p.name || "", storageUrl: p.storageUrl || "", dataUrl: p.storageUrl ? null : (p.dataUrl || null) }; }
+function addStepFiles(i, kind, files){
+  const s = formSteps[i];
+  if(!s) return;
+  s[kind] = s[kind] || [];
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const original = reader.result;
+      const willUpload = hasAnyUploadServiceConfigured();
+      const entry = { name:file.name, dataUrl:original, uploading: willUpload, _tempId: uid() };
+      s[kind].push(entry);
+      renderStepFiles();
+      if(file.type.startsWith("image/")){
+        resizeImageDataUrl(original, 220).then(small=>{ const f = s[kind].find(p=>p._tempId===entry._tempId); if(f){ f.dataUrl = small; renderStepFiles(); } });
+      }
+      if(willUpload) startAttachmentUpload(entry, file, s[kind], renderStepFiles);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderStepFiles(){
+  document.querySelectorAll("[data-stepfiles]").forEach(box=>{
+    const [i, kind] = box.dataset.stepfiles.split(":");
+    const s = formSteps[Number(i)];
+    const arr = (s && s[kind]) || [];
+    box.innerHTML = arr.map((p,j)=>{
+      const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${p.progress||0}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+      const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:26px;">📄</div>` : `<img src="${escapeAttr(p.dataUrl||p.storageUrl||"")}" alt="">`;
+      return `<div class="photo-thumb">${body}${badgeHtml}<button type="button" class="rm" data-steprm="${i}:${kind}:${j}">✕</button></div>`;
+    }).join("") + `<div class="photo-add-btn" data-stepadd="${i}:${kind}">+</div>`;
+    box.querySelector("[data-stepadd]").onclick = ()=>{ const inp = document.querySelector(`[data-stepfile="${i}:${kind}"]`); if(inp) inp.click(); };
+    box.querySelectorAll("[data-steprm]").forEach(b=>{
+      b.onclick = ()=>{ const [ii, kk, jj] = b.dataset.steprm.split(":"); formSteps[Number(ii)][kk].splice(Number(jj), 1); renderStepFiles(); };
+    });
+  });
+  document.querySelectorAll("[data-stephint]").forEach(h=>{
+    const s = formSteps[Number(h.dataset.stephint)];
+    h.textContent = (s && (s.invoiceFiles||[]).length && !(Number(s.paid) > 0)) ? t('stepNeedPaid') : "";
+  });
+  updateSaveButtonAvailability();
+}
+/* An invoice file attached to a stage (with its paid amount) becomes a real invoice for the accountant — on the project's branch,
+   linked to the project and stage — so it is entered ONCE. Re-saving the project keeps it in step (amount, files) while it is still
+   "جديدة"; once the accountant has started on it only new files are added; removing the file/amount withdraws it (recycle bin). */
+function syncProjectStepInvoices(project){
+  const m = expenseModule();
+  const arr = loadDataRaw("expenses");
+  const now = Date.now(); const touched = [];
+  const brRaw = String(project.branch||"").trim();
+  const br = splitBranchNames(brRaw)[0] || brRaw;
+  (project.steps||[]).forEach(s=>{
+    const id = "pinv-" + s.id;
+    const files = (Array.isArray(s.invoiceFiles) ? s.invoiceFiles : []).filter(Boolean).map(cleanAttachment);
+    const paid = round2(s.paid);
+    const idx = arr.findIndex(e=> e.id===id);
+    const pristine = idx>=0 && (arr[idx].reviewStatus||"جديدة")==="جديدة";
+    if(files.length && paid>0){
+      const date = s.doneDate || (idx>=0 && arr[idx].date) || todayStr();
+      if(idx < 0){
+        const rec = { id, date, invoiceNo:"", vendor: (s.authority||"").trim() || project.projectName, department:"الإدارة", category:"رسوم حكومية", employee:"", branch: br,
+          project: project.projectName, projectStep: s.name, accountingMonth: date.slice(0,7), amount:String(paid), vat:"0", total:String(paid), splitMode: EXPENSE_SPLIT_EQUAL,
+          paymentStatus:"مدفوعة", paymentMethod:"", reviewStatus:"جديدة", notes: s.name + (s.refNo ? " — " + s.refNo : ""),
+          submittedBy: "مشروع: " + project.projectName, photos: files, autoFromProject:true, _updatedAt: now };
+        rec.allocations = computeExpenseAllocations(rec); rec.allocationText = expenseAllocationText(rec.allocations);
+        rec.expNo = getNextRecordNumber(m);
+        arr.push(rec); saveData("expenses", arr); touched.push(rec);
+      } else if(pristine || arr[idx]._deleted){
+        const e = arr[idx];
+        delete e._deleted; delete e._deletedAt;
+        Object.assign(e, { project: project.projectName, projectStep: s.name, amount:String(paid), vat:"0", total:String(paid), photos: files, date, accountingMonth: date.slice(0,7), _updatedAt: now });
+        e.allocations = computeExpenseAllocations(e); e.allocationText = expenseAllocationText(e.allocations);
+        touched.push(e);
+      } else {
+        const e = arr[idx];
+        const have = new Set((e.photos||[]).map(p=> p.storageUrl || p.name));
+        const extra = files.filter(p=> !have.has(p.storageUrl || p.name));
+        if(extra.length){ e.photos = [...(e.photos||[]), ...extra]; e._updatedAt = now; touched.push(e); }
+      }
+    } else if(idx>=0 && !arr[idx]._deleted && pristine){
+      arr[idx]._deleted = true; arr[idx]._deletedAt = now; arr[idx]._updatedAt = now; touched.push(arr[idx]);
+    }
+  });
+  if(touched.length){ saveData("expenses", arr); touched.forEach(e=> cloudPushRecord("expenses", e)); }
+  return touched.length;
+}
+function finalizeProjectAfterSave(rec){
+  const n = syncProjectStepInvoices(rec);
+  const cp = projectComputed(rec);
+  if(["progress","currentStep","plannedCost","actualCost"].some(k=> String(rec[k]===undefined?"":rec[k]) !== String(cp[k]))){
+    Object.assign(rec, cp);
+    saveData("projects", loadDataRaw("projects").map(x=> x.id===rec.id ? rec : x));
+    cloudPushRecord("projects", rec);
+  }
+  return n;
 }
 function renderQuotesWidget(){
   const w = document.getElementById("quotesWidget");
@@ -7215,7 +7346,7 @@ function startAttachmentUpload(entry, file, targetArr, renderFn){
 function updateSaveButtonAvailability(){
   const btn = document.getElementById("btnSave");
   if(!btn) return;
-  const pending = formPhotos.filter(p=>p.uploading).length;
+  const pending = formPhotos.filter(p=>p.uploading).length + stepFilesPending();
   if(pending>0){
     btn.disabled = true;
     btn.dataset.origText = btn.dataset.origText || btn.textContent;
