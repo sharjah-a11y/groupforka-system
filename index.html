@@ -688,17 +688,17 @@ const STR = {
     mayarBranchAdded:(b)=>`➕ فرع «${b}» ماكانش في قايمة الفروع واتضاف ليها (إضافة بس، من غير ما أمس أي فرع تاني).`,
     importedBranchFixDone:(may,fuj,added)=>`🏷️ تصحيح فرع المعدات المستوردة${may?`\n• معدات ميار: ${may} معدة كان فرعها غير مسجّل، وبقت تحت فرع ميار كوفي شوب`:""}${fuj?`\n• معدات الفجيرة: ${fuj} معدة اتظبط فرعها على فرع الفجيرة المسجّل`:""}${added?`\n• اتضاف فرع «${added}» لقايمة الفروع (إضافة بس)`:""}\n• مفيش حاجة تانية اتغيرت.`,
     projOvProgress:"نسبة الإنجاز", projOvStepsOf:(d,n)=>`${d} من ${n} خطوات`, projOvCurrent:"الخطوة الحالية", projOvDaysLeft:(d)=>`باقي ${d} يوم على الافتتاح المستهدف`, projOvDaysLate:(d)=>`متأخر ${d} يوم عن الافتتاح المستهدف`,
-    projOvBudget:"الميزانية", projOvPlanned:"الرسوم المتوقعة", projOvActual:"المصروف الفعلي", projOvRemaining:"المتبقي من الميزانية",
-    projColStep:"الخطوة", projColAuthority:"الجهة", projColStatus:"الحالة", projColFee:"المتوقع", projColActual:"الفعلي", projColInv:"فواتير", projColRef:"رقم المعاملة", projColDone:"تاريخ الإنجاز",
+    projOvBudget:"الميزانية", projOvPlanned:"الرسوم المتوقعة", projOvActual:"إجمالي الرسوم", projOvRemaining:"المتبقي من الميزانية",
+    projColStep:"الخطوة", projColAuthority:"الجهة", projColStatus:"الحالة", projColFee:"المتوقع", projColActual:"الرسوم", projColInv:"فواتير", projColRef:"رقم المعاملة", projColDone:"تاريخ الإنجاز",
     projAddInvoice:"🧾 فاتورة", projUnassigned:"فواتير مربوطة بالمشروع بدون تحديد خطوة", projNoSteps:"لسه مفيش خطوات لهذا المشروع. اضغط «تعديل» واختار نوع المشروع وهتتحمل خطوات الترخيص.",
     projExport:"📥 تصدير تقرير المشروع (Excel)", projColItem:"البند", projColValue:"القيمة", projSheetSummary:"ملخص المشروع", projSheetSteps:"خطوات المشروع", projSheetInvoices:"فواتير المشروع",
-    stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ اكتب «المدفوع فعليًا» لهذه الخطوة عشان الفاتورة توصل للمحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
+    stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ اكتب «الرسوم» لهذه الخطوة عشان الفاتورة توصل للمحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
     projColInvFile:"الفاتورة", projColDocFile:"المستند", projInvoicesSent:(n)=>`🧾 ${n} فاتورة وصلت للمحاسب`,
     stepContractStart:"بداية العقد", stepContractEnd:"نهاية العقد", projContractTerm:(a,b)=>`العقد: من ${a} إلى ${b}`,
     projStageUpgradeDone:(list)=>`➕ اتضافت لمشاريعك الجارية الخطوات الجديدة (عقد مكافحة الحشرات، عقد الكاميرات، حصر الأملاك، حصر الرخص)، كل واحدة في مكانها بين الموافقات:\n${list}\n\nمفيش حاجة تانية في المشاريع اتغيّرت. ولو خطوة مش محتاجها احذفها من «تعديل».`,
-    stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم المتوقعة", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
+    stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
-    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. الرسوم الفعلية بتتحسب من الفواتير اللي تربطها بالمشروع والخطوة (وإلا من خانة «المدفوع فعليًا»). ولما ترفع فاتورة تحت الخطوة وتكتب المدفوع فعليًا، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع.",
+    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
     stepNoTemplate:"اختار نوع المشروع الأول (له قالب خطوات جاهز).", stepTemplateAllThere:"كل خطوات القالب موجودة عندك بالفعل.",
     expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
     expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
@@ -1083,17 +1083,17 @@ const STR = {
     mayarBranchAdded:(b)=>`➕ The branch "${b}" was missing from the branch list and was added to it (add-only; no other branch was touched).`,
     importedBranchFixDone:(may,fuj,added)=>`🏷️ Imported equipment branch fix${may?`\n• Mayar equipment: ${may} items had an unregistered branch and are now under the Mayar Coffee Shop branch`:""}${fuj?`\n• Fujairah equipment: ${fuj} items were put under the registered Fujairah branch`:""}${added?`\n• The branch "${added}" was added to the branch list (add-only)`:""}\n• Nothing else was changed.`,
     projOvProgress:"Progress", projOvStepsOf:(d,n)=>`${d} of ${n} steps`, projOvCurrent:"Current step", projOvDaysLeft:(d)=>`${d} days left to the target opening`, projOvDaysLate:(d)=>`${d} days past the target opening`,
-    projOvBudget:"Budget", projOvPlanned:"Planned fees", projOvActual:"Actual spend", projOvRemaining:"Budget remaining",
-    projColStep:"Step", projColAuthority:"Authority", projColStatus:"Status", projColFee:"Planned", projColActual:"Actual", projColInv:"Invoices", projColRef:"Transaction no.", projColDone:"Completed on",
+    projOvBudget:"Budget", projOvPlanned:"Planned fees", projOvActual:"Total fees", projOvRemaining:"Budget remaining",
+    projColStep:"Step", projColAuthority:"Authority", projColStatus:"Status", projColFee:"Planned", projColActual:"Fees", projColInv:"Invoices", projColRef:"Transaction no.", projColDone:"Completed on",
     projAddInvoice:"🧾 Invoice", projUnassigned:"Invoices linked to the project without a step", projNoSteps:"This project has no steps yet. Click Edit and choose the project type to load the licence steps.",
     projExport:"📥 Export project report (Excel)", projColItem:"Item", projColValue:"Value", projSheetSummary:"Project Summary", projSheetSteps:"Project Steps", projSheetInvoices:"Project Invoices",
-    stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the \"Actually paid\" amount for this step so the invoice reaches the accountant.", stepNeedPaidShort:"⚠️ No amount",
+    stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the Fees amount for this step so the invoice reaches the accountant.", stepNeedPaidShort:"⚠️ No amount",
     projColInvFile:"Invoice", projColDocFile:"Document", projInvoicesSent:(n)=>`🧾 ${n} invoice(s) sent to the accountant`,
     stepContractStart:"Contract start", stepContractEnd:"Contract end", projContractTerm:(a,b)=>`Contract: ${a} to ${b}`,
     projStageUpgradeDone:(list)=>`➕ The new steps (pest-control contract, cameras contract, property inventory, licenses inventory) were added to your running projects, each in its place among the approvals:\n${list}\n\nNothing else in the projects was changed. Delete any step you do not need from Edit.`,
-    stepName:"Step name", stepAuthority:"Authority", stepFee:"Expected fee", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
+    stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
-    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Actual spend is calculated from the invoices linked to the project and step (otherwise from the \"Actually paid\" box). When you upload an invoice under a step and enter the amount actually paid, it reaches the accountant automatically as an invoice on the project's branch.",
+    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
     stepNoTemplate:"Pick the project type first (it has a ready steps template).", stepTemplateAllThere:"All the template steps are already in your list.",
     expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
     expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
@@ -1371,6 +1371,10 @@ const EXPENSE_SPLIT_EQUAL = "بالتساوي";
 const EXPENSE_SPLIT_CUSTOM = "مبلغ محدد لكل فرع";
 const round2 = (n)=> Math.round((Number(n)||0)*100)/100;
 /* ---------------- Projects: linking invoices and computing progress / cost ---------------- */
+/* A stage has ONE amount box: "الرسوم". Stages saved earlier with the two old boxes (expected fee / actually paid) are read as:
+   the paid amount when it was filled, otherwise the fee. */
+function stepAmount(s){ const paid = Number(s && s.paid) || 0; return paid > 0 ? paid : (Number(s && s.fee) || 0); }
+function normalizeStepAmount(s){ const a = stepAmount(s); s.fee = a ? String(a) : ""; s.paid = ""; return s; }
 function projectKey(s){ return normalizeSearchText(String(s||"")).replace(/\s+/g," ").trim(); }
 function projectInvoices(rec){
   const k = projectKey(rec.projectName);
@@ -1386,14 +1390,13 @@ function projectCostBreakdown(rec){
     const sk = projectKey(s.name);
     const inv = sk ? invoices.filter(e=> projectKey(e.projectStep)===sk) : [];
     const invoiceTotal = round2(inv.reduce((a,e)=> a + (Number(e.total)||0), 0));
-    return { step:s, invoices:inv, invoiceTotal, actual: inv.length ? invoiceTotal : round2(s.paid) };
+    return { step:s, invoices:inv, invoiceTotal, actual: inv.length ? invoiceTotal : round2(stepAmount(s)) };
   });
   const used = new Set(); perStep.forEach(p=> p.invoices.forEach(e=> used.add(e.id)));
   const unassigned = invoices.filter(e=> !used.has(e.id));
   const unassignedTotal = round2(unassigned.reduce((a,e)=> a + (Number(e.total)||0), 0));
   return {
     invoices, perStep, unassigned, unassignedTotal,
-    planned: round2(steps.reduce((a,s)=> a + (Number(s.fee)||0), 0)),
     actual: round2(perStep.reduce((a,p)=> a + p.actual, 0) + unassignedTotal),
     budget: round2(rec.budget),
   };
@@ -1407,7 +1410,6 @@ function projectComputed(rec){
   return {
     progress: steps.length ? Math.round(done/steps.length*100) + "%" : "",
     currentStep: steps.length ? (current ? current.name : PROJECT_ALL_DONE_TEXT) : "",
-    plannedCost: hasCost ? String(cost.planned) : "",
     actualCost: hasCost ? String(cost.actual) : "",
   };
 }
@@ -1418,7 +1420,7 @@ function refreshProjectsComputed(){
   arr.forEach(r=>{
     if(r._deleted) return;
     const cp = projectComputed(r);
-    if(["progress","currentStep","plannedCost","actualCost"].some(k=> String(r[k]===undefined?"":r[k]) !== String(cp[k]))){
+    if(["progress","currentStep","actualCost"].some(k=> String(r[k]===undefined?"":r[k]) !== String(cp[k]))){
       Object.assign(r, cp); r._updatedAt = Date.now(); cloudPushRecord("projects", r); changed = true;
     }
   });
@@ -2047,8 +2049,7 @@ const MODULES = [
     {key:"steps", label:"مراحل المشروع (من أول خطوة لآخر خطوة)", labelEn:"Project stages (first step to last)", type:"projectSteps", full:true, hideInList:true},
     {key:"progress", label:"نسبة الإنجاز", labelEn:"Progress", type:"text", formHidden:true},
     {key:"currentStep", label:"الخطوة الحالية", labelEn:"Current Step", type:"text", formHidden:true},
-    {key:"plannedCost", label:"الرسوم المتوقعة (د.إ)", labelEn:"Planned Fees (AED)", type:"number", formHidden:true},
-    {key:"actualCost", label:"المصروف الفعلي (د.إ)", labelEn:"Actual Spend (AED)", type:"number", formHidden:true},
+    {key:"actualCost", label:"إجمالي الرسوم (د.إ)", labelEn:"Total Fees (AED)", type:"number", formHidden:true},
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["قيد التنفيذ","جاهز للافتتاح","مكتمل","متأخر","متوقف"]},
     {key:"contractors", label:"المقاولون المشاركون", labelEn:"Contractors Involved", type:"text"},
     {key:"snagCount", label:"عدد ملاحظات Snag List المفتوحة", labelEn:"Open Snag List Items", type:"number"},
@@ -2059,7 +2060,7 @@ const MODULES = [
     {key:"photos", label:"صور ومرفقات المشروع", labelEn:"Project Photos & Attachments", type:"photo", full:true},
     {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
   ],
-  listColumns:["projectName","type","branch","progress","currentStep","plannedCost","actualCost","targetOpenDate","status"],
+  listColumns:["projectName","type","branch","progress","currentStep","actualCost","targetOpenDate","status"],
   dateFieldForReports:"startDate", freqField:"type", branchField:"branch"
 },
 {
@@ -5955,21 +5956,20 @@ function buildProjectOverviewHtml(rec){
     ${steps.length ? `<div style="font-size:13px; margin-bottom:12px;">📍 ${t('projOvCurrent')}: <b>${escapeHtml(cur ? glDisplay(cur.name) : glDisplay(PROJECT_ALL_DONE_TEXT))}</b>${cur && cur.authority ? ` <span style="color:var(--muted);">(${escapeHtml(glDisplay(cur.authority))})</span>` : ""}</div>` : ""}
     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
       ${card(t('projOvBudget'), cb.budget ? fmt2(cb.budget) : "—")}
-      ${card(t('projOvPlanned'), fmt2(cb.planned))}
-      ${card(t('projOvActual'), fmt2(cb.actual), cb.planned && cb.actual>cb.planned ? '#c0392b' : 'var(--navy)')}
+      ${card(t('projOvActual'), fmt2(cb.actual))}
       ${card(t('projOvRemaining'), remaining===null ? "—" : fmt2(remaining), remaining!==null && remaining<0 ? '#c0392b' : '#1f8a4c')}
     </div>`;
   if(!steps.length){
     html += `<div style="font-size:12.5px; color:var(--muted);">${t('projNoSteps')}</div>`;
   } else {
-    html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColFee')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColInvFile')}</th><th>${t('projColDocFile')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
+    html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColInvFile')}</th><th>${t('projColDocFile')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
       ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
         <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${isContractStep(s) && (s.contractStart||s.contractEnd) ? `<div style="font-size:11px; color:var(--navy);">📄 ${t('projContractTerm', s.contractStart||"—", s.contractEnd||"—")}</div>`:""}${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
-        <td>${badge(s.status||"لم يبدأ")}</td><td>${s.fee?fmt2(s.fee):"—"}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
-        <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(Number(s.paid)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
+        <td>${badge(s.status||"لم يبدأ")}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
+        <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(stepAmount(s)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
         <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
         <td><button class="btn btn-sm btn-outline" type="button" data-projaddinv="${i}">${t('projAddInvoice')}</button></td></tr>`; }).join("")}
-      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.planned)}</td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td><td></td><td></td></tr>
       </tbody></table></div>`;
   }
   if(cb.unassigned.length){
@@ -5988,7 +5988,7 @@ function bindProjectOverview(rec){
       const br = splitBranchNames(rec.branch||"")[0] || "";
       closeModal();
       openForm(expenseModule(), null, false, { project: rec.projectName, projectStep: s.name, category: "رسوم حكومية", department: "الإدارة", branch: br,
-                                                amount: s.fee ? String(s.fee) : "", notes: s.name });
+                                                amount: stepAmount(s) ? String(stepAmount(s)) : "", notes: s.name });
     };
   });
   const ex = document.getElementById("btnProjExport");
@@ -6006,15 +6006,15 @@ async function exportProjectExcel(rec){
   const sumRows = [
     [pf("projectName"), rec.projectName], [pf("type"), optLabel(rec.type||"")], [pf("branch"), rec.branch||""], [pf("owner"), rec.owner||""],
     [pf("startDate"), rec.startDate||""], [pf("targetOpenDate"), rec.targetOpenDate||""], [pf("actualOpenDate"), rec.actualOpenDate||""], [pf("status"), optLabel(rec.status||"")],
-    [t('projOvProgress'), steps.length ? Math.round(done/steps.length*100)+"%" : ""], [t('projOvBudget'), cb.budget||0], [t('projOvPlanned'), cb.planned], [t('projOvActual'), cb.actual],
+    [t('projOvProgress'), steps.length ? Math.round(done/steps.length*100)+"%" : ""], [t('projOvBudget'), cb.budget||0], [t('projOvActual'), cb.actual],
     [t('projOvRemaining'), cb.budget ? round2(cb.budget-cb.actual) : ""], [t('projColInv'), cb.invoices.length],
   ].map(r=> ({[hs[0]]: r[0], [hs[1]]: r[1]}));
   addStyledSheet(wb, t('projSheetSummary'), hs, sumRows, {});
-  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile'), t('stepContractStart'), t('stepContractEnd')];
+  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile'), t('stepContractStart'), t('stepContractEnd')];
   const links = (arr)=> (Array.isArray(arr)?arr:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n");
   const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:glDisplay(p.step.name), [h2[2]]:glDisplay(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
-    [h2[4]]:round2(p.step.fee), [h2[5]]:p.actual, [h2[6]]:p.invoices.length, [h2[7]]:p.step.refNo||"", [h2[8]]:p.step.startDate||"", [h2[9]]:p.step.doneDate||"", [h2[10]]:p.step.notes||"",
-    [h2[11]]:links(p.step.invoiceFiles), [h2[12]]:links(p.step.docFiles), [h2[13]]:p.step.contractStart||"", [h2[14]]:p.step.contractEnd||"" }));
+    [h2[4]]:p.actual, [h2[5]]:p.invoices.length, [h2[6]]:p.step.refNo||"", [h2[7]]:p.step.startDate||"", [h2[8]]:p.step.doneDate||"", [h2[9]]:p.step.notes||"",
+    [h2[10]]:links(p.step.invoiceFiles), [h2[11]]:links(p.step.docFiles), [h2[12]]:p.step.contractStart||"", [h2[13]]:p.step.contractEnd||"" }));
   addStyledSheet(wb, t('projSheetSteps'), h2, rows2, {});
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus'), t('expXlAttach')];
   const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:e.vendor||"", [h3[4]]:glDisplay(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
@@ -6283,7 +6283,7 @@ function openForm(m, existing, viewMode, prefill){
 
   if(prefill && !isEdit) Object.assign(rec, prefill);
   if(!isEdit && m.key==="projects") rec.status = rec.status || "قيد التنفيذ";
-  formSteps = (m.key==="projects" && Array.isArray(rec.steps)) ? rec.steps.map(s=>({...s})) : [];
+  formSteps = (m.key==="projects" && Array.isArray(rec.steps)) ? rec.steps.map(s=> normalizeStepAmount({...s})) : [];
   formPhotos = (rec.photos && Array.isArray(rec.photos)) ? [...rec.photos] : [];
   const photo2FieldDef = m.fields.find(f=>f.type==="photo2");
   formPhotos2 = (photo2FieldDef && Array.isArray(rec[photo2FieldDef.key])) ? [...rec[photo2FieldDef.key]] : [];
@@ -6847,7 +6847,6 @@ function renderProjectStepsWidget(){
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <input type="number" step="0.01" min="0" data-sf="fee" data-si="${i}" value="${escapeAttr(s.fee)}" placeholder="${t('stepFee')}" title="${t('stepFee')}" style="width:130px; ${inpStyle}">
-        <input type="number" step="0.01" min="0" data-sf="paid" data-si="${i}" value="${escapeAttr(s.paid)}" placeholder="${t('stepPaid')}" title="${t('stepPaid')}" style="width:130px; ${inpStyle}">
         <input type="text" data-sf="refNo" data-si="${i}" value="${escapeAttr(s.refNo)}" placeholder="${t('stepRef')}" style="width:130px; ${inpStyle}">
         <label style="display:flex; align-items:center;">${mini(t('stepStarted'))}<input type="date" data-sf="startDate" data-si="${i}" value="${escapeAttr(s.startDate)}" style="${inpStyle}"></label>
         <label style="display:flex; align-items:center;">${mini(t('stepDone'))}<input type="date" data-sf="doneDate" data-si="${i}" value="${escapeAttr(s.doneDate)}" style="${inpStyle}"></label>
@@ -6876,7 +6875,7 @@ function renderProjectStepsWidget(){
     const upd = ()=>{
       const i = Number(el.dataset.si), f = el.dataset.sf, s = formSteps[i];
       s[f] = el.value;
-      if(f==="paid") renderStepFiles();                  // the "enter the paid amount" hint follows the amount
+      if(f==="fee") renderStepFiles();                  // the "enter the paid amount" hint follows the amount
       if(f==="status"){
         if(el.value==="تم" && !s.doneDate) s.doneDate = todayStr();
         if(el.value==="قيد التنفيذ" && !s.startDate) s.startDate = todayStr();
@@ -6944,7 +6943,7 @@ function renderStepFiles(){
   });
   document.querySelectorAll("[data-stephint]").forEach(h=>{
     const s = formSteps[Number(h.dataset.stephint)];
-    h.textContent = (s && (s.invoiceFiles||[]).length && !(Number(s.paid) > 0)) ? t('stepNeedPaid') : "";
+    h.textContent = (s && (s.invoiceFiles||[]).length && !(stepAmount(s) > 0)) ? t('stepNeedPaid') : "";
   });
   updateSaveButtonAvailability();
 }
@@ -6960,7 +6959,7 @@ function syncProjectStepInvoices(project){
   (project.steps||[]).forEach(s=>{
     const id = "pinv-" + s.id;
     const files = (Array.isArray(s.invoiceFiles) ? s.invoiceFiles : []).filter(Boolean).map(cleanAttachment);
-    const paid = round2(s.paid);
+    const paid = round2(stepAmount(s));
     const idx = arr.findIndex(e=> e.id===id);
     const pristine = idx>=0 && (arr[idx].reviewStatus||"جديدة")==="جديدة";
     if(files.length && paid>0){
@@ -6995,7 +6994,7 @@ function syncProjectStepInvoices(project){
 function finalizeProjectAfterSave(rec){
   const n = syncProjectStepInvoices(rec);
   const cp = projectComputed(rec);
-  if(["progress","currentStep","plannedCost","actualCost"].some(k=> String(rec[k]===undefined?"":rec[k]) !== String(cp[k]))){
+  if(["progress","currentStep","actualCost"].some(k=> String(rec[k]===undefined?"":rec[k]) !== String(cp[k]))){
     Object.assign(rec, cp);
     saveData("projects", loadDataRaw("projects").map(x=> x.id===rec.id ? rec : x));
     cloudPushRecord("projects", rec);
