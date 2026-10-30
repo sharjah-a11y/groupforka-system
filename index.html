@@ -696,6 +696,8 @@ const STR = {
     projColInvFile:"الفاتورة", projColDocFile:"المستند", projInvoicesSent:(n)=>`🧾 ${n} فاتورة وصلت للمحاسب`,
     stepContractStart:"بداية العقد", stepContractEnd:"نهاية العقد", projContractTerm:(a,b)=>`العقد: من ${a} إلى ${b}`,
     projStageUpgradeDone:(list)=>`➕ اتضافت لمشاريعك الجارية الخطوات الجديدة (عقد مكافحة الحشرات، عقد الكاميرات، حصر الأملاك، حصر الرخص)، كل واحدة في مكانها بين الموافقات:\n${list}\n\nمفيش حاجة تانية في المشاريع اتغيّرت. ولو خطوة مش محتاجها احذفها من «تعديل».`,
+    ownerLabel:"المالك", ownerN:(n)=>`المالك ${n}`, ownerName:"اسم المالك", ownerNationality:"الجنسية", ownerShare:"النسبة %", ownerId:"رقم الهوية / الجواز", ownerPhone:"الهاتف",
+    ownerAdd:"➕ إضافة مالك آخر", ownersTitle:"الملاك", projSheetOwners:"الملاك", ownersShareWarn:(s)=>`مجموع نسب الملاك ${s}% وليس 100%. تحفظ برضو؟`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1091,6 +1093,8 @@ const STR = {
     projColInvFile:"Invoice", projColDocFile:"Document", projInvoicesSent:(n)=>`🧾 ${n} invoice(s) sent to the accountant`,
     stepContractStart:"Contract start", stepContractEnd:"Contract end", projContractTerm:(a,b)=>`Contract: ${a} to ${b}`,
     projStageUpgradeDone:(list)=>`➕ The new steps (pest-control contract, cameras contract, property inventory, licenses inventory) were added to your running projects, each in its place among the approvals:\n${list}\n\nNothing else in the projects was changed. Delete any step you do not need from Edit.`,
+    ownerLabel:"Owner", ownerN:(n)=>`Owner ${n}`, ownerName:"Owner name", ownerNationality:"Nationality", ownerShare:"Share %", ownerId:"ID / Passport no.", ownerPhone:"Phone",
+    ownerAdd:"➕ Add another owner", ownersTitle:"Owners", projSheetOwners:"Owners", ownersShareWarn:(s)=>`The owners' shares add up to ${s}%, not 100%. Save anyway?`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -2041,6 +2045,8 @@ const MODULES = [
     {key:"projectName", label:"اسم المشروع / اسم المطعم", labelEn:"Project / Restaurant Name", type:"text", required:true},
     {key:"type", label:"نوع المشروع", labelEn:"Project Type", type:"select", required:true, options:[...PROJECT_TYPES, ...PROJECT_LEGACY_TYPES]},
     {key:"branch", label:"الفرع / الموقع", labelEn:"Branch / Site", type:"text", master:"branches"},
+    {key:"owners", label:"اسم المالك (وبياناته)", labelEn:"Owner name (and details)", type:"owners", full:true, hideInList:true},
+    {key:"ownerNames", label:"المالك / الملاك", labelEn:"Owner(s)", type:"text", formHidden:true},
     {key:"owner", label:"المسؤول عن المتابعة (المندوب)", labelEn:"Follow-up Owner (PRO)", type:"text"},
     {key:"startDate", label:"تاريخ البدء", labelEn:"Start Date", type:"date"},
     {key:"targetOpenDate", label:"تاريخ الافتتاح المستهدف", labelEn:"Target Opening Date", type:"date"},
@@ -2060,7 +2066,7 @@ const MODULES = [
     {key:"photos", label:"صور ومرفقات المشروع", labelEn:"Project Photos & Attachments", type:"photo", full:true},
     {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
   ],
-  listColumns:["projectName","type","branch","progress","currentStep","actualCost","targetOpenDate","status"],
+  listColumns:["projectName","type","branch","ownerNames","progress","currentStep","actualCost","targetOpenDate","status"],
   dateFieldForReports:"startDate", freqField:"type", branchField:"branch"
 },
 {
@@ -5948,12 +5954,14 @@ function buildProjectOverviewHtml(rec){
   const dayText = daysLeft===null ? "" : (rec.status==="مكتمل" ? "" : (daysLeft>=0 ? t('projOvDaysLeft', daysLeft) : t('projOvDaysLate', -daysLeft)));
   let html = `<div style="border:2px solid var(--navy); border-radius:12px; padding:14px; margin:4px 0 16px; background:#fff;">
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px;">
-      <div style="font-size:16px; font-weight:900; color:var(--navy);">🏗️ ${escapeHtml(rec.projectName||"")}</div>
+      <div style="font-size:16px; font-weight:900; color:var(--navy);">🏗️ ${autoTr(rec.projectName||"")}</div>
       <div style="display:flex; gap:6px; align-items:center;">${badge(rec.type||"")} ${badge(rec.status||"")}</div>
     </div>
     <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; margin-bottom:4px;"><span>${t('projOvProgress')}: ${pct}%${steps.length?` — ${t('projOvStepsOf', done, steps.length)}`:""}</span><span style="color:${daysLeft!==null && daysLeft<0 && rec.status!=="مكتمل" ? '#c0392b' : 'var(--muted)'};">${dayText}</span></div>
     <div style="height:14px; background:#e6eaf2; border-radius:8px; overflow:hidden; margin-bottom:10px;"><div style="width:${pct}%; height:100%; background:linear-gradient(90deg,#1f8a4c,#4cc07f);"></div></div>
-    ${steps.length ? `<div style="font-size:13px; margin-bottom:12px;">📍 ${t('projOvCurrent')}: <b>${escapeHtml(cur ? glDisplay(cur.name) : glDisplay(PROJECT_ALL_DONE_TEXT))}</b>${cur && cur.authority ? ` <span style="color:var(--muted);">(${escapeHtml(glDisplay(cur.authority))})</span>` : ""}</div>` : ""}
+    ${(Array.isArray(rec.owners) && rec.owners.length) ? `<div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('ownersTitle')}</th><th>${t('ownerNationality')}</th><th>${t('ownerShare')}</th><th>${t('ownerId')}</th><th>${t('ownerPhone')}</th></tr></thead><tbody>
+      ${rec.owners.map(o=>`<tr><td><b>${autoTr(o.name)}</b></td><td>${autoTr(o.nationality||"")}</td><td>${o.share!=="" && o.share!==undefined ? escapeHtml(String(o.share))+"%" : "—"}</td><td>${escapeHtml(o.idNo||"—")}</td><td>${escapeHtml(o.phone||"—")}</td></tr>`).join("")}</tbody></table></div>` : ""}
+    ${steps.length ? `<div style="font-size:13px; margin-bottom:12px;">📍 ${t('projOvCurrent')}: <b>${autoTr(cur ? cur.name : PROJECT_ALL_DONE_TEXT)}</b>${cur && cur.authority ? ` <span style="color:var(--muted);">(${autoTr(cur.authority)})</span>` : ""}</div>` : ""}
     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
       ${card(t('projOvBudget'), cb.budget ? fmt2(cb.budget) : "—")}
       ${card(t('projOvActual'), fmt2(cb.actual))}
@@ -5964,7 +5972,7 @@ function buildProjectOverviewHtml(rec){
   } else {
     html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColInvFile')}</th><th>${t('projColDocFile')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
       ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
-        <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${isContractStep(s) && (s.contractStart||s.contractEnd) ? `<div style="font-size:11px; color:var(--navy);">📄 ${t('projContractTerm', s.contractStart||"—", s.contractEnd||"—")}</div>`:""}${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
+        <td>${i+1}</td><td><b>${autoTr(s.name)}</b>${isContractStep(s) && (s.contractStart||s.contractEnd) ? `<div style="font-size:11px; color:var(--navy);">📄 ${t('projContractTerm', s.contractStart||"—", s.contractEnd||"—")}</div>`:""}${s.notes?`<div style="font-size:11px; color:var(--muted);">${autoTr(s.notes)}</div>`:""}</td><td>${autoTr(s.authority||"")}</td>
         <td>${badge(s.status||"لم يبدأ")}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
         <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(stepAmount(s)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
         <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
@@ -5975,7 +5983,7 @@ function buildProjectOverviewHtml(rec){
   if(cb.unassigned.length){
     html += `<div class="section-title" style="margin-top:12px;">${t('projUnassigned')}</div>
       <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColType')}</th><th>${t('expColTotal')}</th></tr></thead><tbody>
-      ${cb.unassigned.map(e=>`<tr><td>${escapeHtml(e.expNo||"")}</td><td>${escapeHtml(e.date||"")}</td><td>${escapeHtml(e.vendor||"")}</td><td>${escapeHtml(optLabel(e.category||""))}</td><td><b>${fmt2(e.total)}</b></td></tr>`).join("")}</tbody></table></div>`;
+      ${cb.unassigned.map(e=>`<tr><td>${escapeHtml(e.expNo||"")}</td><td>${escapeHtml(e.date||"")}</td><td>${autoTr(e.vendor||"")}</td><td>${escapeHtml(optLabel(e.category||""))}</td><td><b>${fmt2(e.total)}</b></td></tr>`).join("")}</tbody></table></div>`;
   }
   html += `<div style="margin-top:12px;"><button class="btn btn-gold btn-sm" type="button" id="btnProjExport">${t('projExport')}</button></div></div>`;
   return html;
@@ -5998,26 +6006,37 @@ async function exportProjectExcel(rec){
   showToast(t('exportPreparing'));
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
   const cb = projectCostBreakdown(rec);
+  const owners = Array.isArray(rec.owners) ? rec.owners : [];
+  const texts = [rec.projectName, rec.branch, rec.owner, rec.notes];
+  steps.forEach(s=> texts.push(s.name, s.authority, s.notes));
+  owners.forEach(o=> texts.push(o.name, o.nationality));
+  cb.invoices.forEach(e=> texts.push(e.vendor, e.projectStep));
+  const tr = await buildExportTranslator(texts);
   const pm = MODULES.find(x=>x.key==="projects");
   const pf = (k)=> { const f = pm.fields.find(x=>x.key===k); return f ? FL(f) : k; };
   const wb = new ExcelJS.Workbook();
   const done = steps.filter(s=>s.status==="تم").length;
   const hs = [t('projColItem'), t('projColValue')];
   const sumRows = [
-    [pf("projectName"), rec.projectName], [pf("type"), optLabel(rec.type||"")], [pf("branch"), rec.branch||""], [pf("owner"), rec.owner||""],
+    [pf("projectName"), tr(rec.projectName)], [pf("type"), optLabel(rec.type||"")], [pf("branch"), tr(rec.branch||"")],
+    [t('ownersTitle'), owners.map(o=> tr(o.name)).filter(Boolean).join(", ")], [pf("owner"), tr(rec.owner||"")],
     [pf("startDate"), rec.startDate||""], [pf("targetOpenDate"), rec.targetOpenDate||""], [pf("actualOpenDate"), rec.actualOpenDate||""], [pf("status"), optLabel(rec.status||"")],
     [t('projOvProgress'), steps.length ? Math.round(done/steps.length*100)+"%" : ""], [t('projOvBudget'), cb.budget||0], [t('projOvActual'), cb.actual],
     [t('projOvRemaining'), cb.budget ? round2(cb.budget-cb.actual) : ""], [t('projColInv'), cb.invoices.length],
   ].map(r=> ({[hs[0]]: r[0], [hs[1]]: r[1]}));
   addStyledSheet(wb, t('projSheetSummary'), hs, sumRows, {});
+  if(owners.length){
+    const ho = [t('ownerName'), t('ownerNationality'), t('ownerShare'), t('ownerId'), t('ownerPhone')];
+    addStyledSheet(wb, t('projSheetOwners'), ho, owners.map(o=>({ [ho[0]]: tr(o.name), [ho[1]]: tr(o.nationality), [ho[2]]: o.share!=="" && o.share!==undefined ? Number(o.share)||0 : "", [ho[3]]: o.idNo||"", [ho[4]]: o.phone||"" })), {});
+  }
   const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile'), t('stepContractStart'), t('stepContractEnd')];
   const links = (arr)=> (Array.isArray(arr)?arr:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n");
-  const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:glDisplay(p.step.name), [h2[2]]:glDisplay(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
-    [h2[4]]:p.actual, [h2[5]]:p.invoices.length, [h2[6]]:p.step.refNo||"", [h2[7]]:p.step.startDate||"", [h2[8]]:p.step.doneDate||"", [h2[9]]:p.step.notes||"",
+  const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:tr(p.step.name), [h2[2]]:tr(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
+    [h2[4]]:p.actual, [h2[5]]:p.invoices.length, [h2[6]]:p.step.refNo||"", [h2[7]]:p.step.startDate||"", [h2[8]]:p.step.doneDate||"", [h2[9]]:tr(p.step.notes||""),
     [h2[10]]:links(p.step.invoiceFiles), [h2[11]]:links(p.step.docFiles), [h2[12]]:p.step.contractStart||"", [h2[13]]:p.step.contractEnd||"" }));
   addStyledSheet(wb, t('projSheetSteps'), h2, rows2, {});
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus'), t('expXlAttach')];
-  const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:e.vendor||"", [h3[4]]:glDisplay(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
+  const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:tr(e.vendor||""), [h3[4]]:tr(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
     [h3[6]]:round2(e.amount), [h3[7]]:round2(e.vat), [h3[8]]:round2(e.total), [h3[9]]:optLabel(e.paymentStatus||""), [h3[10]]:optLabel(e.reviewStatus||"جديدة"),
     [h3[11]]:(Array.isArray(e.photos)?e.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n") }));
   addStyledSheet(wb, t('projSheetInvoices'), h3, rows3, {});
@@ -6283,6 +6302,7 @@ function openForm(m, existing, viewMode, prefill){
 
   if(prefill && !isEdit) Object.assign(rec, prefill);
   if(!isEdit && m.key==="projects") rec.status = rec.status || "قيد التنفيذ";
+  formOwners = (m.key==="projects" && Array.isArray(rec.owners)) ? rec.owners.map(o=>({...o})) : [];
   formSteps = (m.key==="projects" && Array.isArray(rec.steps)) ? rec.steps.map(s=> normalizeStepAmount({...s})) : [];
   formPhotos = (rec.photos && Array.isArray(rec.photos)) ? [...rec.photos] : [];
   const photo2FieldDef = m.fields.find(f=>f.type==="photo2");
@@ -6295,6 +6315,7 @@ function openForm(m, existing, viewMode, prefill){
     if(f.type==="photo2") return `<div id="photoWidget2" class="photo-widget"></div><input type="file" id="photoFileInput2" accept="image/*,application/pdf" multiple style="display:none">`;
     if(f.type==="quotes") return `<div id="quotesWidget" class="quotes-widget"></div>`;
     if(f.type==="projectSteps") return `<div id="projectStepsWidget" class="steps-widget"></div>`;
+    if(f.type==="owners") return `<div id="ownersWidget" class="owners-widget"></div>`;
     if(f.type==="allocations") return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(JSON.stringify(parseAllocations(val)))}"><div id="allocWidget" class="alloc-widget"></div>`;
     if(f.type==="branchMultiSelect"){
       return `<input type="hidden" data-field="${f.key}" value="${escapeAttr(val)}"><div id="branchMultiWidget_${f.key}" class="branch-multi-widget"></div>`;
@@ -6333,7 +6354,7 @@ function openForm(m, existing, viewMode, prefill){
     (condGroupsMap[gkey] = condGroupsMap[gkey] || []).push(f);
   });
 
-  const fieldsHtml = m.fields.filter(f=>!f.showIf && !f.formHidden && !(formViewOnly && f.type==="projectSteps")).map(f=>{
+  const fieldsHtml = m.fields.filter(f=>!f.showIf && !f.formHidden && !(formViewOnly && (f.type==="projectSteps" || f.type==="owners"))).map(f=>{
     const val = rec[f.key]!==undefined ? rec[f.key] : "";
     const input = renderFieldInput(f, val);
     return `<div class="field ${f.full?'full':''}"><label>${FL(f)}${(f.required && !formViewOnly)?' *':''}</label>${input}</div>`;
@@ -6497,6 +6518,13 @@ function openForm(m, existing, viewMode, prefill){
     });
     if(m.fields.some(f=>f.type==="quotes")) newRec.quotes = formQuotes;
     if(m.key==="projects"){
+      newRec.owners = formOwners.filter(o=> (o.name||"").trim()).map(o=>({...o, name:o.name.trim()}));
+      newRec.ownerNames = ownerNamesText(newRec.owners);
+      const withShare = newRec.owners.filter(o=> o.share!=="" && o.share!==undefined);
+      if(newRec.owners.length > 1 && withShare.length){
+        const shareSum = round2(withShare.reduce((s,o)=> s + (Number(o.share)||0), 0));
+        if(Math.abs(shareSum - 100) > 0.01 && !confirm(t('ownersShareWarn', shareSum))) return;
+      }
       newRec.steps = formSteps.filter(s=> (s.name||"").trim()).map(s=>({...s, name: s.name.trim(),
         invoiceFiles: (s.invoiceFiles||[]).map(cleanAttachment), docFiles: (s.docFiles||[]).map(cleanAttachment)}));
       Object.assign(newRec, projectComputed(newRec));
@@ -6820,6 +6848,7 @@ function projectStepsUntouched(){
   return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate && !s.contractStart && !s.contractEnd && !(s.invoiceFiles||[]).length && !(s.docFiles||[]).length);
 }
 function wireProjectForm(isEdit){
+  renderOwnersWidget();
   renderProjectStepsWidget();
   const typeSel = document.querySelector('[data-field="type"]');
   if(typeSel && !formViewOnly){
@@ -7000,6 +7029,30 @@ function finalizeProjectAfterSave(rec){
     cloudPushRecord("projects", rec);
   }
   return n;
+}
+let formOwners = [];   /* temp array of the project owners while a project form is open */
+function newOwner(o){ return Object.assign({ id: uid(), name:"", nationality:"", share:"", idNo:"", phone:"" }, o||{}); }
+function ownerNamesText(list){ return (list||[]).map(o=> (o.name||"").trim()).filter(Boolean).join("، "); }
+function renderOwnersWidget(){
+  const w = document.getElementById("ownersWidget");
+  if(!w) return;
+  if(!formOwners.length) formOwners = [newOwner()];          // the owner's box is always there; more owners are added below it
+  const inp = "padding:7px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;";
+  w.innerHTML = formOwners.map((o,i)=>`
+    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fff;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <b style="min-width:70px; font-size:12.5px;">${i===0 ? t('ownerLabel') : t('ownerN', i+1)}</b>
+        <input type="text" data-of="name" data-oi="${i}" value="${escapeAttr(o.name)}" placeholder="${t('ownerName')}" style="flex:2; min-width:170px; ${inp}">
+        <input type="text" data-of="nationality" data-oi="${i}" value="${escapeAttr(o.nationality)}" placeholder="${t('ownerNationality')}" style="flex:1; min-width:110px; ${inp}">
+        <input type="number" step="0.01" min="0" max="100" data-of="share" data-oi="${i}" value="${escapeAttr(o.share)}" placeholder="${t('ownerShare')}" title="${t('ownerShare')}" style="width:100px; ${inp}">
+        <input type="text" data-of="idNo" data-oi="${i}" value="${escapeAttr(o.idNo)}" placeholder="${t('ownerId')}" style="flex:1; min-width:140px; ${inp}">
+        <input type="text" data-of="phone" data-oi="${i}" value="${escapeAttr(o.phone)}" placeholder="${t('ownerPhone')}" style="width:130px; ${inp}">
+        ${formOwners.length > 1 ? `<button type="button" class="btn btn-sm btn-danger" data-odel="${i}">✕</button>` : ""}
+      </div>
+    </div>`).join("") + `<button type="button" class="btn btn-outline btn-sm" id="ownerAddBtn">${t('ownerAdd')}</button>`;
+  w.querySelectorAll("[data-of]").forEach(el=>{ el.addEventListener("input", ()=>{ formOwners[Number(el.dataset.oi)][el.dataset.of] = el.value; }); });
+  w.querySelectorAll("[data-odel]").forEach(b=>{ b.onclick = ()=>{ formOwners.splice(Number(b.dataset.odel), 1); renderOwnersWidget(); }; });
+  document.getElementById("ownerAddBtn").onclick = ()=>{ formOwners.push(newOwner()); renderOwnersWidget(); const last = w.querySelector(`[data-of="name"][data-oi="${formOwners.length-1}"]`); if(last) last.focus(); };
 }
 function renderQuotesWidget(){
   const w = document.getElementById("quotesWidget");
@@ -7681,14 +7734,18 @@ function excelDateValue(raw, type){
   if(!raw) return null;
   const d = new Date(raw);
   if(isNaN(d.getTime())) return null;
+  const y = d.getFullYear();
+  if(y < 1900 || y > 9999) return null;   // Excel cannot store such a date: a mistyped year (e.g. 0202) turned into a negative number and made the WHOLE file unreadable
   return d;
 }
-
-/**
- * opts:
- *   fields: array of field defs parallel to headers (from module.fields, filtered), or null for plain sheets
- *   rawRecords: original untranslated records, parallel to rows, used for date/number/status coloring
- */
+/* Excel rejects control characters and cells longer than 32,767 characters */
+function xlSafe(v){
+  if(typeof v === "string"){
+    v = v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "");
+    if(v.length > 32000) v = v.slice(0, 32000) + "…";
+  }
+  return v;
+}
 function dataUrlToBase64(dataUrl){ const i = dataUrl.indexOf(","); return i>=0 ? dataUrl.slice(i+1) : dataUrl; }
 function excelImageExtension(dataUrl){
   if(dataUrl.startsWith("data:image/png")) return "png";
@@ -7724,8 +7781,13 @@ function writeAttachmentCell(cell, attachments, zebraFill, isLastRow){
     cell.value = { text: lines[0].text, hyperlink: lines[0].url };
     cell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
   } else if(lines.length > 1){
-    const galleryUrl = GALLERY_BASE_URL + "?urls=" + lines.map(l=>encodeURIComponent(l.url)).join(",");
-    const galleryText = LANG==='ar' ? `🖼️ فتح كل المرفقات (${lines.length})` : `🖼️ Open all attachments (${lines.length})`;
+    // Excel will not open a file that has a hyperlink longer than ~2000 characters: put as many files into the gallery link as fit
+    // and list the remaining ones as plain text in the same cell
+    let used = 0, len = (GALLERY_BASE_URL + "?urls=").length;
+    for(const l of lines){ const add = encodeURIComponent(l.url).length + 1; if(len + add > 1900 && used) break; used++; len += add; }
+    const galleryUrl = GALLERY_BASE_URL + "?urls=" + lines.slice(0, used).map(l=>encodeURIComponent(l.url)).join(",");
+    const rest = lines.slice(used).map(l=>l.url);
+    const galleryText = (LANG==='ar' ? `🖼️ فتح كل المرفقات (${lines.length})` : `🖼️ Open all attachments (${lines.length})`) + (rest.length ? "\n" + rest.join("\n") : "");
     cell.value = { text: galleryText, hyperlink: galleryUrl };
     cell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
   } else if(attachments.length){
@@ -7789,13 +7851,13 @@ function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
       if(f && rawRec && (f.type==="date" || f.type==="datetime-local")){
         const dv = excelDateValue(rawRec[f.key], f.type);
         if(dv){ cell.value = dv; cell.numFmt = f.type==="datetime-local" ? "yyyy-mm-dd hh:mm" : "yyyy-mm-dd"; }
-        else cell.value = "";
+        else cell.value = rawRec[f.key] ? String(rawRec[f.key]) : "";      // not a date Excel can hold -> keep the text as typed
       } else if(f && f.type==="number"){
         const n = rawRec ? Number(rawRec[f.key]) : NaN;
         if(!isNaN(n) && rawRec && rawRec[f.key]!==undefined && rawRec[f.key]!==""){ cell.value = n; cell.numFmt = "#,##0.##"; }
         else cell.value = "";
       } else {
-        cell.value = rowObj[h]!==undefined && rowObj[h]!==null ? rowObj[h] : "";
+        cell.value = rowObj[h]!==undefined && rowObj[h]!==null ? xlSafe(rowObj[h]) : "";
       }
 
       if(f && f.type==="select" && rawRec){
@@ -9903,11 +9965,11 @@ function expenseSummary(invoices, lines, st){
 }
 function expenseControlsHtml(st){
   const branches = loadMasters().branches || [];
-  const sel = (id, label, options, value)=> `<div class="field" style="min-width:150px;"><label style="font-size:12px;">${label}</label><select id="${id}"><option value="">${t('expFltAll')}</option>${options.map(o=>`<option value="${escapeAttr(o.v)}" ${o.v===value?'selected':''}>${escapeHtml(o.l)}</option>`).join("")}</select></div>`;
+  const sel = (id, label, options, value)=> `<div class="field" style="min-width:150px;"><label style="font-size:12px;">${label}</label><select id="${id}"><option value="">${t('expFltAll')}</option>${options.map(o=>`<option value="${escapeAttr(o.v)}" ${o.v===value?'selected':''} ${o.tr?`data-autotranslate="1" data-original="${escapeAttr(o.l)}"`:""}>${escapeHtml(o.l)}</option>`).join("")}</select></div>`;
   return `<div class="card no-print" style="margin-bottom:14px;"><div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
     <div class="field" style="min-width:170px;"><label style="font-size:12px;">${t('expFltMonth')}</label>
       <div style="display:flex; gap:6px;"><input type="month" id="expFltMonth" value="${st.month}" style="flex:1;"><button type="button" class="btn btn-outline btn-sm" id="expFltAllMonths">${t('expFltAllMonths')}</button></div></div>
-    ${sel("expFltBranch", t('expFltBranch'), branches.map(b=>({v:b,l:b})), st.branch)}
+    ${sel("expFltBranch", t('expFltBranch'), branches.map(b=>({v:b,l:b,tr:true})), st.branch)}
     ${sel("expFltDepartment", efl('department'), EXPENSE_DEPARTMENTS.map(o=>({v:o,l:optLabel(o)})), st.department)}
     ${sel("expFltCategory", efl('category'), EXPENSE_CATEGORIES.map(o=>({v:o,l:optLabel(o)})), st.category)}
     ${sel("expFltPayment", efl('paymentStatus'), EXPENSE_PAYMENT_STATUSES.map(o=>({v:o,l:optLabel(o)})), st.payment)}
@@ -9928,16 +9990,16 @@ function expenseResultsHtml(st, mode){
     ${card(t('expSumUnpaid'), `${fmt2(sum.unpaid)} <span style="font-size:12px;">(${sum.unpaidCount})</span>`, sum.unpaid?'#c0392b':'#1f8a4c')}
     ${card(t('expSumToReview'), sum.toReview, sum.toReview?'#d98e1f':'#1f8a4c')}</div>`;
   const pivot = pv.groups.length ? `<div class="section-title">${t('expPivotTitle')}</div>
-    <div class="table-wrap" style="margin-bottom:16px;"><table><thead><tr><th>${expenseGroupLabel(st.groupBy)}</th>${pv.branches.map(b=>`<th>${escapeHtml(b)}</th>`).join("")}<th>${t('expPivotTotal')}</th></tr></thead>
-      <tbody>${pv.groups.map(g=>`<tr><td><b>${escapeHtml(expenseGroupShown(g, st.groupBy))}</b></td>${pv.branches.map(b=>`<td>${pv.rows[g].byBranch[b] ? fmt2(pv.rows[g].byBranch[b]) : "—"}</td>`).join("")}<td><b>${fmt2(pv.rows[g].total)}</b></td></tr>`).join("")}
+    <div class="table-wrap" style="margin-bottom:16px;"><table><thead><tr><th>${expenseGroupLabel(st.groupBy)}</th>${pv.branches.map(b=>`<th>${autoTr(b)}</th>`).join("")}<th>${t('expPivotTotal')}</th></tr></thead>
+      <tbody>${pv.groups.map(g=>`<tr><td><b>${st.groupBy==="vendor" ? autoTr(g) : escapeHtml(expenseGroupShown(g, st.groupBy))}</b></td>${pv.branches.map(b=>`<td>${pv.rows[g].byBranch[b] ? fmt2(pv.rows[g].byBranch[b]) : "—"}</td>`).join("")}<td><b>${fmt2(pv.rows[g].total)}</b></td></tr>`).join("")}
       <tr style="background:var(--bg); font-weight:900;"><td>${t('expPivotTotal')}</td>${pv.branches.map(b=>`<td>${fmt2(pv.colTotals[b])}</td>`).join("")}<td>${fmt2(pv.grand)}</td></tr></tbody></table></div>` : "";
   const list = `<div class="section-title">${t('expListTitle')}</div>
     <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColInvoiceNo')}</th><th>${t('expColType')}</th><th>${t('expColSplit')}</th><th>${t('expColTotal')}</th><th>${t('expColPayment')}</th><th>${t('expColReview')}</th><th>${t('actions')}</th></tr></thead>
     <tbody>${invoices.length ? invoices.map(r=>{
       const allocs = expenseAllocs(r).filter(a=> !st.branch || a.branch===st.branch);
-      return `<tr><td>${escapeHtml(r.expNo||"")}</td><td>${escapeHtml(r.date||"")}</td><td><b>${escapeHtml(r.vendor||"")}</b>${r.employee?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(r.employee)}</div>`:""}</td><td>${escapeHtml(r.invoiceNo||"")}</td>
+      return `<tr><td>${escapeHtml(r.expNo||"")}</td><td>${escapeHtml(r.date||"")}</td><td><b>${autoTr(r.vendor||"")}</b>${r.employee?`<div style="font-size:11px; color:var(--muted);">${autoTr(r.employee)}</div>`:""}</td><td>${escapeHtml(r.invoiceNo||"")}</td>
         <td>${escapeHtml(optLabel(r.category||""))}<div style="font-size:11px; color:var(--muted);">${escapeHtml(optLabel(r.department||""))}</div></td>
-        <td style="font-size:12px;">${allocs.map(a=>`${escapeHtml(a.branch)}: <b>${fmt2(expenseAmount(a, st))}</b>`).join("<br>")}</td>
+        <td style="font-size:12px;">${allocs.map(a=>`${autoTr(a.branch)}: <b>${fmt2(expenseAmount(a, st))}</b>`).join("<br>")}</td>
         <td><b>${fmt2(r.total)}</b></td><td>${badge(r.paymentStatus||"")}</td><td>${badge(r.reviewStatus||"جديدة")}</td>
         <td style="white-space:nowrap;"><button class="btn btn-sm btn-outline" data-expdetails="${r.id}">${t('expBtnDetails')}</button>${mode==="admin"?` <button class="btn btn-sm btn-outline" data-expedit="${r.id}">${t('edit')}</button>`:""}</td></tr>`;
     }).join("") : `<tr class="empty-row"><td colspan="10">${t('expNoData')}</td></tr>`}</tbody></table></div>`;
@@ -9947,9 +10009,11 @@ function mountExpenseReport(root, mode, onDataChanged){
   if(!expenseReportState._init){ expenseReportState.month = todayStr().slice(0,7); expenseReportState._init = true; }
   const st = expenseReportState;
   root.innerHTML = expenseControlsHtml(st) + `<div id="expResults"></div>`;
+  autoTranslateDOM(root);
   const refresh = ()=>{
     const box = document.getElementById("expResults");
     box.innerHTML = expenseResultsHtml(st, mode);
+    autoTranslateDOM(box);
     box.querySelectorAll("[data-expdetails]").forEach(b=> b.onclick = ()=> openExpenseDetailsModal(b.dataset.expdetails, mode, refresh));
     box.querySelectorAll("[data-expedit]").forEach(b=> b.onclick = ()=>{ const rec = loadData("expenses").find(r=>r.id===b.dataset.expedit); if(rec) openForm(expenseModule(), rec); });
   };
@@ -9981,7 +10045,7 @@ function openExpenseDetailsModal(id, mode, onChanged){
     if(v===undefined || v===null || v==="") return "—";
     if(f && f.type==="select") return optLabel(v);
     if(key==="amount"||key==="vat"||key==="total") return fmt2(v);
-    return escapeHtml(isTranslatableField(f) ? glDisplay(v) : v);
+    return isTranslatableField(f) ? autoTr(v) : escapeHtml(v);
   };
   const keys = ["expNo","date","invoiceNo","vendor","department","category","employee","project","accountingMonth","amount","vat","total","paymentStatus","paymentMethod","paidDate","submittedBy","notes"];
   const allocs = expenseAllocs(rec);
@@ -9993,10 +10057,10 @@ function openExpenseDetailsModal(id, mode, onChanged){
       : `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="margin:4px;">${isPdfAttachment(p)?"📄":"🎬"} ${escapeHtml(p.name||"file")}</a>`;
   }).join("") : `<span style="color:var(--muted); font-size:12.5px;">${t('expNoAttachments')}</span>`;
   root.innerHTML = `<div class="modal-overlay" id="expDetailsOverlay"><div class="modal" style="max-width:720px;">
-    <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${escapeHtml(rec.vendor||"")}</h2>
+    <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${autoTr(rec.vendor||"")}</h2>
     <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#f6f7fa; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
     <div class="section-title">${t('expDetailsSplit')}</div>
-    <div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('expXlBranch')}</th><th>${t('expXlNet')}</th><th>${t('expXlVat')}</th><th>${t('expXlTotal')}</th></tr></thead><tbody>${allocs.map(a=>`<tr><td>${escapeHtml(a.branch)}</td><td>${fmt2(a.net)}</td><td>${fmt2(a.vat)}</td><td><b>${fmt2(a.total)}</b></td></tr>`).join("")}</tbody></table></div>
+    <div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('expXlBranch')}</th><th>${t('expXlNet')}</th><th>${t('expXlVat')}</th><th>${t('expXlTotal')}</th></tr></thead><tbody>${allocs.map(a=>`<tr><td>${autoTr(a.branch)}</td><td>${fmt2(a.net)}</td><td>${fmt2(a.vat)}</td><td><b>${fmt2(a.total)}</b></td></tr>`).join("")}</tbody></table></div>
     <div class="section-title">${t('expAttachments')}</div><div style="margin-bottom:14px;">${attach}</div>
     <div class="section-title">${t('expAccountantSection')}</div>
     <div class="form-grid">
@@ -10006,6 +10070,7 @@ function openExpenseDetailsModal(id, mode, onChanged){
     </div>
     <div class="modal-actions"><button class="btn btn-outline" id="expDtClose">${t('close')}</button>${mode==="admin"?`<button class="btn btn-outline" id="expDtEdit">${t('edit')}</button>`:""}<button class="btn btn-primary" id="expDtSave">${t('expSaveReview')}</button></div>
   </div></div>`;
+  autoTranslateDOM(root);
   const close = ()=>{ root.innerHTML = ""; };
   document.getElementById("expDtClose").onclick = close;
   document.getElementById("expDetailsOverlay").onclick = (e)=>{ if(e.target.id==="expDetailsOverlay") close(); };
@@ -10025,17 +10090,51 @@ function openExpenseDetailsModal(id, mode, onChanged){
     if(typeof onChanged === "function") onChanged();
   };
 }
+/* Everything written to an export follows the program language: exact glossary names first, then the online translator
+   (when automatic translation is on). Arabic exports keep the text as typed. Returns a lookup function. */
+async function buildExportTranslator(values){
+  const map = new Map();
+  const uniq = [...new Set(values.map(v=> String(v==null ? "" : v).trim()).filter(Boolean))];
+  const todo = [];
+  uniq.forEach(v=>{
+    const g = glossaryLookup(v, LANG);
+    if(g && detectTextLang(v) !== LANG) map.set(v, g);
+    else if(LANG === "en" && detectTextLang(v) === "ar" && getAutoTranslateEnabled()) todo.push(v);
+  });
+  for(let i = 0; i < todo.length; i += 6){
+    const batch = todo.slice(i, i + 6);
+    const res = await Promise.all(batch.map(v=> translateText(v, LANG).catch(()=> v)));
+    batch.forEach((v,k)=> map.set(v, res[k] || v));
+  }
+  return (v)=>{ const s = String(v==null ? "" : v); return map.get(s.trim()) || s; };
+}
+/* free text shown in the screen: the exact glossary name or the online translation replaces it when the program is in English */
+function autoTr(text){
+  const s = String(text==null ? "" : text);
+  if(!s.trim()) return "";
+  return `<span data-autotranslate="1" data-original="${escapeAttr(s)}">${escapeHtml(s)}</span>`;
+}
 async function exportExpenseReportExcel(st){
   showToast(t('exportPreparing'));
   const invoices = expenseFilteredInvoices(st);
   const lines = expenseLines(invoices, st);
   const pv = expensePivot(lines, st);
+  const texts = [...pv.branches];
+  if(st.groupBy === "vendor") pv.groups.forEach(g=> texts.push(g));
+  invoices.forEach(r=>{
+    [r.vendor, r.employee, r.project, r.projectStep, r.notes, r.accountantNotes, r.submittedBy].forEach(x=> texts.push(x));
+    expenseAllocs(r).forEach(a=> texts.push(a.branch));
+  });
+  const tr = await buildExportTranslator(texts);
+  const allocText = (allocs)=> expenseAllocationText((allocs||[]).map(a=>({ ...a, branch: tr(a.branch) })));
   const wb = new ExcelJS.Workbook();
 
   // 1) summary pivot: group x branch
-  const h1 = [expenseGroupLabel(st.groupBy), ...pv.branches, t('expPivotTotal')];
-  const rows1 = pv.groups.map(g=>{ const o = {[h1[0]]: expenseGroupShown(g, st.groupBy)}; pv.branches.forEach(b=> o[b] = pv.rows[g].byBranch[b] || 0); o[h1[h1.length-1]] = pv.rows[g].total; return o; });
-  const totalRow = {[h1[0]]: t('expPivotTotal')}; pv.branches.forEach(b=> totalRow[b] = pv.colTotals[b]); totalRow[h1[h1.length-1]] = pv.grand; rows1.push(totalRow);
+  const brHead = pv.branches.map(b=> tr(b));
+  const h1 = [expenseGroupLabel(st.groupBy), ...brHead, t('expPivotTotal')];
+  const groupShown = (g)=> st.groupBy === "vendor" ? tr(g) : expenseGroupShown(g, st.groupBy);
+  const rows1 = pv.groups.map(g=>{ const o = {[h1[0]]: groupShown(g)}; pv.branches.forEach((b,i)=> o[brHead[i]] = pv.rows[g].byBranch[b] || 0); o[h1[h1.length-1]] = pv.rows[g].total; return o; });
+  const totalRow = {[h1[0]]: t('expPivotTotal')}; pv.branches.forEach((b,i)=> totalRow[brHead[i]] = pv.colTotals[b]); totalRow[h1[h1.length-1]] = pv.grand; rows1.push(totalRow);
   addStyledSheet(wb, t('expSheetSummary'), h1, rows1, {});
 
   // 2) one row per invoice x branch (the sheet an accountant pivots for the P&L)
@@ -10043,9 +10142,9 @@ async function exportExpenseReportExcel(st){
               t('expXlBranch'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('paymentMethod'), efl('reviewStatus'), efl('bimoRef')];
   h2.push(efl('projectStep'));
   const rows2 = lines.map(l=>{ const r = l.rec, a = l.alloc; return {
-    [h2[0]]: expenseMonth(r), [h2[1]]: r.date||"", [h2[2]]: r.expNo||"", [h2[3]]: r.invoiceNo||"", [h2[4]]: r.vendor||"", [h2[5]]: optLabel(r.department||""), [h2[6]]: optLabel(r.category||""),
-    [h2[7]]: r.employee||"", [h2[8]]: r.project||"", [h2[9]]: a.branch, [h2[10]]: a.net, [h2[11]]: a.vat, [h2[12]]: a.total,
-    [h2[13]]: optLabel(r.paymentStatus||""), [h2[14]]: optLabel(r.paymentMethod||""), [h2[15]]: optLabel(r.reviewStatus||"جديدة"), [h2[16]]: r.bimoRef||"", [h2[17]]: r.projectStep||"" }; });
+    [h2[0]]: expenseMonth(r), [h2[1]]: r.date||"", [h2[2]]: r.expNo||"", [h2[3]]: r.invoiceNo||"", [h2[4]]: tr(r.vendor), [h2[5]]: optLabel(r.department||""), [h2[6]]: optLabel(r.category||""),
+    [h2[7]]: tr(r.employee), [h2[8]]: tr(r.project), [h2[9]]: tr(a.branch), [h2[10]]: a.net, [h2[11]]: a.vat, [h2[12]]: a.total,
+    [h2[13]]: optLabel(r.paymentStatus||""), [h2[14]]: optLabel(r.paymentMethod||""), [h2[15]]: optLabel(r.reviewStatus||"جديدة"), [h2[16]]: r.bimoRef||"", [h2[17]]: tr(r.projectStep) }; });
   addStyledSheet(wb, t('expSheetLines'), h2, rows2, {});
 
   // 3) invoices with attachment links
@@ -10054,11 +10153,11 @@ async function exportExpenseReportExcel(st){
               efl('accountantNotes'), efl('notes'), efl('submittedBy'), t('expXlAttach')];
   h3.push(efl('projectStep'));
   const rows3 = invoices.map(r=>({
-    [h3[0]]: r.expNo||"", [h3[1]]: r.date||"", [h3[2]]: r.invoiceNo||"", [h3[3]]: r.vendor||"", [h3[4]]: optLabel(r.department||""), [h3[5]]: optLabel(r.category||""),
-    [h3[6]]: r.employee||"", [h3[7]]: r.project||"", [h3[8]]: expenseMonth(r), [h3[9]]: expenseAllocationText(expenseAllocs(r)),
+    [h3[0]]: r.expNo||"", [h3[1]]: r.date||"", [h3[2]]: r.invoiceNo||"", [h3[3]]: tr(r.vendor), [h3[4]]: optLabel(r.department||""), [h3[5]]: optLabel(r.category||""),
+    [h3[6]]: tr(r.employee), [h3[7]]: tr(r.project), [h3[8]]: expenseMonth(r), [h3[9]]: allocText(expenseAllocs(r)),
     [h3[10]]: round2(r.amount), [h3[11]]: round2(r.vat), [h3[12]]: round2(r.total), [h3[13]]: optLabel(r.paymentStatus||""), [h3[14]]: optLabel(r.paymentMethod||""), [h3[15]]: r.paidDate||"",
-    [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: r.accountantNotes||"", [h3[19]]: r.notes||"", [h3[20]]: r.submittedBy||"",
-    [h3[21]]: (Array.isArray(r.photos)?r.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n"), [h3[22]]: r.projectStep||"" }));
+    [h3[16]]: optLabel(r.reviewStatus||"جديدة"), [h3[17]]: r.bimoRef||"", [h3[18]]: tr(r.accountantNotes), [h3[19]]: tr(r.notes), [h3[20]]: tr(r.submittedBy),
+    [h3[21]]: (Array.isArray(r.photos)?r.photos:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n"), [h3[22]]: tr(r.projectStep) }));
   addStyledSheet(wb, t('expSheetInvoices'), h3, rows3, {});
 
   await downloadWorkbook(wb, `GroupForka_Expenses_${st.month||"all"}_${todayStr()}.xlsx`);
