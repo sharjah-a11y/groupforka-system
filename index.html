@@ -6011,6 +6011,7 @@ async function exportProjectExcel(rec){
   const stillLocal = await uploadPendingAttachments(["projects","expenses"]);
   rec = loadData("projects").find(x=>x.id===rec.id) || rec;     // pick up the links that were just created
   const steps = Array.isArray(rec.steps) ? rec.steps : [];
+  await prefetchExcelThumbs([...steps.flatMap(s=> [...(s.invoiceFiles||[]), ...(s.docFiles||[])]), ...collectAttachments(projectInvoices(rec), ["photos"])]);
   const cb = projectCostBreakdown(rec);
   const owners = Array.isArray(rec.owners) ? rec.owners : [];
   const texts = [rec.projectName, rec.branch, rec.owner, rec.notes];
@@ -7760,6 +7761,56 @@ function excelImageExtension(dataUrl){
   return "jpeg";
 }
 const EXCEL_MAX_ATTACHMENT_COLUMNS = 8;
+/* Picture thumbnails inside the cells: the invoice / document photo is SEEN in Excel and a click on it opens the full file.
+   Fetched once before the workbook is built (small versions only); anything that cannot be fetched keeps the text link. */
+const xlThumbCache = new Map();
+function xlThumbKey(att){ return att.storageUrl || (att.dataUrl ? ("d" + att.dataUrl.length + ":" + att.dataUrl.slice(-48)) : ""); }
+function sniffImageExt(bytes){
+  if(bytes.length > 4 && bytes[0]===0x89 && bytes[1]===0x50 && bytes[2]===0x4E && bytes[3]===0x47) return "png";
+  if(bytes.length > 3 && bytes[0]===0xFF && bytes[1]===0xD8) return "jpeg";
+  if(bytes.length > 4 && bytes[0]===0x47 && bytes[1]===0x49 && bytes[2]===0x46) return "gif";
+  return null;
+}
+function smallImageUrl(url){
+  return /\/image\/upload\//.test(url) && !/\/upload\/[a-z]_/.test(url) ? url.replace("/image/upload/", "/image/upload/w_260,h_260,c_limit,q_auto,f_jpg/") : url;
+}
+async function fetchThumb(att){
+  try{
+    let bytes;
+    if(att.storageUrl){
+      const ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+      const timer = setTimeout(()=>{ if(ctl) ctl.abort(); }, 9000);
+      const res = await fetch(smallImageUrl(att.storageUrl), ctl ? { signal: ctl.signal } : undefined);
+      clearTimeout(timer);
+      if(!res || !res.ok) return null;
+      bytes = new Uint8Array(await res.arrayBuffer());
+    } else if(att.dataUrl && att.dataUrl.startsWith("data:image/")){
+      const b64 = att.dataUrl.slice(att.dataUrl.indexOf(",") + 1); const bin = atob(b64);
+      bytes = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    } else return null;
+    const ext = sniffImageExt(bytes);
+    return ext ? { buffer: bytes, ext } : null;
+  }catch(e){ return null; }
+}
+async function prefetchExcelThumbs(atts){
+  const todo = []; const seen = new Set();
+  (atts || []).forEach(a=>{
+    if(!a || isPdfAttachment(a) || isVideoAttachment(a)) return;
+    const k = xlThumbKey(a); if(!k || seen.has(k) || xlThumbCache.has(k)) return;
+    seen.add(k); todo.push({ k, a });
+  });
+  const batch = todo.slice(0, 120);                                 // one export never waits for hundreds of pictures
+  for(let i = 0; i < batch.length; i += 6){
+    const part = batch.slice(i, i + 6);
+    const res = await Promise.all(part.map(p=> fetchThumb(p.a)));
+    part.forEach((p,j)=> xlThumbCache.set(p.k, res[j]));
+  }
+}
+function collectAttachments(records, keys){
+  const out = [];
+  (records || []).forEach(r=> (keys || []).forEach(k=> (Array.isArray(r[k]) ? r[k] : []).forEach(a=> out.push(a))));
+  return out;
+}
 function attachmentCellStyle(cell, zebraFill, isLastRow){
   cell.border = {
     top:{style:"thin",color:{argb:XL_BORDER_LIGHT}},
@@ -7777,12 +7828,20 @@ function attachmentLabel(att, i){
   return `${icon} ${name && name.length<=28 ? name : fallback + (i!==undefined ? " " + (i+1) : "")}`.trim();
 }
 /* ONE attachment = ONE cell with a direct link: a single click on the invoice / document opens the file itself */
-function writeOneAttachmentCell(cell, att, index, zebraFill, isLastRow){
+function writeOneAttachmentCell(cell, att, index, zebraFill, isLastRow, ctx){
   attachmentCellStyle(cell, zebraFill, isLastRow);
   if(!att) return;
   if(att.storageUrl){
     cell.value = { text: attachmentLabel(att, index), hyperlink: att.storageUrl };
     cell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
+    const thumb = ctx ? xlThumbCache.get(xlThumbKey(att)) : null;
+    if(thumb){
+      // the picture sits in the cell (name stays underneath); clicking the picture opens the file
+      const imgId = ctx.workbook.addImage({ buffer: thumb.buffer, extension: thumb.ext });
+      ctx.sheet.addImage(imgId, { tl:{ col: ctx.col - 1 + 0.07, row: ctx.row - 1 + 0.05 }, ext:{ width: 96, height: 66 }, hyperlinks:{ hyperlink: att.storageUrl, tooltip: att.name || "" } });
+      const rowObj = ctx.sheet.getRow(ctx.row); rowObj.height = Math.max(rowObj.height || 0, 92);
+      cell.alignment = { horizontal:"center", vertical:"bottom", wrapText:true };
+    }
   } else {
     cell.value = LANG==='ar' ? "📎 محفوظ على الجهاز فقط (بدون رابط)" : "📎 Stored on the device only (no link)";
     cell.font = { name:"Arial", size:9, color:{argb:XL_MUTED} };
@@ -7834,7 +7893,8 @@ function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
   sheet.mergeCells(2,1,2,ncols);
   const subCell = sheet.getCell(2,1);
   subCell.value = (isRtl ? "تاريخ التصدير: " : "Export date: ") + new Date().toLocaleString(isRtl?"ar-EG":"en-GB")
-    + (isRtl ? "   |   عدد السجلات: " : "   |   Records: ") + rows.length;
+    + (isRtl ? "   |   عدد السجلات: " : "   |   Records: ") + rows.length
+    + (attSpecs.length ? (isRtl ? "   |   اضغط على الصورة أو اسم الملف الأزرق لفتحه (لو ما فتحش: اضغط Enable Editing فوق)" : "   |   Click the picture or the blue file name to open it (if nothing opens: click Enable Editing at the top)") : "");
   subCell.font = { italic:true, size:10, color:{argb:XL_MUTED}, name:"Arial" };
   subCell.alignment = { horizontal:"center" };
   sheet.getRow(2).height = 18;
@@ -7892,7 +7952,7 @@ function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
       const cell = excelRow.getCell(headers.length + 1 + k);
       const files = rawRec ? (spec.src.files(rawRec) || []) : [];
       if(spec.more) writeMoreAttachmentsCell(cell, files.slice(EXCEL_MAX_ATTACHMENT_COLUMNS), zebraFill, isLastRow);
-      else writeOneAttachmentCell(cell, files[spec.i], spec.i, zebraFill, isLastRow);
+      else writeOneAttachmentCell(cell, files[spec.i], spec.i, zebraFill, isLastRow, { workbook, sheet, row: headerRowIdx + 1 + rIdx, col: headers.length + 1 + k });
     });
   });
 
@@ -8122,6 +8182,7 @@ async function exportModuleExcel(m, selectedBranches){
   showToast(t('exportPreparing'));
   const relKeys = (m.relatedExports || []).map(r=>r.module);
   const stillLocal = await uploadPendingAttachments([m.key, ...relKeys]);
+  await prefetchExcelThumbs(collectAttachments([...loadData(m.key), ...relKeys.flatMap(k=> loadData(k))], ["photos","techReport"]));
   const workbook = new ExcelJS.Workbook();
   let filtered = getFilteredData(m);
   if(selectedBranches && selectedBranches.length && m.branchField){
@@ -10172,6 +10233,7 @@ async function exportExpenseReportExcel(st){
   showToast(t('exportPreparing'));
   const stillLocal = await uploadPendingAttachments(["expenses"]);
   const invoices = expenseFilteredInvoices(st);
+  await prefetchExcelThumbs(collectAttachments(invoices, ["photos"]));
   const lines = expenseLines(invoices, st);
   const pv = expensePivot(lines, st);
   const texts = [...pv.branches];
