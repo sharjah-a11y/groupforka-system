@@ -694,10 +694,8 @@ const STR = {
     projExport:"📥 تصدير تقرير المشروع (Excel)", projColItem:"البند", projColValue:"القيمة", projSheetSummary:"ملخص المشروع", projSheetSteps:"خطوات المشروع", projSheetInvoices:"فواتير المشروع",
     stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ اكتب «المدفوع فعليًا» لهذه الخطوة عشان الفاتورة توصل للمحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
     projColInvFile:"الفاتورة", projColDocFile:"المستند", projInvoicesSent:(n)=>`🧾 ${n} فاتورة وصلت للمحاسب`,
-    typeFilterAll:"كل الأنواع", navAmcPest:"عقد مكافحة الحشرات", navAmcCctv:"عقد الكاميرات",
-    licDashTitle:"📜 الرخص القريبة من الانتهاء أو المنتهية", noLicAlerts:"لا توجد رخص قاربت على الانتهاء ✓", thLicBranch:"الفرع", thLicType:"نوع الرخصة", thLicNo:"رقم الرخصة",
-    propDashTitle:"🏢 عقود الإيجار القريبة من الانتهاء أو المنتهية", noPropAlerts:"لا توجد عقود إيجار قاربت على الانتهاء ✓", thPropName:"العقار", thPropLandlord:"المالك",
-    projLicensesTitle:"📜 رخص المشروع", projAddLicense:"➕ تسجيل رخصة للمشروع", lblAuthority:"الجهة",
+    stepContractStart:"بداية العقد", stepContractEnd:"نهاية العقد", projContractTerm:(a,b)=>`العقد: من ${a} إلى ${b}`,
+    projStageUpgradeDone:(list)=>`➕ اتضافت لمشاريعك الجارية الخطوات الجديدة (عقد مكافحة الحشرات، عقد الكاميرات، حصر الأملاك، حصر الرخص)، كل واحدة في مكانها بين الموافقات:\n${list}\n\nمفيش حاجة تانية في المشاريع اتغيّرت. ولو خطوة مش محتاجها احذفها من «تعديل».`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم المتوقعة", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. الرسوم الفعلية بتتحسب من الفواتير اللي تربطها بالمشروع والخطوة (وإلا من خانة «المدفوع فعليًا»). ولما ترفع فاتورة تحت الخطوة وتكتب المدفوع فعليًا، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع.",
@@ -1091,10 +1089,8 @@ const STR = {
     projExport:"📥 Export project report (Excel)", projColItem:"Item", projColValue:"Value", projSheetSummary:"Project Summary", projSheetSteps:"Project Steps", projSheetInvoices:"Project Invoices",
     stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the \"Actually paid\" amount for this step so the invoice reaches the accountant.", stepNeedPaidShort:"⚠️ No amount",
     projColInvFile:"Invoice", projColDocFile:"Document", projInvoicesSent:(n)=>`🧾 ${n} invoice(s) sent to the accountant`,
-    typeFilterAll:"All types", navAmcPest:"Pest Control Contract", navAmcCctv:"CCTV Cameras Contract",
-    licDashTitle:"📜 Licenses expiring soon or expired", noLicAlerts:"No licenses are close to expiry ✓", thLicBranch:"Branch", thLicType:"License type", thLicNo:"License no.",
-    propDashTitle:"🏢 Leases expiring soon or expired", noPropAlerts:"No leases are close to expiry ✓", thPropName:"Property", thPropLandlord:"Landlord",
-    projLicensesTitle:"📜 Project licenses", projAddLicense:"➕ Register a license for this project", lblAuthority:"Authority",
+    stepContractStart:"Contract start", stepContractEnd:"Contract end", projContractTerm:(a,b)=>`Contract: ${a} to ${b}`,
+    projStageUpgradeDone:(list)=>`➕ The new steps (pest-control contract, cameras contract, property inventory, licenses inventory) were added to your running projects, each in its place among the approvals:\n${list}\n\nNothing else in the projects was changed. Delete any step you do not need from Edit.`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Expected fee", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Actual spend is calculated from the invoices linked to the project and step (otherwise from the \"Actually paid\" box). When you upload an invoice under a step and enter the amount actually paid, it reaches the accountant automatically as an invoice on the project's branch.",
@@ -1294,7 +1290,6 @@ const STATUS_COLORS = {
   "مكتملة":"badge-success","ناقصة":"badge-warning","منتهية":"badge-danger","نشطة":"badge-success",
   "مدفوعة":"badge-success","غير مدفوعة":"badge-danger",
   "تم الدفع":"badge-success","لم يتم الدفع":"badge-danger",
-  "قاربت على الانتهاء":"badge-warning","قارب على الانتهاء":"badge-warning","سارية":"badge-success","ساري":"badge-success","منتهية":"badge-danger","منتهي":"badge-danger",
   "لم يبدأ":"badge-muted","تم":"badge-success","متعثر":"badge-danger","متوقف":"badge-warning",
   "جديدة":"badge-info","تمت المراجعة":"badge-success","مسجلة في بيمو":"badge-success","استفسار":"badge-warning","مدفوعة جزئيًا":"badge-warning"
 };
@@ -1314,14 +1309,6 @@ const OPT_EN = {
   "رخصة مطعم جديدة":"New Restaurant License","رخصة كافيه / كوفي شوب جديدة":"New Café / Coffee Shop License","فرع جديد (افتتاح)":"New Branch (Opening)",
   "تجديد رخصة":"License Renewal","تعديل رخصة":"License Amendment","نقل موقع":"Relocation","متوقف":"On Hold",
   "لم يبدأ":"Not Started","تم":"Done","متعثر":"Stalled",
-  "رخصة تجارية":"Trade License","رخصة بلدية / سلامة الأغذية":"Municipality / Food Safety License","شهادة الدفاع المدني":"Civil Defence Certificate",
-  "رخصة اللافتة والإعلان":"Signage & Advertising License","بطاقة المنشأة":"Establishment Card","موافقة أمنية":"Security Approval","تصريح توصيل":"Delivery Permit",
-  "قاربت على الانتهاء":"Expiring Soon","قارب على الانتهاء":"Expiring Soon",
-  "محل / مطعم":"Shop / Restaurant","مستودع":"Warehouse","سكن موظفين":"Staff Housing","مكتب":"Office","مطبخ مركزي":"Central Kitchen","أرض":"Land",
-  "إيجار":"Rent","ملك":"Owned","حق انتفاع":"Usufruct","شيكات":"Cheques","شهري":"Monthly","ربع سنوي":"Quarterly",
-  "صيانة تكييف وتبريد":"A/C & Refrigeration Maintenance","مكافحة حشرات":"Pest Control","كاميرات مراقبة (CCTV)":"CCTV Cameras","إنذار وإطفاء حريق":"Fire Alarm & Fighting","مصاعد":"Elevators","صيانة عامة":"General Maintenance",
-  "رش وقائي":"Preventive Spraying","تبخير":"Fumigation","طعوم ومصائد قوارض":"Rodent Baits & Traps","صراصير وحشرات زاحفة":"Cockroaches & Crawling Insects","ذباب وطيور":"Flies & Birds","خدمة شاملة":"Comprehensive Service",
-  "قيد الاعتماد":"Pending Approval","أحيانًا":"Sometimes",
   "حرج":"Critical","عالٍ":"High","متوسط":"Medium","منخفض":"Low",
   "نعم":"Yes","لا":"No",
   "مفتوح":"Open","قيد التنفيذ":"In Progress","متأخر":"Delayed","مغلق":"Closed",
@@ -1424,21 +1411,6 @@ function projectComputed(rec){
     actualCost: hasCost ? String(cost.actual) : "",
   };
 }
-/* licences / leases: the status follows the expiry date every day (not only when someone edits the record) */
-function refreshExpiryStatuses(){
-  let any = false;
-  ["licenses","properties"].forEach(key=>{
-    if(cloudEnabled && !cloudFirstSyncReceived[key]) return;
-    const arr = loadDataRaw(key); let changed = false;
-    arr.forEach(r=>{
-      if(r._deleted) return;
-      const s = expiryStatusFor(key, r);
-      if((r.status||"") !== s){ r.status = s; r._updatedAt = Date.now(); cloudPushRecord(key, r); changed = true; }
-    });
-    if(changed){ saveData(key, arr); any = true; }
-  });
-  return any;
-}
 /* keeps the figures shown in the projects list in step with the invoices (only after the data has synced) */
 function refreshProjectsComputed(){
   if(cloudEnabled && !(cloudFirstSyncReceived.projects && cloudFirstSyncReceived.expenses)) return false;
@@ -1503,6 +1475,11 @@ const PROJECT_TEMPLATES = {
    "authority": "الجهات الأمنية"
   },
   {
+   "name": "عقد الكاميرات (CCTV)",
+   "authority": "شركة أنظمة مراقبة",
+   "kind": "contract"
+  },
+  {
    "name": "عقد الإيجار وتوثيقه",
    "authority": "المالك / البلدية"
   },
@@ -1513,6 +1490,11 @@ const PROJECT_TEMPLATES = {
   {
    "name": "موافقة الدفاع المدني (مخطط السلامة)",
    "authority": "الدفاع المدني"
+  },
+  {
+   "name": "عقد مكافحة الحشرات",
+   "authority": "شركة مكافحة معتمدة",
+   "kind": "contract"
   },
   {
    "name": "موافقة الصحة وسلامة الغذاء",
@@ -1535,20 +1517,12 @@ const PROJECT_TEMPLATES = {
    "authority": "المقاولون"
   },
   {
-   "name": "عقد مكافحة الحشرات",
-   "authority": "شركة مكافحة معتمدة"
-  },
-  {
-   "name": "عقد الكاميرات (CCTV)",
-   "authority": "شركة أنظمة مراقبة"
+   "name": "حصر الأملاك (جرد الموقع والمعدات)",
+   "authority": "الإدارة"
   },
   {
    "name": "التفتيش النهائي وشهادة المطابقة",
    "authority": "البلدية / الدفاع المدني"
-  },
-  {
-   "name": "حصر الأملاك (جرد الموقع والمعدات)",
-   "authority": "الإدارة"
   },
   {
    "name": "حصر الرخص والشهادات",
@@ -1577,6 +1551,11 @@ const PROJECT_TEMPLATES = {
    "authority": "الجهات الأمنية"
   },
   {
+   "name": "عقد الكاميرات (CCTV)",
+   "authority": "شركة أنظمة مراقبة",
+   "kind": "contract"
+  },
+  {
    "name": "عقد الإيجار وتوثيقه",
    "authority": "المالك / البلدية"
   },
@@ -1587,6 +1566,11 @@ const PROJECT_TEMPLATES = {
   {
    "name": "موافقة الدفاع المدني (مخطط السلامة)",
    "authority": "الدفاع المدني"
+  },
+  {
+   "name": "عقد مكافحة الحشرات",
+   "authority": "شركة مكافحة معتمدة",
+   "kind": "contract"
   },
   {
    "name": "موافقة الصحة وسلامة الغذاء",
@@ -1609,20 +1593,12 @@ const PROJECT_TEMPLATES = {
    "authority": "المقاولون"
   },
   {
-   "name": "عقد مكافحة الحشرات",
-   "authority": "شركة مكافحة معتمدة"
-  },
-  {
-   "name": "عقد الكاميرات (CCTV)",
-   "authority": "شركة أنظمة مراقبة"
+   "name": "حصر الأملاك (جرد الموقع والمعدات)",
+   "authority": "الإدارة"
   },
   {
    "name": "التفتيش النهائي وشهادة المطابقة",
    "authority": "البلدية / الدفاع المدني"
-  },
-  {
-   "name": "حصر الأملاك (جرد الموقع والمعدات)",
-   "authority": "الإدارة"
   },
   {
    "name": "حصر الرخص والشهادات",
@@ -1655,8 +1631,18 @@ const PROJECT_TEMPLATES = {
    "authority": "البلدية"
   },
   {
+   "name": "عقد الكاميرات (CCTV)",
+   "authority": "شركة أنظمة مراقبة",
+   "kind": "contract"
+  },
+  {
    "name": "موافقة الدفاع المدني (مخطط السلامة)",
    "authority": "الدفاع المدني"
+  },
+  {
+   "name": "عقد مكافحة الحشرات",
+   "authority": "شركة مكافحة معتمدة",
+   "kind": "contract"
   },
   {
    "name": "موافقة الصحة وسلامة الغذاء",
@@ -1667,24 +1653,16 @@ const PROJECT_TEMPLATES = {
    "authority": "المقاولون"
   },
   {
+   "name": "حصر الأملاك (جرد الموقع والمعدات)",
+   "authority": "الإدارة"
+  },
+  {
    "name": "التأمين الصحي وتأشيرات الموظفين",
    "authority": "وزارة الموارد البشرية"
   },
   {
-   "name": "عقد مكافحة الحشرات",
-   "authority": "شركة مكافحة معتمدة"
-  },
-  {
-   "name": "عقد الكاميرات (CCTV)",
-   "authority": "شركة أنظمة مراقبة"
-  },
-  {
    "name": "التفتيش النهائي وشهادة المطابقة",
    "authority": "البلدية / الدفاع المدني"
-  },
-  {
-   "name": "حصر الأملاك (جرد الموقع والمعدات)",
-   "authority": "الإدارة"
   },
   {
    "name": "حصر الرخص والشهادات",
@@ -1788,27 +1766,6 @@ const PROJECT_TEMPLATES = {
  "أخرى": []
 };
 const PROJECT_ALL_DONE_TEXT = "✔ اكتملت كل الخطوات";
-/* ---------------- Licences & properties registers: shared lists / auto expiry status ---------------- */
-const LICENSE_TYPES = ["رخصة تجارية","رخصة بلدية / سلامة الأغذية","شهادة الدفاع المدني","رخصة اللافتة والإعلان","بطاقة المنشأة","موافقة أمنية","تصريح توصيل","أخرى"];
-const LICENSE_STATUSES = ["سارية","قاربت على الانتهاء","منتهية","قيد التجديد"];
-const PROPERTY_TYPES = ["محل / مطعم","مستودع","سكن موظفين","مكتب","مطبخ مركزي","أرض","أخرى"];
-const PROPERTY_STATUSES = ["ساري","قارب على الانتهاء","منتهي","قيد التجديد"];
-const CONTRACT_TYPES = ["صيانة تكييف وتبريد","مكافحة حشرات","كاميرات مراقبة (CCTV)","إنذار وإطفاء حريق","مصاعد","صيانة عامة","أخرى"];
-const CONTRACT_PEST = "مكافحة حشرات", CONTRACT_CCTV = "كاميرات مراقبة (CCTV)";
-/* status follows the expiry date automatically ("قيد التجديد" is the only value a person sets by hand and it is never overwritten) */
-function expiryStatusFor(moduleKey, rec){
-  const isLic = moduleKey==="licenses";
-  const manual = isLic ? "قيد التجديد" : "قيد التجديد";
-  if((rec.status||"").trim()===manual) return manual;
-  const dateStr = isLic ? rec.expiryDate : rec.leaseEnd;
-  if(moduleKey==="properties" && (rec.ownership||"").trim()==="ملك") return "ساري";
-  const d = dateStr ? daysUntil(dateStr) : null;
-  const names = isLic ? {ok:"سارية", soon:"قاربت على الانتهاء", exp:"منتهية"} : {ok:"ساري", soon:"قارب على الانتهاء", exp:"منتهي"};
-  if(d===null) return names.ok;
-  if(d < 0) return names.exp;
-  if(d <= (isLic ? 60 : 90)) return names.soon;
-  return names.ok;
-}
 const MODULES = [
 {
   key:"requests", icon:"🛠️", name:"بلاغات الإصلاحات العامة", nameEn:"General Repair Requests",
@@ -1898,14 +1855,8 @@ const MODULES = [
   key:"amc", icon:"📄", name:"عقود AMC", nameEn:"AMC Contracts",
   singular:"عقد AMC", singularEn:"AMC Contract",
   statusField:"status", alertValues:["قيد التجديد","منتهي"],
-  typeFilterField:"contractType",
-  conditionalGroups:[
-    {field:"contractType", value:CONTRACT_PEST, titleAr:"🐜 تفاصيل عقد مكافحة الحشرات", titleEn:"🐜 Pest Control Contract Details"},
-    {field:"contractType", value:CONTRACT_CCTV, titleAr:"📹 تفاصيل عقد الكاميرات", titleEn:"📹 CCTV Cameras Contract Details"},
-  ],
   fields:[
     {key:"company", label:"اسم الشركة / المقاول", labelEn:"Company / Contractor", type:"text", required:true, master:"contractors"},
-    {key:"contractType", label:"نوع العقد", labelEn:"Contract Type", type:"select", options:CONTRACT_TYPES},
     {key:"contractNo", label:"رقم العقد", labelEn:"Contract No.", type:"text"},
     {key:"startDate", label:"تاريخ البداية", labelEn:"Start Date", type:"date"},
     {key:"endDate", label:"تاريخ النهاية", labelEn:"End Date", type:"date"},
@@ -1923,21 +1874,12 @@ const MODULES = [
     {key:"nextVisit", label:"تاريخ الزيارة القادمة", labelEn:"Next Visit Date", type:"date"},
     {key:"contact", label:"مسؤول التواصل", labelEn:"Contact Person", type:"text"},
     {key:"contactPhone", label:"رقم التواصل", labelEn:"Contact No.", type:"text"},
-    {key:"pestServices", label:"نوع خدمة المكافحة", labelEn:"Pest Control Service", type:"select", options:["رش وقائي","تبخير","طعوم ومصائد قوارض","صراصير وحشرات زاحفة","ذباب وطيور","خدمة شاملة"], showIf:{field:"contractType", value:CONTRACT_PEST}},
-    {key:"pestApproved", label:"المبيدات والشركة معتمدة من البلدية؟", labelEn:"Company & Chemicals Municipality-Approved?", type:"select", options:["نعم","لا"], showIf:{field:"contractType", value:CONTRACT_PEST}},
-    {key:"pestCertificate", label:"استلام شهادة المكافحة بعد كل زيارة؟", labelEn:"Treatment Certificate After Each Visit?", type:"select", options:["نعم","أحيانًا","لا"], showIf:{field:"contractType", value:CONTRACT_PEST}},
-    {key:"pestEmergency", label:"عدد الزيارات الطارئة المشمولة", labelEn:"Emergency Visits Included", type:"number", showIf:{field:"contractType", value:CONTRACT_PEST}},
-    {key:"camerasCount", label:"عدد الكاميرات", labelEn:"Number of Cameras", type:"number", showIf:{field:"contractType", value:CONTRACT_CCTV}},
-    {key:"recordersCount", label:"عدد أجهزة التسجيل (DVR / NVR)", labelEn:"Number of Recorders (DVR/NVR)", type:"number", showIf:{field:"contractType", value:CONTRACT_CCTV}},
-    {key:"retentionDays", label:"مدة حفظ التسجيلات (يوم)", labelEn:"Recording Retention (days)", type:"number", showIf:{field:"contractType", value:CONTRACT_CCTV}},
-    {key:"remoteView", label:"مشاهدة عن بُعد؟", labelEn:"Remote Viewing?", type:"select", options:["نعم","لا"], showIf:{field:"contractType", value:CONTRACT_CCTV}},
-    {key:"securityApproved", label:"معتمد من الجهات الأمنية؟", labelEn:"Approved by Security Authorities?", type:"select", options:["نعم","قيد الاعتماد","لا"], showIf:{field:"contractType", value:CONTRACT_CCTV}},
     {key:"openRemarks", label:"ملاحظات مفتوحة", labelEn:"Open Remarks", type:"textarea", full:true},
     {key:"rating", label:"تقييم الأداء", labelEn:"Performance Rating", type:"select", options:["ممتاز","جيد جدًا","جيد","مقبول","ضعيف"]},
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["ساري","قيد التجديد","منتهي"]},
     {key:"photos", label:"صور ومرفقات العقد", labelEn:"Contract Photos & Attachments", type:"photo", full:true},
   ],
-  listColumns:["company","contractType","contractNo","endDate","sla","rating","status"],
+  listColumns:["company","contractNo","endDate","sla","rating","status"],
   dateFieldForReports:"startDate", costField:"value", freqField:"company"
 },
 {
@@ -2216,59 +2158,6 @@ const MODULES = [
   ],
   listColumns:["date","vendor","invoiceNo","category","branch","total","paymentStatus","reviewStatus"],
 }
-,{
-  key:"licenses", icon:"📜", name:"سجل الرخص (حصر الرخص)", nameEn:"Licenses Register",
-  singular:"رخصة", singularEn:"License",
-  statusField:"status", alertValues:["قاربت على الانتهاء","منتهية"],
-  overdueRule: r => (r.status||"").trim()==="منتهية",
-  fields:[
-    {key:"branch", label:"الفرع / المنشأة", labelEn:"Branch / Establishment", type:"text", required:true, master:"branches"},
-    {key:"licenseType", label:"نوع الرخصة / الشهادة", labelEn:"License / Certificate Type", type:"select", required:true, options:LICENSE_TYPES},
-    {key:"licenseNo", label:"رقم الرخصة", labelEn:"License No.", type:"text"},
-    {key:"issuingAuthority", label:"الجهة المُصدِرة", labelEn:"Issuing Authority", type:"text", datalistId:"licenseAuthorities"},
-    {key:"activity", label:"النشاط", labelEn:"Activity", type:"text"},
-    {key:"issueDate", label:"تاريخ الإصدار", labelEn:"Issue Date", type:"date"},
-    {key:"expiryDate", label:"تاريخ الانتهاء", labelEn:"Expiry Date", type:"date", required:true},
-    {key:"renewalFee", label:"رسوم التجديد (د.إ)", labelEn:"Renewal Fee (AED)", type:"number"},
-    {key:"owner", label:"المسؤول عن التجديد", labelEn:"Renewal Owner", type:"text"},
-    {key:"project", label:"المشروع المرتبط (إن وجد)", labelEn:"Related Project (if any)", type:"text", datalistId:"expenseProjects"},
-    {key:"status", label:"الحالة (تتحدث تلقائيًا من تاريخ الانتهاء)", labelEn:"Status (auto from expiry date)", type:"select", options:LICENSE_STATUSES},
-    {key:"photos", label:"صورة الرخصة والمرفقات", labelEn:"License Photos & Attachments", type:"photo", full:true},
-    {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
-  ],
-  listColumns:["branch","licenseType","licenseNo","issuingAuthority","expiryDate","status"],
-  dateFieldForReports:"expiryDate", freqField:"licenseType", branchField:"branch"
-},
-{
-  key:"properties", icon:"🏢", name:"سجل الأملاك (حصر الأملاك)", nameEn:"Properties Register",
-  singular:"عقار", singularEn:"Property",
-  statusField:"status", alertValues:["قارب على الانتهاء","منتهي"],
-  overdueRule: r => (r.status||"").trim()==="منتهي",
-  fields:[
-    {key:"propertyName", label:"اسم العقار / الموقع", labelEn:"Property / Site Name", type:"text", required:true},
-    {key:"propertyType", label:"نوع العقار", labelEn:"Property Type", type:"select", options:PROPERTY_TYPES},
-    {key:"branch", label:"الفرع المرتبط", labelEn:"Related Branch", type:"text", master:"branches"},
-    {key:"ownership", label:"نوع الحيازة", labelEn:"Ownership", type:"select", options:["إيجار","ملك","حق انتفاع"]},
-    {key:"landlord", label:"المالك / المؤجِّر", labelEn:"Landlord / Owner", type:"text"},
-    {key:"landlordPhone", label:"رقم تواصل المالك", labelEn:"Landlord Contact No.", type:"text"},
-    {key:"contractNo", label:"رقم عقد الإيجار (إيجاري)", labelEn:"Lease Contract No. (Ejari)", type:"text"},
-    {key:"leaseStart", label:"بداية العقد", labelEn:"Lease Start", type:"date"},
-    {key:"leaseEnd", label:"نهاية العقد", labelEn:"Lease End", type:"date"},
-    {key:"annualRent", label:"الإيجار السنوي (د.إ)", labelEn:"Annual Rent (AED)", type:"number"},
-    {key:"rentPayment", label:"طريقة سداد الإيجار", labelEn:"Rent Payment", type:"select", options:["دفعة واحدة","شيكات","شهري","ربع سنوي"]},
-    {key:"chequesCount", label:"عدد الشيكات", labelEn:"Number of Cheques", type:"number"},
-    {key:"deposit", label:"مبلغ التأمين (د.إ)", labelEn:"Security Deposit (AED)", type:"number"},
-    {key:"area", label:"المساحة (م²)", labelEn:"Area (m²)", type:"number"},
-    {key:"address", label:"العنوان / رقم القطعة / مكاني", labelEn:"Address / Plot No. / Makani", type:"text"},
-    {key:"electricityAcc", label:"رقم حساب الكهرباء والمياه", labelEn:"Electricity & Water Account No.", type:"text"},
-    {key:"gasAcc", label:"رقم حساب الغاز", labelEn:"Gas Account No.", type:"text"},
-    {key:"status", label:"الحالة (تتحدث تلقائيًا من نهاية العقد)", labelEn:"Status (auto from lease end)", type:"select", options:PROPERTY_STATUSES},
-    {key:"photos", label:"عقد الإيجار والمستندات", labelEn:"Lease Contract & Documents", type:"photo", full:true},
-    {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
-  ],
-  listColumns:["propertyName","propertyType","branch","ownership","leaseEnd","annualRent","status"],
-  dateFieldForReports:"leaseEnd", freqField:"propertyType", branchField:"branch"
-}
 ];
 
 /* SLA minutes per severity for auto-overdue detection on maintenance requests */
@@ -2285,7 +2174,7 @@ let isAccountantMode = /^#accountant(-ar|-en)?$/.test(location.hash);
 if(/^#(inspect|expense|accountant)-en$/.test(location.hash)) LANG = "en";
 else if(/^#(inspect|expense|accountant)-ar$/.test(location.hash)) LANG = "ar";
 let isAssetViewMode = /^#asset-/.test(location.hash);
-MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", type:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
+MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
@@ -2669,9 +2558,7 @@ function buildDatalistsHtml(){
   const vendorDatalist = `<datalist id="dl_expenseVendors">${uniq(expRecs.map(r=>r.vendor)).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
   const projectDatalist = `<datalist id="dl_expenseProjects">${uniq([...loadData("projects").map(p=>p.projectName), ...expRecs.map(r=>r.project)]).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
   const stepDatalist = `<datalist id="dl_expenseSteps">${uniq(loadData("projects").flatMap(p=>(p.steps||[]).map(s=>s.name))).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
-  const authDefaults = ["دائرة التنمية الاقتصادية","البلدية","الدفاع المدني","الجهات الأمنية","وزارة الموارد البشرية"];
-  const authDatalist = `<datalist id="dl_licenseAuthorities">${uniq([...authDefaults, ...loadData("licenses").map(r=>r.issuingAuthority)]).map(v=>`<option value="${escapeAttr(v)}">`).join("")}</datalist>`;
-  return masterLists + assetDatalist + plateDatalist + vendorDatalist + projectDatalist + stepDatalist + authDatalist;
+  return masterLists + assetDatalist + plateDatalist + vendorDatalist + projectDatalist + stepDatalist;
 }
 
 /* ---------------- PIN LOCK ---------------- */
@@ -4303,6 +4190,44 @@ function scheduleImportedBranchFix(){
     }, 5500);       // after the Mayar import so freshly imported items are never "fixed" twice
   }, 800);
 }
+/* ---------------- ONE-TIME: the four new stages for the projects already in progress ----------------
+   Restaurant / cafe / new-branch projects that are not finished get the stages they are missing — pest-control contract, cameras
+   contract, property inventory, licences inventory — each in its proper place. Nothing else in the project is touched (a stage the
+   user deleted earlier is NOT brought back; only these four are ever added). */
+const PROJECT_STAGE_UPGRADE_FLAG = "forka_project_stages_v2";
+function runProjectStageUpgrade(){
+  if(localStorage.getItem(PROJECT_STAGE_UPGRADE_FLAG)) return null;
+  const arr = loadDataRaw("projects"); const now = Date.now(); const done = [];
+  arr.forEach(p=>{
+    if(p._deleted || (p.status||"")==="مكتمل") return;
+    if(!["رخصة مطعم جديدة","رخصة كافيه / كوفي شوب جديدة","فرع جديد (افتتاح)"].includes(p.type)) return;
+    const steps = Array.isArray(p.steps) ? p.steps : [];
+    if(!steps.length) return;
+    const merged = mergeTemplateSteps(steps, p.type, PROJECT_NEW_STAGE_NAMES);
+    if(merged.length === steps.length) return;
+    p.steps = merged; Object.assign(p, projectComputed(p)); p._updatedAt = now;
+    cloudPushRecord("projects", p);
+    done.push({ name: p.projectName, added: merged.length - steps.length });
+  });
+  if(done.length) saveData("projects", arr);
+  localStorage.setItem(PROJECT_STAGE_UPGRADE_FLAG, "1");
+  return done;
+}
+function scheduleProjectStageUpgrade(){
+  if(localStorage.getItem(PROJECT_STAGE_UPGRADE_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    if(!(cloudReadyForJobs() && (!cloudEnabled || cloudFirstSyncReceived.projects)) && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(()=>{
+      try{
+        const done = runProjectStageUpgrade();
+        if(done && done.length){ alert(t('projStageUpgradeDone', done.map(d=>`• ${d.name} (+${d.added})`).join("\n"))); render(); }
+      }catch(err){ console.error("Project stage upgrade failed:", err); }
+    }, 6500);
+  }, 800);
+}
 function migrateStripUploadedPhotoDataUrls(){
   if(localStorage.getItem("forka_migrated_photostrip_v1")) return;
   let changedAny = false;
@@ -4367,7 +4292,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
@@ -5284,26 +5209,16 @@ function renderNav(){
   if(isAccountantMode){ renderAccountantPage(); return; }
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   const navRoot = document.getElementById("nav-modules");
-  const amcType = state.moduleState.amc ? state.moduleState.amc.type : "all";
-  const navItem = (m, typeVal, icon, label, count)=> `<div class="nav-item" data-view="${m.key}" ${typeVal!==null?`data-typefilter="${escapeAttr(typeVal)}"`:""}>
-      <span class="ic">${icon}</span><span>${label}</span><span class="nav-badge">${count}</span></div>`;
   navRoot.innerHTML = MODULES.map(m=>{
-    let html = navItem(m, m.key==="amc" ? "" : null, m.icon, ML(m,"name"), loadData(m.key).length);
-    if(m.key==="amc"){
-      const all = loadData("amc");
-      html += navItem(m, CONTRACT_PEST, "🐜", t('navAmcPest'), all.filter(r=>r.contractType===CONTRACT_PEST).length);
-      html += navItem(m, CONTRACT_CCTV, "📹", t('navAmcCctv'), all.filter(r=>r.contractType===CONTRACT_CCTV).length);
-    }
-    return html;
+    const count = loadData(m.key).length;
+    return `<div class="nav-item ${state.view===m.key?'active':''}" data-view="${m.key}">
+      <span class="ic">${m.icon}</span><span>${ML(m,"name")}</span>
+      <span class="nav-badge">${count}</span>
+    </div>`;
   }).join("");
   document.querySelectorAll(".nav-item").forEach(el=>{
-    const tfv = el.dataset.typefilter;
-    const isAmcShortcut = el.dataset.view==="amc" && tfv!==undefined;
-    el.classList.toggle("active", el.dataset.view===state.view && (!isAmcShortcut || (tfv==="" ? (amcType==="all" || !amcType) : amcType===tfv)));
-    el.onclick = ()=>{
-      if(isAmcShortcut) state.moduleState.amc.type = tfv==="" ? "all" : tfv;
-      state.view = el.dataset.view; closeSidebar(); render();
-    };
+    el.classList.toggle("active", el.dataset.view===state.view);
+    el.onclick = ()=>{ state.view = el.dataset.view; closeSidebar(); render(); };
   });
 }
 function openSidebar(){
@@ -5373,7 +5288,6 @@ function renderDashboard(){
   if(isDriverMode){ renderDriverModePage(); return; }
   if(isBranchInspectMode){ renderBranchInspectPage(); return; }
   if(isExpenseMode || isAccountantMode) return;
-  refreshExpiryStatuses();
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   document.getElementById("topbarTitle").textContent = t("dashboardTitle");
   document.getElementById("topbarMeta").textContent = t("dashboardMeta") + new Date().toLocaleDateString(LANG==="ar"?"ar-EG":"en-GB");
@@ -5407,10 +5321,6 @@ function renderDashboard(){
     const d = daysUntil(r.endDate); return d!==null && d<=60 && d>=0;
   }).sort((a,b)=> new Date(a.endDate)-new Date(b.endDate));
 
-  const licAlerts = loadData("licenses").filter(r=>{ const d = r.expiryDate ? daysUntil(r.expiryDate) : null; return d!==null && d<=60 && (r.status||"")!=="قيد التجديد"; })
-    .sort((a,b)=> new Date(a.expiryDate)-new Date(b.expiryDate));
-  const propAlerts = loadData("properties").filter(r=>{ const d = r.leaseEnd ? daysUntil(r.leaseEnd) : null; return d!==null && d<=90 && (r.ownership||"")!=="ملك" && (r.status||"")!=="قيد التجديد"; })
-    .sort((a,b)=> new Date(a.leaseEnd)-new Date(b.leaseEnd));
   const fleetData = loadData("fleet");
   const fleetAlerts = fleetData.filter(r=>{
     const insD = r.insuranceExpiry ? daysUntil(r.insuranceExpiry) : null;
@@ -5483,20 +5393,6 @@ function renderDashboard(){
         </tbody>
       </table>
     </div>
-    <div class="section-title">${t("licDashTitle")}</div>
-    <div class="table-wrap" style="margin-bottom:16px;">
-      <table>
-        <thead><tr><th>${t("thLicBranch")}</th><th>${t("thLicType")}</th><th>${t("thLicNo")}</th><th>${t("thEndDate")}</th><th>${t("thDaysLeft")}</th><th>${t("thStatus")}</th></tr></thead>
-        <tbody>${licAlerts.length ? licAlerts.map(r=>`<tr><td>${escapeHtml(r.branch||"")}</td><td>${escapeHtml(optLabel(r.licenseType||""))}</td><td>${escapeHtml(r.licenseNo||"")}</td><td>${r.expiryDate||""}</td><td>${badge(daysUntil(r.expiryDate)+t("daysUnit"))}</td><td>${badge(r.status||"")}</td></tr>`).join("") : `<tr class="empty-row"><td colspan="6">${t("noLicAlerts")}</td></tr>`}</tbody>
-      </table>
-    </div>
-    <div class="section-title">${t("propDashTitle")}</div>
-    <div class="table-wrap" style="margin-bottom:16px;">
-      <table>
-        <thead><tr><th>${t("thPropName")}</th><th>${t("thLicBranch")}</th><th>${t("thPropLandlord")}</th><th>${t("thEndDate")}</th><th>${t("thDaysLeft")}</th><th>${t("thStatus")}</th></tr></thead>
-        <tbody>${propAlerts.length ? propAlerts.map(r=>`<tr><td>${escapeHtml(r.propertyName||"")}</td><td>${escapeHtml(r.branch||"")}</td><td>${escapeHtml(r.landlord||"")}</td><td>${r.leaseEnd||""}</td><td>${badge(daysUntil(r.leaseEnd)+t("daysUnit"))}</td><td>${badge(r.status||"")}</td></tr>`).join("") : `<tr class="empty-row"><td colspan="6">${t("noPropAlerts")}</td></tr>`}</tbody>
-      </table>
-    </div>
     <div class="section-title">${t("fleetSectionTitle")}</div>
     <div class="table-wrap">
       <table>
@@ -5530,9 +5426,6 @@ function getFilteredData(m){
   let data = loadData(m.key);
   if(ms.status !== "all" && m.statusField){
     data = data.filter(r => (r[m.statusField]||"") === ms.status);
-  }
-  if(m.typeFilterField && ms.type && ms.type !== "all"){
-    data = data.filter(r => (r[m.typeFilterField]||"") === ms.type);
   }
   if(ms.search.trim()){
     const q = ms.search.trim().toLowerCase();
@@ -5695,7 +5588,6 @@ function renderModule(mKey){
   if(isExpenseMode || isAccountantMode) return;
   if(isAssetViewMode){ renderAssetViewPage(); return; }
   if(mKey==="projects") refreshProjectsComputed();
-  if(mKey==="licenses" || mKey==="properties") refreshExpiryStatuses();
   const m = MODULES.find(x=>x.key===mKey);
   const ms = state.moduleState[mKey];
   document.getElementById("topbarTitle").textContent = m.icon + "  " + ML(m,"name");
@@ -5716,7 +5608,7 @@ function renderModule(mKey){
   const btnBulkCheck = document.getElementById("btnBulkCheck");
   if(btnBulkCheck) btnBulkCheck.onclick = openBulkVehCheckModal;
   const btnAddTop = document.getElementById("btnAdd");
-  if(btnAddTop) btnAddTop.onclick = ()=> openForm(m, null, false, (m.typeFilterField && ms.type && ms.type!=="all") ? {[m.typeFilterField]: ms.type} : undefined);
+  if(btnAddTop) btnAddTop.onclick = ()=> openForm(m, null);
   const btnPrintTop = document.getElementById("btnPrint");
   if(btnPrintTop) btnPrintTop.onclick = ()=> window.print();
   const btnExportPdfTop = document.getElementById("btnExportPdf");
@@ -5759,10 +5651,6 @@ function renderModuleRecordsBody(m){
       ${m.statusField ? `<select id="statusFilter">
         <option value="all">${t('allStatuses')}</option>
         ${statusOptions.map(o=>`<option value="${o}" ${ms.status===o?'selected':''}>${optLabel(o)}</option>`).join("")}
-      </select>` : ""}
-      ${m.typeFilterField ? `<select id="typeFilter">
-        <option value="all">${t('typeFilterAll')}</option>
-        ${(m.fields.find(f=>f.key===m.typeFilterField).options||[]).map(o=>`<option value="${escapeAttr(o)}" ${ms.type===o?'selected':''}>${escapeHtml(optLabel(o))}</option>`).join("")}
       </select>` : ""}
       ${m.dateFieldForReports ? `
       <select id="dateRangeFilter">
@@ -5900,7 +5788,7 @@ function renderModuleRecordsBody(m){
   document.getElementById("moduleBody").innerHTML = toolbarHtml + rankingHtml + tableHtml;
   autoTranslateDOM(document.getElementById("moduleBody"));
 
-  document.getElementById("btnAdd").onclick = ()=> openForm(m, null, false, (m.typeFilterField && ms.type && ms.type!=="all") ? {[m.typeFilterField]: ms.type} : undefined);   // adding while a type is selected starts that type
+  document.getElementById("btnAdd").onclick = ()=> openForm(m, null);
   document.getElementById("btnPrint").onclick = ()=> window.print();
   document.getElementById("btnExportPdf").onclick = ()=> exportModulePDF(m);
   document.getElementById("btnExport").onclick = ()=> openModuleExportBranchModal(m);
@@ -5908,8 +5796,6 @@ function renderModuleRecordsBody(m){
   si.oninput = ()=>{ ms.search = si.value; ms.page = 1; renderModuleRecordsBody(m); si.focus(); si.setSelectionRange(si.value.length, si.value.length); };
   const sf = document.getElementById("statusFilter");
   if(sf) sf.onchange = ()=>{ ms.status = sf.value; ms.page = 1; renderModuleRecordsBody(m); };
-  const tf = document.getElementById("typeFilter");
-  if(tf) tf.onchange = ()=>{ ms.type = tf.value; ms.page = 1; renderModuleRecordsBody(m); renderNav(); };
   const drf = document.getElementById("dateRangeFilter");
   if(drf) drf.onchange = ()=>{ ms.dateRange.preset = drf.value; ms.page = 1; renderModuleRecordsBody(m); };
   const drFrom = document.getElementById("dateRangeFrom");
@@ -6078,7 +5964,7 @@ function buildProjectOverviewHtml(rec){
   } else {
     html += `<div class="table-wrap"><table><thead><tr><th>#</th><th>${t('projColStep')}</th><th>${t('projColAuthority')}</th><th>${t('projColStatus')}</th><th>${t('projColFee')}</th><th>${t('projColActual')}</th><th>${t('projColInv')}</th><th>${t('projColInvFile')}</th><th>${t('projColDocFile')}</th><th>${t('projColRef')}</th><th>${t('projColDone')}</th><th></th></tr></thead><tbody>
       ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
-        <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
+        <td>${i+1}</td><td><b>${escapeHtml(glDisplay(s.name))}</b>${isContractStep(s) && (s.contractStart||s.contractEnd) ? `<div style="font-size:11px; color:var(--navy);">📄 ${t('projContractTerm', s.contractStart||"—", s.contractEnd||"—")}</div>`:""}${s.notes?`<div style="font-size:11px; color:var(--muted);">${escapeHtml(s.notes)}</div>`:""}</td><td>${escapeHtml(glDisplay(s.authority||""))}</td>
         <td>${badge(s.status||"لم يبدأ")}</td><td>${s.fee?fmt2(s.fee):"—"}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
         <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(Number(s.paid)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
         <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
@@ -6091,13 +5977,7 @@ function buildProjectOverviewHtml(rec){
       <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColType')}</th><th>${t('expColTotal')}</th></tr></thead><tbody>
       ${cb.unassigned.map(e=>`<tr><td>${escapeHtml(e.expNo||"")}</td><td>${escapeHtml(e.date||"")}</td><td>${escapeHtml(e.vendor||"")}</td><td>${escapeHtml(optLabel(e.category||""))}</td><td><b>${fmt2(e.total)}</b></td></tr>`).join("")}</tbody></table></div>`;
   }
-  const projLics = loadData("licenses").filter(l=> projectKey(l.project)===projectKey(rec.projectName) && projectKey(rec.projectName));
-  if(projLics.length){
-    html += `<div class="section-title" style="margin-top:12px;">${t('projLicensesTitle')}</div>
-      <div class="table-wrap"><table><thead><tr><th>${t('thLicType')}</th><th>${t('thLicNo')}</th><th>${t('lblAuthority')}</th><th>${t('thEndDate')}</th><th>${t('thStatus')}</th></tr></thead><tbody>
-      ${projLics.map(l=>`<tr><td>${escapeHtml(optLabel(l.licenseType||""))}</td><td>${escapeHtml(l.licenseNo||"")}</td><td>${escapeHtml(glDisplay(l.issuingAuthority||""))}</td><td>${l.expiryDate||""}</td><td>${badge(l.status||"")}</td></tr>`).join("")}</tbody></table></div>`;
-  }
-  html += `<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-gold btn-sm" type="button" id="btnProjExport">${t('projExport')}</button><button class="btn btn-outline btn-sm" type="button" id="btnProjAddLicense">${t('projAddLicense')}</button></div></div>`;
+  html += `<div style="margin-top:12px;"><button class="btn btn-gold btn-sm" type="button" id="btnProjExport">${t('projExport')}</button></div></div>`;
   return html;
 }
 function bindProjectOverview(rec){
@@ -6113,12 +5993,6 @@ function bindProjectOverview(rec){
   });
   const ex = document.getElementById("btnProjExport");
   if(ex) ex.onclick = ()=> exportProjectExcel(rec);
-  const al = document.getElementById("btnProjAddLicense");
-  if(al) al.onclick = ()=>{
-    const br = splitBranchNames(rec.branch||"")[0] || (rec.branch||"");
-    closeModal();
-    openForm(MODULES.find(x=>x.key==="licenses"), null, false, { project: rec.projectName, branch: br });
-  };
 }
 async function exportProjectExcel(rec){
   showToast(t('exportPreparing'));
@@ -6136,11 +6010,11 @@ async function exportProjectExcel(rec){
     [t('projOvRemaining'), cb.budget ? round2(cb.budget-cb.actual) : ""], [t('projColInv'), cb.invoices.length],
   ].map(r=> ({[hs[0]]: r[0], [hs[1]]: r[1]}));
   addStyledSheet(wb, t('projSheetSummary'), hs, sumRows, {});
-  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile')];
+  const h2 = ["#", t('projColStep'), t('projColAuthority'), t('projColStatus'), t('projColFee'), t('projColActual'), t('projColInv'), t('projColRef'), t('stepStarted'), t('projColDone'), t('stepNotes'), t('projColInvFile'), t('projColDocFile'), t('stepContractStart'), t('stepContractEnd')];
   const links = (arr)=> (Array.isArray(arr)?arr:[]).map(p=> p.storageUrl || t('expXlLocal')).join("\n");
   const rows2 = cb.perStep.map((p,i)=>({ [h2[0]]:i+1, [h2[1]]:glDisplay(p.step.name), [h2[2]]:glDisplay(p.step.authority||""), [h2[3]]:optLabel(p.step.status||"لم يبدأ"),
     [h2[4]]:round2(p.step.fee), [h2[5]]:p.actual, [h2[6]]:p.invoices.length, [h2[7]]:p.step.refNo||"", [h2[8]]:p.step.startDate||"", [h2[9]]:p.step.doneDate||"", [h2[10]]:p.step.notes||"",
-    [h2[11]]:links(p.step.invoiceFiles), [h2[12]]:links(p.step.docFiles) }));
+    [h2[11]]:links(p.step.invoiceFiles), [h2[12]]:links(p.step.docFiles), [h2[13]]:p.step.contractStart||"", [h2[14]]:p.step.contractEnd||"" }));
   addStyledSheet(wb, t('projSheetSteps'), h2, rows2, {});
   const h3 = [efl('expNo'), efl('date'), efl('invoiceNo'), efl('vendor'), efl('projectStep'), efl('category'), t('expXlNet'), t('expXlVat'), t('expXlTotal'), efl('paymentStatus'), efl('reviewStatus'), t('expXlAttach')];
   const rows3 = cb.invoices.map(e=>({ [h3[0]]:e.expNo||"", [h3[1]]:e.date||"", [h3[2]]:e.invoiceNo||"", [h3[3]]:e.vendor||"", [h3[4]]:glDisplay(e.projectStep||""), [h3[5]]:optLabel(e.category||""),
@@ -6622,7 +6496,6 @@ function openForm(m, existing, viewMode, prefill){
       return p;
     });
     if(m.fields.some(f=>f.type==="quotes")) newRec.quotes = formQuotes;
-    if(m.key==="licenses" || m.key==="properties") newRec.status = expiryStatusFor(m.key, newRec);
     if(m.key==="projects"){
       newRec.steps = formSteps.filter(s=> (s.name||"").trim()).map(s=>({...s, name: s.name.trim(),
         invoiceFiles: (s.invoiceFiles||[]).map(cleanAttachment), docFiles: (s.docFiles||[]).map(cleanAttachment)}));
@@ -6918,11 +6791,33 @@ function renderBranchMultiWidget(fieldKey, currentValue){
 }
 let formSteps = [];   /* temp array of project stages while a project form is open */
 function newProjectStep(o){
-  return Object.assign({ id: uid(), name:"", authority:"", status:"لم يبدأ", fee:"", paid:"", refNo:"", startDate:"", doneDate:"", notes:"", invoiceFiles:[], docFiles:[] }, o||{});
+  return Object.assign({ id: uid(), name:"", authority:"", status:"لم يبدأ", fee:"", paid:"", refNo:"", startDate:"", doneDate:"", notes:"", invoiceFiles:[], docFiles:[], kind:"", contractStart:"", contractEnd:"" }, o||{});
 }
-function projectTemplateSteps(type){ return (PROJECT_TEMPLATES[type]||[]).map(s=> newProjectStep({ name:s.name, authority:s.authority||"" })); }
+function projectTemplateSteps(type){ return (PROJECT_TEMPLATES[type]||[]).map(s=> newProjectStep({ name:s.name, authority:s.authority||"", kind:s.kind||"" })); }
+const PROJECT_CONTRACT_STEP_NAMES = ["عقد مكافحة الحشرات","عقد الكاميرات (CCTV)"];
+const PROJECT_NEW_STAGE_NAMES = ["عقد مكافحة الحشرات","عقد الكاميرات (CCTV)","حصر الأملاك (جرد الموقع والمعدات)","حصر الرخص والشهادات"];
+function isContractStep(s){ return s.kind==="contract" || PROJECT_CONTRACT_STEP_NAMES.includes((s.name||"").trim()); }
+/* adds the stages of the project type that the project does not have yet, each one right after the nearest earlier stage it does have
+   (so a missing stage lands in its proper place, never at the end). onlyNames limits it to certain stages. */
+function mergeTemplateSteps(current, type, onlyNames){
+  const tpl = PROJECT_TEMPLATES[type] || [];
+  const out = current.map(s=>({...s}));
+  const have = new Set(out.map(s=> projectKey(s.name)));
+  tpl.forEach((ts, ti)=>{
+    if(have.has(projectKey(ts.name))) return;
+    if(onlyNames && !onlyNames.includes(ts.name)) return;
+    let pos = 0;
+    for(let k=ti-1; k>=0; k--){
+      const idx = out.findIndex(s=> projectKey(s.name)===projectKey(tpl[k].name));
+      if(idx >= 0){ pos = idx + 1; break; }
+    }
+    out.splice(pos, 0, newProjectStep({ name:ts.name, authority:ts.authority||"", kind:ts.kind||"" }));
+    have.add(projectKey(ts.name));
+  });
+  return out;
+}
 function projectStepsUntouched(){
-  return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate && !(s.invoiceFiles||[]).length && !(s.docFiles||[]).length);
+  return !formSteps.length || formSteps.every(s=> s.status==="لم يبدأ" && !s.fee && !s.paid && !s.refNo && !s.notes && !s.startDate && !s.doneDate && !s.contractStart && !s.contractEnd && !(s.invoiceFiles||[]).length && !(s.docFiles||[]).length);
 }
 function wireProjectForm(isEdit){
   renderProjectStepsWidget();
@@ -6956,6 +6851,8 @@ function renderProjectStepsWidget(){
         <input type="text" data-sf="refNo" data-si="${i}" value="${escapeAttr(s.refNo)}" placeholder="${t('stepRef')}" style="width:130px; ${inpStyle}">
         <label style="display:flex; align-items:center;">${mini(t('stepStarted'))}<input type="date" data-sf="startDate" data-si="${i}" value="${escapeAttr(s.startDate)}" style="${inpStyle}"></label>
         <label style="display:flex; align-items:center;">${mini(t('stepDone'))}<input type="date" data-sf="doneDate" data-si="${i}" value="${escapeAttr(s.doneDate)}" style="${inpStyle}"></label>
+        ${isContractStep(s) ? `<label style="display:flex; align-items:center;">${mini(t('stepContractStart'))}<input type="date" data-sf="contractStart" data-si="${i}" value="${escapeAttr(s.contractStart||"")}" style="${inpStyle}"></label>
+        <label style="display:flex; align-items:center;">${mini(t('stepContractEnd'))}<input type="date" data-sf="contractEnd" data-si="${i}" value="${escapeAttr(s.contractEnd||"")}" style="${inpStyle}"></label>` : ""}
         <input type="text" data-sf="notes" data-si="${i}" value="${escapeAttr(s.notes)}" placeholder="${t('stepNotes')}" style="flex:1; min-width:140px; ${inpStyle}">
         <button type="button" class="btn btn-sm btn-outline" data-sup="${i}" title="↑">↑</button>
         <button type="button" class="btn btn-sm btn-outline" data-sdown="${i}" title="↓">↓</button>
@@ -7000,10 +6897,9 @@ function renderProjectStepsWidget(){
     const type = typeSel ? typeSel.value : "";
     const tpl = projectTemplateSteps(type);
     if(!tpl.length){ alert(t('stepNoTemplate')); return; }
-    const have = new Set(formSteps.map(s=> projectKey(s.name)));
-    const missing = tpl.filter(s=> !have.has(projectKey(s.name)));
-    if(!missing.length){ alert(t('stepTemplateAllThere')); return; }
-    formSteps = [...formSteps, ...missing]; renderProjectStepsWidget();     // adds only the stages that are not already in the list
+    const merged = mergeTemplateSteps(formSteps, type);
+    if(merged.length === formSteps.length){ alert(t('stepTemplateAllThere')); return; }
+    formSteps = merged; renderProjectStepsWidget();     // adds only the missing stages, each in its proper place
   };
 }
 /* ---- invoice + document files under every stage ---- */
@@ -9544,8 +9440,6 @@ function calendarEventsForModule(){
     { key:"amc", dateField:"nextVisit", color:"#C9A24B" },
     { key:"inspections", dateField:"targetDate", color:"#c0392b" },
     { key:"projects", dateField:"targetOpenDate", color:"#1f8a4c" },
-    { key:"licenses", dateField:"expiryDate", color:"#c0392b" },
-    { key:"properties", dateField:"leaseEnd", color:"#7c3aed" },
     { key:"fleet", dateField:"insuranceExpiry", color:"#b8860b" },
   ];
 }
@@ -9559,7 +9453,7 @@ function getAllCalendarEvents(){
       if(!dateVal) return;
       const d = new Date(dateVal);
       if(isNaN(d.getTime())) return;
-      const title = r.licenseType ? `${optLabel(r.licenseType)}${r.branch ? " — " + r.branch : ""}` : (r.carName || r.propertyName || r.projectName || r.item || r.company || r.equipment || r.branch || ML(m,"singular"));
+      const title = r.carName || r.projectName || r.item || r.company || r.equipment || r.branch || ML(m,"singular");
       events.push({ id:r.id, moduleKey:m.key, moduleName:ML(m,"name"), title, date:d });
     });
   });
@@ -9599,7 +9493,7 @@ function getCalendarEventsForMonth(year, month){
       const d = new Date(dateVal);
       if(d.getFullYear()!==year || d.getMonth()!==month) return;
       const key = d.toISOString().slice(0,10);
-      const title = r.licenseType ? `${optLabel(r.licenseType)}${r.branch ? " — " + r.branch : ""}` : (r.carName || r.propertyName || r.projectName || r.item || r.company || r.equipment || r.branch || ML(m,"singular"));
+      const title = r.carName || r.projectName || r.item || r.company || r.equipment || r.branch || ML(m,"singular");
       if(!events[key]) events[key] = [];
       events[key].push({ title, moduleKey: m.key, id:r.id, color:cfg.color, icon:m.icon });
     });
@@ -11083,7 +10977,7 @@ if(location.hash === "#public"){
   renderAccountantPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); }
+} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
