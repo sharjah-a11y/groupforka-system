@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1F3864">
+<meta name="theme-color" content="#23211f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,7 @@
 <link rel="manifest" href="manifest.json">
 <title>GROUP FORKA | نظام إدارة الصيانة والمرافق والأسطول واللوجستيات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -28,29 +28,29 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <style>
   :root{
-    --navy:#1F3864; --navy-dark:#15294c; --navy-light:#2c4a80;
-    --gold:#C9A24B; --gold-light:#e8d9b5;
-    --bg:#EEF1F6; --card:#FFFFFF; --line:#E2E6EE;
-    --text:#1c2433; --muted:#6b7686;
-    --danger:#c0392b; --danger-bg:#fdecea;
-    --success:#1f8a4c; --success-bg:#e8f8ee;
-    --warning:#b8860b; --warning-bg:#fff6e0;
-    --info:#2563eb; --info-bg:#eaf1ff;
+    --navy:#23211f; --navy-dark:#171513; --navy-light:#3a3631;
+    --gold:#b8875a; --gold-light:#e9dccb;
+    --bg:#f6f3ee; --card:#fffdf9; --line:#e5dfd5;
+    --text:#23211f; --muted:#8d877e;
+    --danger:#a33a2c; --danger-bg:#f8e9e5;
+    --success:#4f7a3a; --success-bg:#eef3e8;
+    --warning:#a8731c; --warning-bg:#fbf2e2;
+    --info:#3e5c8a; --info-bg:#eaeff6;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;}
   body{
-    font-family:'Tajawal','Segoe UI',Arial,sans-serif;
+    font-family:var(--fk-sans);
     background:var(--bg); color:var(--text);
     display:flex; min-height:100vh;
   }
   /* ---------- Sidebar ---------- */
   .sidebar{
-    width:250px; min-width:250px; background:linear-gradient(180deg,var(--navy),var(--navy-dark));
+    width:250px; min-width:250px; background:var(--navy);
     color:#fff; display:flex; flex-direction:column; padding:18px 0; position:sticky; top:0; height:100vh; overflow-y:auto;
   }
   .brand{ padding:0 18px 16px; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px;}
-  .brand .logo{font-weight:900; font-size:20px; letter-spacing:.5px;}
+  .brand .logo{font-weight:700; font-size:20px; letter-spacing:.5px;}
   .brand .sub{font-size:12px; color:var(--gold-light); margin-top:4px; line-height:1.5;}
   .nav-group-title{font-size:11px; color:rgba(255,255,255,.5); padding:14px 18px 6px; text-transform:uppercase; letter-spacing:.05em;}
   .nav-item{
@@ -61,7 +61,7 @@
   .nav-item.active{background:rgba(255,255,255,.12); border-inline-start-color:var(--gold); color:#fff; font-weight:700;}
   .nav-item .ic{font-size:16px; width:20px; text-align:center;}
   .nav-badge{
-    margin-inline-start:auto; background:var(--gold); color:var(--navy-dark); font-weight:800;
+    margin-inline-start:auto; background:var(--gold); color:var(--navy-dark); font-weight:700;
     font-size:11px; padding:1px 7px; border-radius:10px; min-width:18px; text-align:center;
   }
   .nav-footer{margin-top:auto; padding:14px 18px; font-size:11px; color:rgba(255,255,255,.45); border-top:1px solid rgba(255,255,255,.1);}
@@ -72,7 +72,7 @@
     background:var(--card); border-bottom:1px solid var(--line); padding:14px 24px;
     display:flex; align-items:center; justify-content:space-between; gap:12px; position:sticky; top:0; z-index:5; flex-wrap:wrap;
   }
-  .topbar h1{font-size:18px; margin:0; font-weight:800; color:var(--navy);}
+  .topbar h1{font-size:18px; margin:0; font-weight:700; color:var(--navy);}
   .topbar .meta{font-size:12px; color:var(--muted); margin-top:2px;}
   .topbar-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
   .content{padding:22px 24px 60px; flex:1;}
@@ -86,32 +86,32 @@
   .btn-primary:hover{background:var(--navy-light);}
   .btn-gold{background:var(--gold); color:var(--navy-dark);}
   .btn-gold:hover{filter:brightness(1.05);}
-  .btn-outline{background:#fff; color:var(--navy); border:1.5px solid var(--line);}
+  .btn-outline{background:#fffdf9; color:var(--navy); border:1.5px solid var(--line);}
   .btn-outline:hover{border-color:var(--navy);}
   .btn-danger{background:var(--danger-bg); color:var(--danger);}
-  .btn-danger:hover{background:#f8d7d3;}
+  .btn-danger:hover{background:#f8e9e5;}
   .btn-sm{padding:5px 10px; font-size:12px; border-radius:6px;}
   .btn-lang{background:var(--navy-dark); color:#fff; border:1.5px solid rgba(255,255,255,.25);}
   .btn:disabled{opacity:.5; cursor:not-allowed;}
 
   /* ---------- Cards / Dashboard ---------- */
   .grid-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-bottom:20px;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; box-shadow:0 1px 2px rgba(35,33,31,.04);}
   .stat-card{cursor:pointer; transition:.15s;}
-  .stat-card:hover{box-shadow:0 4px 14px rgba(20,30,60,.10); transform:translateY(-1px);}
+  .stat-card:hover{box-shadow:0 4px 14px rgba(35,33,31,.08); transform:translateY(-1px);}
   .stat-card .top{display:flex; align-items:center; justify-content:space-between;}
   .stat-card .ic{font-size:22px;}
-  .stat-card .num{font-size:30px; font-weight:900; color:var(--navy); margin:6px 0 2px;}
+  .stat-card .num{font-size:30px; font-weight:700; color:var(--navy); margin:6px 0 2px;}
   .stat-card .label{font-size:13.5px; color:var(--text); font-weight:700;}
   .stat-card .sub{font-size:12px; color:var(--muted); margin-top:6px;}
-  .stat-card .alert{color:var(--danger); font-weight:800;}
-  .section-title{font-size:15px; font-weight:800; color:var(--navy); margin:26px 0 12px; display:flex; align-items:center; gap:8px;}
+  .stat-card .alert{color:var(--danger); font-weight:700;}
+  .section-title{font-size:15px; font-weight:700; color:var(--navy); margin:26px 0 12px; display:flex; align-items:center; gap:8px;}
   .section-title:before{content:""; width:4px; height:16px; background:var(--gold); border-radius:2px; display:inline-block;}
 
   /* ---------- Toolbar ---------- */
   .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;}
   .toolbar input[type=text], .toolbar select{
-    border:1.5px solid var(--line); border-radius:8px; padding:8px 12px; font-family:inherit; font-size:13.5px; background:#fff;
+    border:1.5px solid var(--line); border-radius:8px; padding:8px 12px; font-family:inherit; font-size:13.5px; background:#fffdf9;
   }
   .toolbar input[type=text]{min-width:220px;}
   .spacer{flex:1;}
@@ -123,26 +123,26 @@
     background:var(--navy); color:#fff; text-align:center; padding:10px 8px; font-weight:700; white-space:nowrap; position:sticky; top:0;
   }
   tbody td{padding:9px 8px; text-align:center; border-bottom:1px solid var(--line); vertical-align:middle;}
-  tbody tr:nth-child(even){background:#FAFBFD;}
-  tbody tr:hover{background:#F0F4FA;}
+  tbody tr:nth-child(even){background:#fbf8f3;}
+  tbody tr:hover{background:#fbf8f3;}
   tbody tr.clickable-row{cursor:pointer;}
   td.desc-cell, th.desc-cell{width:380px; min-width:320px; max-width:480px; text-align:start; white-space:normal;}
   .row-actions{display:flex; gap:5px; justify-content:center;}
   .empty-row td{padding:40px; color:var(--muted); font-size:14px;}
 
-  .badge{display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:800; white-space:nowrap;}
+  .badge{display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap;}
   .badge-danger{background:var(--danger-bg); color:var(--danger);}
   .badge-warning{background:var(--warning-bg); color:var(--warning);}
   .badge-success{background:var(--success-bg); color:var(--success);}
   .badge-info{background:var(--info-bg); color:var(--info);}
-  .badge-muted{background:#eef0f4; color:var(--muted);}
+  .badge-muted{background:#f6f3ee; color:var(--muted);}
 
   /* ---------- Modal / Form ---------- */
   .modal-overlay{
-    position:fixed; inset:0; background:rgba(15,20,35,.55); display:flex; align-items:flex-start; justify-content:center;
+    position:fixed; inset:0; background:rgba(23,21,19,.55); display:flex; align-items:flex-start; justify-content:center;
     padding:30px 16px; overflow-y:auto; z-index:50;
   }
-  .modal{background:#fff; border-radius:14px; width:100%; max-width:920px; padding:22px 26px 26px; box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal{background:#fffdf9; border-radius:14px; width:100%; max-width:920px; padding:22px 26px 26px; box-shadow:0 20px 60px rgba(0,0,0,.3);}
   .modal h2{margin:0 0 4px; color:var(--navy); font-size:19px;}
   .modal .modal-sub{font-size:12.5px; color:var(--muted); margin-bottom:16px;}
   .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px 16px;}
@@ -150,7 +150,7 @@
   .field.full{grid-column:1/-1;}
   .field label{font-size:12.5px; font-weight:700; color:var(--text);}
   .field input, .field select, .field textarea{
-    border:1.5px solid var(--line); border-radius:8px; padding:9px 11px; font-family:inherit; font-size:13.5px; background:#fbfcfe;
+    border:1.5px solid var(--line); border-radius:8px; padding:9px 11px; font-family:inherit; font-size:13.5px; background:#fffdf9;
     width:100%; box-sizing:border-box;
   }
   .field textarea{min-height:90px; resize:vertical;}
@@ -165,11 +165,11 @@
   .toast.show{opacity:1;}
 
   .banner{
-    background:var(--warning-bg); border:1px solid #f0e0b0; color:#7a5c00; font-size:12.5px; padding:10px 14px;
+    background:var(--warning-bg); border:1px solid #a8731c; color:#a8731c; font-size:12.5px; padding:10px 14px;
     border-radius:10px; margin-bottom:16px; display:flex; gap:8px; align-items:flex-start;
   }
   .help-box{
-    background:var(--info-bg); border:1px solid #cfe0fb; color:#1b3f8f; font-size:13px; padding:14px 16px;
+    background:var(--info-bg); border:1px solid #3e5c8a; color:#3e5c8a; font-size:13px; padding:14px 16px;
     border-radius:10px; margin-bottom:18px; line-height:1.9;
   }
   .help-box b{color:var(--navy);}
@@ -179,13 +179,13 @@
   .print-only{display:none;}
   @media print{
     .no-print{display:none !important;}
-    body{display:block; background:#fff;}
+    body{display:block; background:#fffdf9;}
     .main{width:100%;}
     .content{padding:0;}
     .print-only{display:block;}
     .table-wrap{border:none; border-radius:0; max-height:none; overflow:visible;}
     table{min-width:0; font-size:11px;}
-    thead th{background:#1F3864 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; color:#fff !important;}
+    thead th{background:#23211f !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; color:#fff !important;}
     .badge{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
     @page{ size: A4 landscape; margin:12mm; }
   }
@@ -195,8 +195,8 @@
   body.generating-pdf .table-wrap{border:none; border-radius:0; max-height:none !important; overflow:visible !important;}
   body.generating-pdf .content{padding:0;}
   .print-header{display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--navy); padding-bottom:10px; margin-bottom:14px;}
-  .print-header .pt-title{font-size:18px; font-weight:900; color:var(--navy);}
-  .print-header .pt-meta{font-size:11px; color:#555;}
+  .print-header .pt-title{font-size:18px; font-weight:700; color:var(--navy);}
+  .print-header .pt-meta{font-size:11px; color:#5c5852;}
 
   /* ---------- Sortable table headers ---------- */
   thead th.sortable{cursor:pointer; user-select:none;}
@@ -208,19 +208,19 @@
   .photo-thumb{position:relative; width:64px; height:64px; border-radius:8px; overflow:hidden; border:1px solid var(--line);}
   .pdf-thumb-icon{
     width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background:#fdecea; color:#c0392b; font-size:22px; gap:2px;
+    background:#f8e9e5; color:#a33a2c; font-size:22px; gap:2px;
   }
-  .pdf-thumb-icon span{font-size:9px; font-weight:800;}
+  .pdf-thumb-icon span{font-size:9px; font-weight:700;}
 
   /* ---------- Calendar ---------- */
   .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-header-row{ margin-bottom:6px; }
-  .cal-headcell{ text-align:center; font-weight:800; font-size:12px; color:var(--navy); padding:6px 0; }
+  .cal-headcell{ text-align:center; font-weight:700; font-size:12px; color:var(--navy); padding:6px 0; }
   .cal-cell{ background:var(--card); border:1px solid var(--line); border-radius:8px; min-height:92px; padding:6px; display:flex; flex-direction:column; }
   .cal-cell.cal-empty{ background:transparent; border:none; }
-  .cal-cell.cal-today{ border:2px solid var(--gold); background:#fffdf5; }
-  .cal-daynum{ font-size:12px; font-weight:800; color:var(--text); margin-bottom:4px; }
-  .cal-today-badge{ font-size:9px; background:var(--gold); color:var(--navy-dark); border-radius:8px; padding:1px 5px; font-weight:800; }
+  .cal-cell.cal-today{ border:2px solid var(--gold); background:#fbf8f3; }
+  .cal-daynum{ font-size:12px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .cal-today-badge{ font-size:9px; background:var(--gold); color:var(--navy-dark); border-radius:8px; padding:1px 5px; font-weight:700; }
   .cal-events{ display:flex; flex-direction:column; gap:2px; overflow:hidden; }
   .cal-event{ font-size:10px; padding:2px 4px; border-radius:4px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .cal-event-more{ font-size:9.5px; color:var(--muted); padding:0 4px; }
@@ -231,51 +231,51 @@
   }
   /* ---------- QR modal ---------- */
   .qr-overlay{
-    position:fixed; inset:0; background:rgba(10,14,25,.85); z-index:250;
+    position:fixed; inset:0; background:rgba(23,21,19,.85); z-index:250;
     display:flex; align-items:center; justify-content:center; padding:20px;
   }
-  .qr-box{ background:#fff; border-radius:16px; padding:24px; text-align:center; max-width:340px; width:100%; }
+  .qr-box{ background:#fffdf9; border-radius:16px; padding:24px; text-align:center; max-width:340px; width:100%; }
   .qr-box #qrCanvasWrap{ display:flex; justify-content:center; margin:14px 0; }
   .qr-video-wrap{ position:relative; width:100%; max-width:400px; border-radius:12px; overflow:hidden; background:#000; }
   .qr-video-wrap video{ width:100%; display:block; }
   .qr-scan-frame{ position:absolute; inset:15%; border:3px solid var(--gold); border-radius:12px; pointer-events:none; }
-  .video-thumb-icon{ background:#eaf1ff !important; color:#2563eb !important; }
+  .video-thumb-icon{ background:#eaeff6 !important; color:#3e5c8a !important; }
   .attach-status{
     position:absolute; bottom:2px; inset-inline-start:2px; font-size:11px; background:rgba(255,255,255,.9);
     border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center;
   }
   .attach-status.uploading{ animation: pulse 1.2s infinite; }
-  .attach-status.failed{ background:rgba(255,235,230,.95); }
+  .attach-status.failed{ background:rgba(248,233,229,.95); }
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.4;} }
   .photo-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
   .photo-thumb .rm{
-    position:absolute; top:2px; inset-inline-end:2px; background:rgba(192,57,43,.9); color:#fff; border:none;
+    position:absolute; top:2px; inset-inline-end:2px; background:rgba(163,58,44,.9); color:#fff; border:none;
     width:18px; height:18px; border-radius:50%; font-size:11px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
   .photo-add-btn{
     width:64px; height:64px; border:1.5px dashed var(--line); border-radius:8px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; color:var(--muted); font-size:22px; background:#fafbfd;
+    cursor:pointer; color:var(--muted); font-size:22px; background:#fbf8f3;
   }
   .photo-count-chip{font-size:11px; background:var(--info-bg); color:var(--info); border-radius:10px; padding:2px 8px; white-space:nowrap;}
 
   /* ---------- Overdue tag ---------- */
-  .overdue-tag{color:var(--danger); font-size:11px; font-weight:800; margin-inline-start:4px; white-space:nowrap;}
+  .overdue-tag{color:var(--danger); font-size:11px; font-weight:700; margin-inline-start:4px; white-space:nowrap;}
 
   /* ---------- KPI cards ---------- */
-  .kpi-card .kpi-val{font-size:26px; font-weight:900; color:var(--navy);}
+  .kpi-card .kpi-val{font-size:26px; font-weight:700; color:var(--navy);}
   .kpi-card .kpi-target{font-size:11px; color:var(--muted); margin-top:4px;}
-  .kpi-bar{height:6px; border-radius:4px; background:#eef0f4; margin-top:8px; overflow:hidden;}
+  .kpi-bar{height:6px; border-radius:4px; background:#f6f3ee; margin-top:8px; overflow:hidden;}
   .kpi-bar-fill{height:100%; border-radius:4px; background:var(--success);}
   .kpi-bar-fill.warn{background:var(--warning);}
   .kpi-bar-fill.bad{background:var(--danger);}
 
   /* ---------- Photo Lightbox ---------- */
   .lightbox-overlay{
-    position:fixed; inset:0; background:rgba(10,14,25,.92); z-index:300;
+    position:fixed; inset:0; background:rgba(23,21,19,.92); z-index:300;
     display:flex; align-items:center; justify-content:center; flex-direction:column; padding:20px;
   }
   .lightbox-img{ max-width:90vw; max-height:78vh; object-fit:contain; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.5); }
-  .lightbox-pdf{ width:88vw; height:78vh; border:none; border-radius:8px; background:#fff; box-shadow:0 10px 40px rgba(0,0,0,.5); }
+  .lightbox-pdf{ width:88vw; height:78vh; border:none; border-radius:8px; background:#fffdf9; box-shadow:0 10px 40px rgba(0,0,0,.5); }
   .lightbox-close{
     position:absolute; top:18px; inset-inline-end:22px; background:rgba(255,255,255,.12); color:#fff; border:none;
     width:40px; height:40px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -288,7 +288,7 @@
   .lightbox-nav:hover{ background:rgba(255,255,255,.22); }
   .lightbox-prev{ inset-inline-start:24px; }
   .lightbox-next{ inset-inline-end:24px; }
-  .lightbox-counter{ color:#ddd; font-size:13px; margin-top:14px; }
+  .lightbox-counter{ color:#e5dfd5; font-size:13px; margin-top:14px; }
   .lightbox-name{ color:#fff; font-size:13px; margin-top:6px; font-weight:700; }
 
   /* ---------- Mobile menu button ---------- */
@@ -297,31 +297,31 @@
 
   /* ---------- Lock screen ---------- */
   .lock-screen{
-    position:fixed; inset:0; background:linear-gradient(135deg,var(--navy),var(--navy-dark)); z-index:200;
+    position:fixed; inset:0; background:var(--navy); z-index:200;
     display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff; padding:20px;
   }
   .lock-box{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:16px; padding:34px 30px; width:100%; max-width:340px; text-align:center;}
-  .lock-box .lg{font-weight:900; font-size:20px; margin-bottom:4px;}
+  .lock-box .lg{font-weight:700; font-size:20px; margin-bottom:4px;}
   .lock-box .ls{font-size:12.5px; color:var(--gold-light); margin-bottom:20px;}
   .lock-box input{
     width:100%; text-align:center; font-size:22px; letter-spacing:8px; padding:12px; border-radius:10px; border:none;
     margin-bottom:14px; font-family:inherit;
   }
-  .lock-box .err{color:#ffb4b4; font-size:12.5px; min-height:18px; margin-bottom:6px;}
+  .lock-box .err{color:#f8e9e5; font-size:12.5px; min-height:18px; margin-bottom:6px;}
 
   /* ---------- Notifications page ---------- */
   .step-card{display:flex; gap:12px; align-items:flex-start;}
   .step-num{
     width:26px; height:26px; min-width:26px; border-radius:50%; background:var(--navy); color:#fff;
-    display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700;
   }
   .notif-status{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:4px 10px; border-radius:20px;}
   .notif-status.on{background:var(--success-bg); color:var(--success);}
-  .notif-status.off{background:#eef0f4; color:var(--muted);}
+  .notif-status.off{background:#f6f3ee; color:var(--muted);}
   .toggle-switch{position:relative; width:42px; height:24px; display:inline-block;}
   .toggle-switch input{opacity:0; width:0; height:0;}
-  .toggle-slider{position:absolute; inset:0; background:#ccc; border-radius:24px; cursor:pointer; transition:.2s;}
-  .toggle-slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.2s;}
+  .toggle-slider{position:absolute; inset:0; background:#e5dfd5; border-radius:24px; cursor:pointer; transition:.2s;}
+  .toggle-slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fffdf9; border-radius:50%; transition:.2s;}
   .toggle-switch input:checked + .toggle-slider{background:var(--success);}
   .toggle-switch input:checked + .toggle-slider:before{transform:translateX(18px);}
   html[dir="rtl"] .toggle-switch input:checked + .toggle-slider:before{transform:translateX(-18px);}
@@ -340,7 +340,7 @@
   }
   /* ---------- Quotes comparison widget ---------- */
   .quotes-widget{display:flex; flex-direction:column; gap:8px; margin-top:4px;}
-  .quote-row{display:flex; gap:8px; align-items:center; background:#fafbfd; border:1px solid var(--line); border-radius:8px; padding:8px;}
+  .quote-row{display:flex; gap:8px; align-items:center; background:#fbf8f3; border:1px solid var(--line); border-radius:8px; padding:8px;}
   .quote-row input[type=text], .quote-row input[type=number]{
     border:1.5px solid var(--line); border-radius:6px; padding:6px 8px; font-family:inherit; font-size:13px;
   }
@@ -350,39 +350,126 @@
 
   /* ---------- Delay block ---------- */
   .delay-block{
-    grid-column:1/-1; background:var(--warning-bg); border:1.5px solid #f0e0b0; border-radius:10px; padding:12px 14px;
+    grid-column:1/-1; background:var(--warning-bg); border:1.5px solid #a8731c; border-radius:10px; padding:12px 14px;
   }
-  .delay-block .delay-title{font-size:12.5px; font-weight:800; color:#7a5c00; margin-bottom:8px;}
+  .delay-block .delay-title{font-size:12.5px; font-weight:700; color:#a8731c; margin-bottom:8px;}
   .cond-block{
-    grid-column:1/-1; background:var(--info-bg); border:1.5px solid #cfe0fb; border-radius:10px; padding:12px 14px;
+    grid-column:1/-1; background:var(--info-bg); border:1.5px solid #3e5c8a; border-radius:10px; padding:12px 14px;
   }
-  .cond-block .delay-title{font-size:12.5px; font-weight:800; color:#1b3f8f; margin-bottom:8px;}
+  .cond-block .delay-title{font-size:12.5px; font-weight:700; color:#3e5c8a; margin-bottom:8px;}
   .success-block{
-    grid-column:1/-1; background:var(--success-bg); border:1.5px solid #b7e0c4; border-radius:10px; padding:12px 14px;
+    grid-column:1/-1; background:var(--success-bg); border:1.5px solid #4f7a3a; border-radius:10px; padding:12px 14px;
   }
-  .success-block .delay-title{font-size:12.5px; font-weight:800; color:#1b5e20; margin-bottom:8px;}
+  .success-block .delay-title{font-size:12.5px; font-weight:700; color:#4f7a3a; margin-bottom:8px;}
   .voice-input-btn{
     position:absolute; bottom:8px; inset-inline-end:8px; width:28px; height:28px; border-radius:50%;
     border:none; background:var(--navy); color:#fff; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
-  .voice-input-btn.listening{ background:#c0392b; animation: pulse 1s infinite; }
+  .voice-input-btn.listening{ background:#a33a2c; animation: pulse 1s infinite; }
   .ba-compare-wrap{ position:relative; max-width:90vw; max-height:70vh; overflow:hidden; border-radius:10px; }
   .ba-img-after{ display:block; max-width:90vw; max-height:70vh; object-fit:contain; }
   .ba-img-before-wrap{ position:absolute; inset:0; overflow:hidden; clip-path:inset(0 50% 0 0); }
   .ba-img-before{ max-width:90vw; max-height:70vh; object-fit:contain; }
-  .ba-slider-handle{ position:absolute; top:0; bottom:0; inset-inline-start:50%; width:3px; background:#fff; box-shadow:0 0 6px rgba(0,0,0,.5); pointer-events:none; }
+  .ba-slider-handle{ position:absolute; top:0; bottom:0; inset-inline-start:50%; width:3px; background:#fffdf9; box-shadow:0 0 6px rgba(0,0,0,.5); pointer-events:none; }
   .ba-range{ width:90vw; max-width:500px; margin-top:14px; }
-  .ba-label{ position:absolute; top:10px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:12px; }
+  .ba-label{ position:absolute; top:10px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:12px; }
   .ba-label-before{ inset-inline-start:10px; }
   .ba-label-after{ inset-inline-end:10px; }
-  .map-canvas{ position:relative; width:100%; height:520px; background:linear-gradient(135deg,#f4f6fa,#e9edf5); border:2px dashed var(--line); border-radius:14px; overflow:hidden; }
+  .map-canvas{ position:relative; width:100%; height:520px; background:var(--bg); border:2px dashed var(--line); border-radius:14px; overflow:hidden; }
   .map-dot{ position:absolute; width:36px; height:36px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.25); cursor:grab; display:flex; align-items:center; justify-content:center; touch-action:none; transition:box-shadow .15s; font-size:15px; }
   .map-dot.dragging{ cursor:grabbing; box-shadow:0 4px 16px rgba(0,0,0,.4); z-index:5; }
-  .map-dot-label{ position:absolute; top:40px; font-size:10px; font-weight:800; color:var(--navy); background:#fff; padding:1px 6px; border-radius:6px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.15); }
-  .branch-pill{ border:1.5px solid var(--line); background:#fff; color:var(--text); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .map-dot-label{ position:absolute; top:40px; font-size:10px; font-weight:700; color:var(--navy); background:#fffdf9; padding:1px 6px; border-radius:6px; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+  .branch-pill{ border:1.5px solid var(--line); background:#fffdf9; color:var(--text); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
   .branch-pill:disabled{ cursor:default; opacity:.8; }
   .branch-pill-selected{ background:var(--navy); border-color:var(--navy); color:#fff; }
-</style>
+
+  /* ===== FORKA THEME v1.0 ===== */
+  :root{
+   --fk-charcoal:#23211f; --fk-charcoal-dark:#171513; --fk-charcoal-soft:#3a3631;
+   --fk-paper:#f6f3ee; --fk-card:#fffdf9; --fk-line:#e5dfd5;
+   --fk-bronze:#9a6b3f; --fk-bronze-hover:#86592f; --fk-bronze-light:#b8875a; --fk-bronze-soft:#e9dccb;
+   --fk-text:#23211f; --fk-text-2:#5c5852; --fk-muted:#8d877e;
+   --fk-success:#4f7a3a; --fk-success-bg:#eef3e8; --fk-warning:#a8731c; --fk-warning-bg:#fbf2e2;
+   --fk-danger:#a33a2c; --fk-danger-bg:#f8e9e5; --fk-info:#3e5c8a; --fk-info-bg:#eaeff6;
+   --fk-radius:14px; --fk-radius-sm:10px;
+   --fk-sans:'Inter Tight','IBM Plex Sans Arabic',system-ui,sans-serif;
+   --fk-serif:'EB Garamond','IBM Plex Sans Arabic',serif;
+  }
+  body{font-family:var(--fk-sans); background:var(--fk-paper); color:var(--fk-text); font-feature-settings:"tnum" 1;}
+  h1,h2,h3,.page-title,.section-title{font-family:var(--fk-serif); font-weight:600; color:var(--fk-text);}
+
+  /* Sidebar / dark nav (this app: .sidebar > .brand > .logo / .sub) */
+  .sidebar{background:var(--fk-charcoal); color:#fff;}
+  .brand .logo{font-family:var(--fk-serif); font-weight:600; font-size:23px; letter-spacing:1.5px; white-space:nowrap;}
+  .brand .sub{color:#b9b2a6;}
+  .nav-group-title{color:var(--fk-muted); letter-spacing:.12em; font-weight:600; font-size:11px; text-transform:uppercase;}
+  .nav-item{color:#d9d3c9; font-size:14px;}
+  .nav-item:hover{background:rgba(255,255,255,.05); color:#fff;}
+  .nav-item.active{background:rgba(184,135,90,.16); border-inline-start:3px solid var(--fk-bronze-light); color:#fff; font-weight:600;}
+  .nav-item .ic{filter:grayscale(1) brightness(1.6); opacity:.75;}
+  .nav-badge{background:rgba(255,255,255,.1); color:var(--fk-bronze-soft); font-weight:600; border-radius:999px;}
+
+  /* Top bar */
+  .topbar{background:var(--fk-card); border-bottom:1px solid var(--fk-line);}
+  .topbar h1{font-family:var(--fk-serif); font-size:24px; font-weight:600;}
+
+  /* Buttons */
+  .btn{font-family:var(--fk-sans); font-weight:600; border-radius:var(--fk-radius-sm);}
+  .btn-primary{background:var(--fk-charcoal); color:#fff;}
+  .btn-primary:hover{background:var(--fk-bronze);}
+  .btn-accent,.btn-gold{background:var(--fk-bronze); color:#fff;}
+  .btn-accent:hover,.btn-gold:hover{background:var(--fk-bronze-hover); filter:none;}
+  .btn-outline{background:var(--fk-card); color:var(--fk-text); border:1.5px solid var(--fk-line);}
+  .btn-outline:hover{border-color:var(--fk-bronze); color:var(--fk-bronze);}
+  .btn-danger{background:var(--fk-danger-bg); color:var(--fk-danger);}
+  .btn-danger:hover{background:var(--fk-danger-bg); filter:brightness(.97);}
+
+  /* Cards & KPI tiles */
+  .card{background:var(--fk-card); border:1px solid var(--fk-line); border-radius:var(--fk-radius); box-shadow:none;}
+  .card:hover{box-shadow:0 8px 20px rgba(35,33,31,.08);}
+  .stat-card .ic{width:40px; height:40px; border-radius:11px; background:var(--fk-bronze-soft); display:grid; place-items:center; filter:grayscale(.85) sepia(.35);}
+  .stat-card .num{font-family:var(--fk-sans); font-weight:600; font-size:32px; letter-spacing:-.5px; color:var(--fk-text);}
+
+  /* Forms */
+  input,select,textarea{font-family:var(--fk-sans); background:var(--fk-card); border:1.5px solid var(--fk-line); border-radius:var(--fk-radius-sm); color:var(--fk-text);}
+  input:focus,select:focus,textarea:focus{outline:none; border-color:var(--fk-bronze); box-shadow:0 0 0 3px rgba(154,107,63,.15);}
+  label{font-weight:600; color:var(--fk-text-2);}
+
+  /* Tables */
+  table{border-collapse:collapse;}
+  thead th{background:var(--fk-paper); color:var(--fk-text); font-weight:600; border-bottom:1px solid var(--fk-line);}
+  tbody td{border-bottom:1px solid var(--fk-line);}
+  tbody tr:hover{background:#fbf8f3;}
+
+  /* Badges / status */
+  .badge{border-radius:999px; font-weight:600; font-size:11px; padding:2px 9px;}
+  .badge-success{background:var(--fk-success-bg); color:var(--fk-success);}
+  .badge-warning{background:var(--fk-warning-bg); color:var(--fk-warning);}
+  .badge-danger{background:var(--fk-danger-bg); color:var(--fk-danger);}
+  .badge-info{background:var(--fk-info-bg); color:var(--fk-info);}
+
+  ::selection{background:var(--fk-bronze-soft);}
+
+  /* ---- same values, applied to this app's own class names (so the block above really wins) ---- */
+  .brand{border-bottom-color:var(--fk-charcoal-soft);}
+  .nav-footer{border-top-color:var(--fk-charcoal-soft);}
+  .btn-sm{border-radius:var(--fk-radius-sm);}
+  .btn-lang{background:var(--fk-charcoal-dark); border-color:var(--fk-charcoal-soft);}
+  .table-wrap{border-radius:var(--fk-radius);}
+  thead th.sortable:hover{background:var(--fk-bronze-soft);}
+  .field label{font-weight:600; color:var(--fk-text-2);}
+  .field input,.field select,.field textarea,.toolbar input[type=text],.toolbar select{border-radius:var(--fk-radius-sm); background:var(--fk-card);}
+  .field input:focus,.field select:focus,.field textarea:focus,.toolbar input[type=text]:focus,.toolbar select:focus{outline:none; border-color:var(--fk-bronze); box-shadow:0 0 0 3px rgba(154,107,63,.15);}
+  .modal{border-radius:var(--fk-radius); box-shadow:0 8px 20px rgba(35,33,31,.08);}
+  .modal h2{font-family:var(--fk-serif); font-weight:600;}
+  .toast{box-shadow:0 8px 20px rgba(35,33,31,.08);}
+  .section-title:before{background:var(--fk-bronze-light);}
+  .print-header .pt-title{font-family:var(--fk-serif); font-weight:600;}
+  .lock-box .lg{font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px;}
+  .lock-box .ls{color:var(--fk-bronze-soft);}
+  .delay-block,.cond-block,.success-block{border-width:1px;}
+  @media print{ thead th{background:#f6f3ee !important; color:#23211f !important;} }
+  </style>
 </head>
 <body>
 
@@ -414,12 +501,12 @@
   <div class="nav-item" data-view="checklists"><span class="ic">✅</span><span id="navChecklistsLabel"></span></div>
   <div class="nav-item" data-view="authority"><span class="ic">🧭</span><span id="navAuthorityLabel"></span></div>
   <div class="nav-item" data-view="emergency"><span class="ic">🚨</span><span id="navEmergencyLabel"></span></div>
-  <div class="nav-item" data-view="cloud"><span class="ic">☁️</span><span id="navCloudLabel"></span><span class="nav-badge" id="cloudStatusBadge" style="background:#888;">•</span></div>
+  <div class="nav-item" data-view="cloud"><span class="ic">☁️</span><span id="navCloudLabel"></span><span class="nav-badge" id="cloudStatusBadge" style="background:#8d877e;">•</span></div>
   <div class="nav-group-title" id="navSystemTitle"></div>
   <div class="nav-item" data-view="backup"><span class="ic">💾</span><span id="navBackupLabel"></span></div>
   <div class="nav-item" data-view="settings"><span class="ic">🔒</span><span id="navSettingsLabel"></span></div>
   <!-- help nav item removed: system runs as a pure tool without embedded tutorials -->
-  <button id="btnInstallApp" onclick="triggerPwaInstall()" style="display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 14px 0; background:var(--gold); color:var(--navy-dark); border:none; border-radius:8px; padding:9px; font-family:inherit; font-weight:800; font-size:12.5px; cursor:pointer;">📲 <span id="btnInstallAppLabel"></span></button>
+  <button id="btnInstallApp" onclick="triggerPwaInstall()" style="display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 14px 0; background:var(--gold); color:var(--navy-dark); border:none; border-radius:8px; padding:9px; font-family:inherit; font-weight:700; font-size:12.5px; cursor:pointer;">📲 <span id="btnInstallAppLabel"></span></button>
   <div class="nav-footer" id="navFooter"></div>
 </aside>
 
@@ -2768,7 +2855,7 @@ function accessCardHtml(){
       <div class="field" style="min-width:220px;"><label style="font-size:12px;">${t('accessColRole')}</label><select id="accNewRole"><option value="manager">${t('accessRoleManager')}</option><option value="admin">${t('accessRoleAdmin')}</option></select></div>
       <button class="btn btn-primary" id="accAddBtn" type="button">${t('accessAdd')}</button>
     </div>
-    ${(!cloudEnabled) ? `<div style="font-size:12px; color:#c0392b; margin-top:10px;">${t('accessLocalOnly')}</div>` : ""}
+    ${(!cloudEnabled) ? `<div style="font-size:12px; color:#a33a2c; margin-top:10px;">${t('accessLocalOnly')}</div>` : ""}
     <div style="font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.7;">${t('accessSecurityNote')}</div>
   </div>`;
 }
@@ -4568,25 +4655,25 @@ function renderPublicStatusPage(){
     else if(criticalCount >= 1){ status="yellow"; label = LANG==='ar'?"يحتاج متابعة":"Needs Follow-up"; }
     return { branch, criticalCount, status, label };
   });
-  const colorMap = {green:"#1f8a4c", yellow:"#b8860b", red:"#c0392b"};
-  const bgMap = {green:"#e8f8ee", yellow:"#fff6e0", red:"#fdecea"};
+  const colorMap = {green:"#4f7a3a", yellow:"#a8731c", red:"#a33a2c"};
+  const bgMap = {green:"#eef3e8", yellow:"#fbf2e2", red:"#f8e9e5"};
   const dotMap = {green:"🟢", yellow:"🟡", red:"🔴"};
 
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; padding:30px 16px; font-family:'Tajawal',Arial,sans-serif;" dir="${LANG==='ar'?'rtl':'ltr'}">
+    <div style="min-height:100vh; background:#f6f3ee; padding:30px 16px; font-family:var(--fk-sans);" dir="${LANG==='ar'?'rtl':'ltr'}">
       <div style="max-width:700px; margin:0 auto;">
         <div style="text-align:center; margin-bottom:24px;">
-          <div style="font-size:22px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
-          <div style="font-size:13px; color:#7a8699;">${LANG==='ar'?'حالة الفروع العامة':'General Branch Status'} — ${new Date().toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB')}</div>
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:22px; color:#23211f;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#8d877e;">${LANG==='ar'?'حالة الفروع العامة':'General Branch Status'} — ${new Date().toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB')}</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:10px;">
           ${rows.length ? rows.map(r=>`
             <div style="background:${bgMap[r.status]}; border-inline-start:5px solid ${colorMap[r.status]}; border-radius:10px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="font-weight:800; font-size:15px; color:#1F3864;">${escapeHtml(r.branch)}</div><div style="font-size:12px; color:#7a8699; margin-top:2px;">${r.label}</div></div>
+              <div><div style="font-weight:700; font-size:15px; color:#23211f;">${escapeHtml(r.branch)}</div><div style="font-size:12px; color:#8d877e; margin-top:2px;">${r.label}</div></div>
               <div style="font-size:22px;">${dotMap[r.status]}</div>
-            </div>`).join("") : `<div style="text-align:center; color:#7a8699; padding:30px;">${LANG==='ar'?'لا توجد فروع مسجّلة':'No branches registered'}</div>`}
+            </div>`).join("") : `<div style="text-align:center; color:#8d877e; padding:30px;">${LANG==='ar'?'لا توجد فروع مسجّلة':'No branches registered'}</div>`}
         </div>
-        <div style="text-align:center; margin-top:24px; font-size:11px; color:#a0aab8;">${LANG==='ar'?'صفحة عرض فقط للمشاركة':'View-only page for sharing'}</div>
+        <div style="text-align:center; margin-top:24px; font-size:11px; color:#8d877e;">${LANG==='ar'?'صفحة عرض فقط للمشاركة':'View-only page for sharing'}</div>
       </div>
     </div>
   `;
@@ -4646,9 +4733,9 @@ function renderDriverModePage(){
   const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
   if(!vehicles.length){
     document.body.innerHTML = `
-      <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px; font-family:'Tajawal',Arial,sans-serif;" dir="${dirAttr}">
-        <div style="text-align:center; color:#7a8699;">
-          <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">GROUP FORKA</div>
+      <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px; font-family:var(--fk-sans);" dir="${dirAttr}">
+        <div style="text-align:center; color:#8d877e;">
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f; margin-bottom:10px;">GROUP FORKA</div>
           <div>${t('driverLoadingVehicles')}</div>
         </div>
       </div>`;
@@ -4657,58 +4744,58 @@ function renderDriverModePage(){
   }
 
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="${dirAttr}">
+    <div style="min-height:100vh; background:#f6f3ee; padding:20px 14px 60px;" dir="${dirAttr}">
       <div style="max-width:460px; margin:0 auto;">
         <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-          <button id="drvLangBtn" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
+          <button id="drvLangBtn" style="background:#fffdf9; border:1.5px solid #e5dfd5; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:700; color:#23211f; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
         </div>
         <div style="text-align:center; margin-bottom:20px;">
-          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
-          <div style="font-size:13px; color:#7a8699; margin-top:2px;">${t('driverPageTitle')}</div>
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#8d877e; margin-top:2px;">${t('driverPageTitle')}</div>
         </div>
-        <div id="driverFormCard" style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
+        <div id="driverFormCard" style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverDate')} *</label>
-            <input type="date" id="drv_date" value="${todayStr()}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverDate')} *</label>
+            <input type="date" id="drv_date" value="${todayStr()}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverSelectVehicle')} *</label>
-            <select id="drvPlate" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverSelectVehicle')} *</label>
+            <select id="drvPlate" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
               <option value="">${t('driverChooseOption')}</option>
               ${vehicles.map(v=>`<option value="${v.plate||v.id}" data-carname="${escapeAttr(v.carName||'')}" data-plate="${escapeAttr(v.plate||'')}">${escapeHtml(v.carName||'')} — ${escapeHtml(v.plate||'')}</option>`).join("")}
             </select>
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverName')}</label>
-            <input type="text" id="drvDriver" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverName')}</label>
+            <input type="text" id="drvDriver" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverBranch')}</label>
-            <select id="drvBranch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverBranch')}</label>
+            <select id="drvBranch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
               <option value="">${t('driverChooseOption')}</option>
               ${(loadMasters().branches||[]).map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("")}
             </select>
           </div>
           ${[["tires","driverTires",["جيدة","تحتاج فحص","ضعيفة"]],["oil","driverOil",["سليم","يحتاج إضافة","تسريب"]],["brakes","driverBrakes",["سليمة","تحتاج فحص"]],["ac","driverAc",["يعمل","لا يعمل","لا يوجد"]],["clean","driverClean",["نظيفة","تحتاج تنظيف"]],["docs","driverDocs",["سارية","قاربت على الانتهاء","منتهية"]]].map(([key,labelKey,opts])=>`
             <div class="field" style="margin-bottom:14px;">
-              <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t(labelKey)}</label>
-              <select id="drv_${key}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+              <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t(labelKey)}</label>
+              <select id="drv_${key}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
                 <option value=""></option>
                 ${opts.map(o=>`<option value="${o}">${optLabel(o)}</option>`).join("")}
               </select>
             </div>`).join("")}
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverOdometer')}</label>
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverOdometer')}</label>
             <div style="display:flex; gap:8px;">
-              <input type="number" id="drv_odometer" style="flex:1; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
-              <button type="button" id="btnOdometerCam" style="background:#1F3864; color:#fff; border:none; border-radius:8px; padding:0 16px; font-size:18px; cursor:pointer;" title="${t('driverScanOdometer')}">📷</button>
+              <input type="number" id="drv_odometer" style="flex:1; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
+              <button type="button" id="btnOdometerCam" style="background:#23211f; color:#fff; border:none; border-radius:8px; padding:0 16px; font-size:18px; cursor:pointer;" title="${t('driverScanOdometer')}">📷</button>
             </div>
             <input type="file" id="odometerCamInput" accept="image/*" capture="environment" style="display:none">
             <div id="odometerPhotoPreview" style="margin-top:8px;"></div>
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverFuel')}</label>
-            <select id="drv_fuel" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverFuel')}</label>
+            <select id="drv_fuel" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
               <option value=""></option>
               <option value="ممتلئ">${optLabel('ممتلئ')}</option>
               <option value="ثلاثة أرباع">${optLabel('ثلاثة أرباع')}</option>
@@ -4718,19 +4805,19 @@ function renderDriverModePage(){
             </select>
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverDamage')}</label>
-            <input type="text" id="drv_damage" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverDamage')}</label>
+            <input type="text" id="drv_damage" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverPhotosLabel')}</label>
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverPhotosLabel')}</label>
             <div id="driverPhotoWidget" class="photo-widget"></div>
             <input type="file" id="driverPhotoInput" accept="image/*" multiple style="display:none">
           </div>
           <div class="field" style="margin-bottom:18px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('driverNotes')}</label>
-            <textarea id="drv_notes" style="width:100%; min-height:70px; padding:10px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('driverNotes')}</label>
+            <textarea id="drv_notes" style="width:100%; min-height:70px; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;"></textarea>
           </div>
-          <button id="btnDriverSubmit" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('driverSubmitBtn')}</button>
+          <button id="btnDriverSubmit" style="width:100%; background:#9a6b3f; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:700; font-size:15px; cursor:pointer;">${t('driverSubmitBtn')}</button>
           <div id="driverMsg" style="text-align:center; margin-top:12px; font-size:13px;"></div>
         </div>
       </div>
@@ -4775,9 +4862,9 @@ function renderDriverModePage(){
     const plate = document.getElementById("drvPlate").value;
     const date = document.getElementById("drv_date").value;
     const msgEl = document.getElementById("driverMsg");
-    if(!date){ msgEl.textContent = t('driverMissingDate'); msgEl.style.color = "#c0392b"; return; }
-    if(!plate){ msgEl.textContent = t('driverMissingVehicle'); msgEl.style.color = "#c0392b"; return; }
-    if(driverPhotos.some(p=>p.uploading)){ msgEl.textContent = t('driverWaitUpload'); msgEl.style.color = "#c0392b"; return; }
+    if(!date){ msgEl.textContent = t('driverMissingDate'); msgEl.style.color = "#a33a2c"; return; }
+    if(!plate){ msgEl.textContent = t('driverMissingVehicle'); msgEl.style.color = "#a33a2c"; return; }
+    if(driverPhotos.some(p=>p.uploading)){ msgEl.textContent = t('driverWaitUpload'); msgEl.style.color = "#a33a2c"; return; }
     driverSubmitInProgress = true;
     const submitBtn = document.getElementById("btnDriverSubmit");
     submitBtn.disabled = true;
@@ -4815,12 +4902,12 @@ function renderDriverModePage(){
 function renderDriverThankYouPage(){
   const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
-      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+    <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+      <div style="max-width:420px; text-align:center; background:#fffdf9; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
         <div style="font-size:56px; margin-bottom:16px;">✅</div>
-        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('driverThankYouTitle')}</div>
-        <div style="font-size:14px; color:#5a6577; line-height:1.7; margin-bottom:24px;">${t('driverThankYouBody')}</div>
-        <div style="font-size:12px; color:#a0aab8;">${t('driverThankYouCloseHint')}</div>
+        <div style="font-size:20px; font-weight:700; color:#23211f; margin-bottom:10px;">${t('driverThankYouTitle')}</div>
+        <div style="font-size:14px; color:#5c5852; line-height:1.7; margin-bottom:24px;">${t('driverThankYouBody')}</div>
+        <div style="font-size:12px; color:#8d877e;">${t('driverThankYouCloseHint')}</div>
       </div>
     </div>
   `;
@@ -4864,10 +4951,10 @@ function renderAssetViewPage(){
 
   if(!mod || !rec){
     document.body.innerHTML = `
-      <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
-        <div style="max-width:380px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+      <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+        <div style="max-width:380px; text-align:center; background:#fffdf9; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
           <div style="font-size:44px; margin-bottom:12px;">⚠️</div>
-          <div style="font-size:16px; font-weight:800; color:#1F3864;">${t('qrNotFound')}</div>
+          <div style="font-size:16px; font-weight:700; color:#23211f;">${t('qrNotFound')}</div>
         </div>
       </div>`;
     return;
@@ -4889,38 +4976,38 @@ function renderAssetViewPage(){
     });
 
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 40px;" dir="${dirAttr}">
+    <div style="min-height:100vh; background:#f6f3ee; padding:20px 14px 40px;" dir="${dirAttr}">
       <div style="max-width:440px; margin:0 auto;">
         <div style="text-align:center; margin-bottom:16px;">
-          <div style="font-size:18px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:18px; color:#23211f;">GROUP FORKA</div>
         </div>
-        <div style="background:#fff; border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+        <div style="background:#fffdf9; border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           <div style="font-size:34px; text-align:center; margin-bottom:6px;">${isVehicle ? '🚙' : '🏷️'}</div>
-          <div style="font-size:18px; font-weight:900; color:#1F3864; text-align:center; margin-bottom:4px;">${escapeHtml(title)}</div>
-          <div style="font-size:12px; color:#7a8699; text-align:center; margin-bottom:18px;">${ML(mod,"name")}</div>
+          <div style="font-size:18px; font-weight:700; color:#23211f; text-align:center; margin-bottom:4px;">${escapeHtml(title)}</div>
+          <div style="font-size:12px; color:#8d877e; text-align:center; margin-bottom:18px;">${ML(mod,"name")}</div>
           ${infoRows.map(([label,val])=>`
-            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eef0f4; font-size:13.5px; gap:12px;">
-              <span style="color:#7a8699; font-weight:700; flex-shrink:0;">${escapeHtml(label)}</span>
-              <span style="font-weight:800; color:#1F3864; text-align:end;">${escapeHtml(String(val))}</span>
+            <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #f6f3ee; font-size:13.5px; gap:12px;">
+              <span style="color:#8d877e; font-weight:700; flex-shrink:0;">${escapeHtml(label)}</span>
+              <span style="font-weight:700; color:#23211f; text-align:end;">${escapeHtml(String(val))}</span>
             </div>`).join("")}
         </div>
-        <div style="background:#fff; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
-          <div style="font-weight:800; font-size:13.5px; color:#1F3864; margin-bottom:12px;">${t('assetViewMaintTitle')}</div>
+        <div style="background:#fffdf9; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06);">
+          <div style="font-weight:700; font-size:13.5px; color:#23211f; margin-bottom:12px;">${t('assetViewMaintTitle')}</div>
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
-            <span style="color:#7a8699;">${t('assetsMaintCount')}</span><span style="font-weight:800;">${maint.count}</span>
+            <span style="color:#8d877e;">${t('assetsMaintCount')}</span><span style="font-weight:700;">${maint.count}</span>
           </div>
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
-            <span style="color:#7a8699;">${t('assetsMaintLast')}</span><span style="font-weight:800;">${maint.lastDate || "—"}</span>
+            <span style="color:#8d877e;">${t('assetsMaintLast')}</span><span style="font-weight:700;">${maint.lastDate || "—"}</span>
           </div>
           ${isVehicle ? (()=>{ const st = vehicleEventStats(rec); return `
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
-            <span style="color:#7a8699;">🚨 ${t('vehEventsAccidents')}</span><span style="font-weight:800;">${st.accidents.length}</span>
+            <span style="color:#8d877e;">🚨 ${t('vehEventsAccidents')}</span><span style="font-weight:700;">${st.accidents.length}</span>
           </div>
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
-            <span style="color:#7a8699;">📋 ${t('vehEventsViolations')}</span><span style="font-weight:800;">${st.violations.length}</span>
+            <span style="color:#8d877e;">📋 ${t('vehEventsViolations')}</span><span style="font-weight:700;">${st.violations.length}</span>
           </div>
           <div style="display:flex; justify-content:space-between; padding:7px 0; font-size:13px;">
-            <span style="color:#7a8699;">💸 ${t('vehEventsUnpaid')}</span><span style="font-weight:800; color:${st.unpaid.length?'#c0392b':'inherit'};">${st.unpaid.length}</span>
+            <span style="color:#8d877e;">💸 ${t('vehEventsUnpaid')}</span><span style="font-weight:700; color:${st.unpaid.length?'#a33a2c':'inherit'};">${st.unpaid.length}</span>
           </div>`; })() : ""}
         </div>
       </div>
@@ -4939,7 +5026,7 @@ function renderExpenseUploadPhotos(){
   const w = document.getElementById("expUpPhotos");
   if(!w) return;
   w.innerHTML = expenseUploadPhotos.map((p,i)=>{
-    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
     const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:30px;">📄</div>` : `<img src="${p.dataUrl||p.storageUrl||''}" alt="">`;
     return `<div class="photo-thumb">${body}${badgeHtml}<button class="rm" data-exprm="${i}" type="button">✕</button></div>`;
   }).join("") + `<div class="photo-add-btn" id="expUpAddBtn">+</div>`;
@@ -4950,7 +5037,7 @@ function renderExpenseUploadDocs(){
   const w = document.getElementById("expUpDocs");
   if(!w) return;
   w.innerHTML = expenseUploadDocs.map((p,i)=>{
-    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+    const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
     const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:30px;">📄</div>` : `<img src="${p.dataUrl||p.storageUrl||''}" alt="">`;
     return `<div class="photo-thumb">${body}${badgeHtml}<button class="rm" data-expdocrm="${i}" type="button">✕</button></div>`;
   }).join("") + `<div class="photo-add-btn" id="expUpDocAddBtn">+</div>`;
@@ -4960,28 +5047,28 @@ function renderExpenseUploadDocs(){
 function renderExpenseUploadPage(draft){
   draft = draft || {};
   const dir = LANG==='ar' ? 'rtl' : 'ltr';
-  const box = `width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;`;
-  const fld = (label, inner, required)=> `<div class="field" style="margin-bottom:14px;"><label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${label}${required?' *':''}</label>${inner}</div>`;
+  const box = `width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;`;
+  const fld = (label, inner, required)=> `<div class="field" style="margin-bottom:14px;"><label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${label}${required?' *':''}</label>${inner}</div>`;
   const sel = (key, options, def)=> `<select data-field="${key}" style="${box}"><option value=""></option>${options.map(o=>`<option value="${escapeAttr(o)}" ${(draft[key]!==undefined?draft[key]:def)===o?'selected':''}>${escapeHtml(optLabel(o))}</option>`).join("")}</select>`;
   const txt = (key, extra)=> `<input type="text" data-field="${key}" value="${escapeAttr(draft[key]||"")}" style="${box}" ${extra||""}>`;
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="${dir}">
+    <div style="min-height:100vh; background:#f6f3ee; padding:20px 14px 60px;" dir="${dir}">
       ${buildDatalistsHtml()}
       <div style="max-width:560px; margin:0 auto;" id="expUpForm">
         <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-          <button id="expUpLangBtn" type="button" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
+          <button id="expUpLangBtn" type="button" style="background:#fffdf9; border:1.5px solid #e5dfd5; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:700; color:#23211f; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
         </div>
         <div style="text-align:center; margin-bottom:18px;">
-          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
-          <div style="font-size:14px; font-weight:800; color:#1F3864; margin-top:4px;">🧾 ${t('expUpTitle')}</div>
-          <div style="font-size:12px; color:#7a8699; margin-top:8px; line-height:1.7;">${t('expUpIntro')}</div>
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
+          <div style="font-size:14px; font-weight:700; color:#23211f; margin-top:4px;">🧾 ${t('expUpTitle')}</div>
+          <div style="font-size:12px; color:#8d877e; margin-top:8px; line-height:1.7;">${t('expUpIntro')}</div>
         </div>
-        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+        <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(t('expUpSubmitter'), txt("submittedBy"), true)}
           ${fld(t('expUpAttach'), `<div id="expUpPhotos" class="photo-widget"></div><input type="file" id="expUpFile" accept="image/*,application/pdf" multiple style="display:none">`, true)}
           ${fld(t('expUpDoc'), `<div id="expUpDocs" class="photo-widget"></div><input type="file" id="expUpDocFile" accept="image/*,application/pdf" multiple style="display:none">`, false)}
         </div>
-        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+        <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(efl('date'), `<input type="date" data-field="date" value="${escapeAttr(draft.date||todayStr())}" style="${box}">`, true)}
           ${fld(efl('invoiceNo'), txt("invoiceNo"))}
           ${fld(efl('vendor'), txt("vendor", 'list="dl_expenseVendors" autocomplete="off"'), true)}
@@ -4991,23 +5078,23 @@ function renderExpenseUploadPage(draft){
           ${fld(efl('project'), txt("project", 'list="dl_expenseProjects" autocomplete="off"'))}
           ${fld(efl('projectStep'), txt("projectStep", 'list="dl_expenseSteps" autocomplete="off"'))}
         </div>
-        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+        <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(efl('branch'), `<input type="hidden" data-field="branch" value="${escapeAttr(draft.branch||"")}"><div id="branchMultiWidget_branch" class="branch-multi-widget"></div>`, true)}
           ${fld(efl('amount'), `<input type="number" step="0.01" min="0" data-field="amount" value="${escapeAttr(draft.amount||"")}" style="${box}">`, true)}
-          ${fld(efl('vat'), `<div style="display:flex; gap:8px;"><input type="number" step="0.01" min="0" data-field="vat" value="${escapeAttr(draft.vat||"")}" style="${box} flex:1;"><button type="button" id="expUpVat5" style="background:#fff; border:1.5px solid #1F3864; color:#1F3864; border-radius:8px; padding:0 14px; font-weight:800; cursor:pointer; white-space:nowrap;">${t('expUpVatBtn')}</button></div>`)}
-          ${fld(efl('total'), `<input type="number" data-field="total" readonly style="${box} background:#f3f4f7; font-weight:800;" value="${escapeAttr(draft.total||"")}">`)}
+          ${fld(efl('vat'), `<div style="display:flex; gap:8px;"><input type="number" step="0.01" min="0" data-field="vat" value="${escapeAttr(draft.vat||"")}" style="${box} flex:1;"><button type="button" id="expUpVat5" style="background:#fffdf9; border:1.5px solid #23211f; color:#23211f; border-radius:8px; padding:0 14px; font-weight:700; cursor:pointer; white-space:nowrap;">${t('expUpVatBtn')}</button></div>`)}
+          ${fld(efl('total'), `<input type="number" data-field="total" readonly style="${box} background:#f6f3ee; font-weight:700;" value="${escapeAttr(draft.total||"")}">`)}
           ${fld(efl('splitMode'), sel("splitMode", [EXPENSE_SPLIT_EQUAL, EXPENSE_SPLIT_CUSTOM], EXPENSE_SPLIT_EQUAL))}
           <input type="hidden" data-field="allocations" value="${escapeAttr(draft.allocations||"[]")}">
           <div id="allocWidget" class="alloc-widget" style="margin-bottom:6px;"></div>
         </div>
-        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
-          <div style="font-weight:800; font-size:13.5px; color:#1F3864; margin-bottom:12px;">${t('expUpPaymentTitle')}</div>
+        <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+          <div style="font-weight:700; font-size:13.5px; color:#23211f; margin-bottom:12px;">${t('expUpPaymentTitle')}</div>
           ${fld(efl('paymentStatus'), sel("paymentStatus", EXPENSE_PAYMENT_STATUSES))}
           ${fld(efl('paymentMethod'), sel("paymentMethod", EXPENSE_PAYMENT_METHODS))}
           ${fld(efl('notes'), `<textarea data-field="notes" style="${box} min-height:70px;">${escapeHtml(draft.notes||"")}</textarea>`)}
         </div>
-        <button id="expUpSubmit" type="button" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('expUpSubmit')}</button>
-        <div id="expUpMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#c0392b; white-space:pre-line;"></div>
+        <button id="expUpSubmit" type="button" style="width:100%; background:#9a6b3f; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:700; font-size:15px; cursor:pointer;">${t('expUpSubmit')}</button>
+        <div id="expUpMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#a33a2c; white-space:pre-line;"></div>
       </div>
     </div>`;
   document.getElementById("expUpLangBtn").onclick = ()=>{ const d = expenseUploadCaptureDraft(); LANG = LANG==='ar' ? 'en' : 'ar'; localStorage.setItem("forka_lang", LANG); renderExpenseUploadPage(d); };
@@ -5123,13 +5210,13 @@ function submitExpenseUpload(){
 function renderExpenseThankYouPage(expNo){
   const dir = LANG==='ar' ? 'rtl' : 'ltr';
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
-      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+    <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
+      <div style="max-width:420px; text-align:center; background:#fffdf9; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
         <div style="font-size:56px; margin-bottom:16px;">✅</div>
-        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('expUpThanksTitle')}</div>
-        <div style="font-size:15px; color:#5a6577; line-height:1.8; margin-bottom:8px;">${t('expUpThanksBody')}</div>
-        <div style="font-size:18px; font-weight:900; color:#1f8a4c; margin-bottom:24px; direction:ltr;">${escapeHtml(expNo||"")}</div>
-        <button id="expUpAnother" type="button" style="background:#1F3864; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-weight:800; cursor:pointer;">${t('expUpAnother')}</button>
+        <div style="font-size:20px; font-weight:700; color:#23211f; margin-bottom:10px;">${t('expUpThanksTitle')}</div>
+        <div style="font-size:15px; color:#5c5852; line-height:1.8; margin-bottom:8px;">${t('expUpThanksBody')}</div>
+        <div style="font-size:18px; font-weight:700; color:#4f7a3a; margin-bottom:24px; direction:ltr;">${escapeHtml(expNo||"")}</div>
+        <button id="expUpAnother" type="button" style="background:#9a6b3f; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-weight:700; cursor:pointer;">${t('expUpAnother')}</button>
       </div>
     </div>`;
   document.getElementById("expUpAnother").onclick = ()=> renderExpenseUploadPage();
@@ -5142,52 +5229,52 @@ function renderBranchInspectPage(){
   if(inspectItems.length === 0) inspectItems.push(newInspectItem());
 
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; padding:20px 14px 60px;" dir="${dirAttr}">
+    <div style="min-height:100vh; background:#f6f3ee; padding:20px 14px 60px;" dir="${dirAttr}">
       <div style="max-width:520px; margin:0 auto;">
         <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-          <button id="inspLangBtn" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
+          <button id="inspLangBtn" style="background:#fffdf9; border:1.5px solid #e5dfd5; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:700; color:#23211f; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button>
         </div>
         <div style="text-align:center; margin-bottom:20px;">
-          <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
-          <div style="font-size:13px; color:#7a8699; margin-top:2px;">${t('inspectPageTitle')}</div>
-          <div style="font-size:12px; color:#7a8699; margin-top:8px; line-height:1.7;">${t('inspectIntroHint')}</div>
+          <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
+          <div style="font-size:13px; color:#8d877e; margin-top:2px;">${t('inspectPageTitle')}</div>
+          <div style="font-size:12px; color:#8d877e; margin-top:8px; line-height:1.7;">${t('inspectIntroHint')}</div>
         </div>
-        <div style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
+        <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectDate')} *</label>
-            <input type="date" id="insp_date" value="${todayStr()}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('inspectDate')} *</label>
+            <input type="date" id="insp_date" value="${todayStr()}" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectBranch')} *</label>
-            <select id="insp_branch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('inspectBranch')} *</label>
+            <select id="insp_branch" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
               <option value="">${t('driverChooseOption')}</option>
               ${branches.map(b=>`<option value="${b}" data-branchname="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join("")}
             </select>
           </div>
           <div class="field" style="margin-bottom:14px;">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectManager')}</label>
-            <input type="text" id="insp_manager" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('inspectManager')}</label>
+            <input type="text" id="insp_manager" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
           <div class="field">
-            <label style="font-weight:800; font-size:13px; display:block; margin-bottom:6px;">${t('inspectPhone')}</label>
-            <input type="text" id="insp_phone" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #d8dde6;">
+            <label style="font-weight:700; font-size:13px; display:block; margin-bottom:6px;">${t('inspectPhone')}</label>
+            <input type="text" id="insp_phone" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid #e5dfd5;">
           </div>
         </div>
 
-        <div style="background:#fff; border-radius:14px; padding:16px 18px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+        <div style="background:#fffdf9; border-radius:14px; padding:16px 18px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px; display:flex; align-items:center; gap:10px;">
           <input type="checkbox" id="insp_allclear" style="width:20px; height:20px; cursor:pointer; flex-shrink:0;">
-          <label for="insp_allclear" style="font-weight:800; font-size:13.5px; color:#1f8a4c; cursor:pointer;">${t('inspectAllClearLabel')}</label>
+          <label for="insp_allclear" style="font-weight:700; font-size:13.5px; color:#4f7a3a; cursor:pointer;">${t('inspectAllClearLabel')}</label>
         </div>
 
         <datalist id="insp_equipment_list"></datalist>
         <div id="inspectItemsSection">
-          <div style="font-weight:800; font-size:14px; color:#1F3864; margin-bottom:10px;">${t('inspectItemsTitle')}</div>
+          <div style="font-weight:700; font-size:14px; color:#23211f; margin-bottom:10px;">${t('inspectItemsTitle')}</div>
           <div id="inspectItemsContainer"></div>
-          <button type="button" id="btnAddInspectItem" style="width:100%; background:#fff; border:2px dashed #1F3864; color:#1F3864; border-radius:10px; padding:12px; font-weight:800; font-size:14px; cursor:pointer; margin-bottom:20px;">${t('inspectAddItemBtn')}</button>
+          <button type="button" id="btnAddInspectItem" style="width:100%; background:#fffdf9; border:2px dashed #23211f; color:#23211f; border-radius:10px; padding:12px; font-weight:700; font-size:14px; cursor:pointer; margin-bottom:20px;">${t('inspectAddItemBtn')}</button>
         </div>
 
-        <button id="btnInspectSubmit" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:900; font-size:15px; cursor:pointer;">${t('inspectSubmitBtn')}</button>
-        <div id="inspectMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#c0392b;"></div>
+        <button id="btnInspectSubmit" style="width:100%; background:#9a6b3f; color:#fff; border:none; border-radius:10px; padding:14px; font-weight:700; font-size:15px; cursor:pointer;">${t('inspectSubmitBtn')}</button>
+        <div id="inspectMsg" style="text-align:center; margin-top:12px; font-size:13px; color:#a33a2c;"></div>
       </div>
     </div>
   `;
@@ -5271,16 +5358,16 @@ function renderInspectItems(){
   const container = document.getElementById("inspectItemsContainer");
   if(!container) return;
   container.innerHTML = inspectItems.map((it,i)=>`
-    <div data-itemrow data-rowid="${it.id}" style="background:#fff; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); position:relative;">
-      ${inspectItems.length>1 ? `<button type="button" data-rmitem="${it.id}" style="position:absolute; top:10px; inset-inline-end:10px; background:#c0392b; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>` : ""}
-      <div style="font-weight:800; font-size:12.5px; color:#1F3864; margin-bottom:10px;">${t('inspectItemLabel')} ${i+1}</div>
+    <div data-itemrow data-rowid="${it.id}" style="background:#fffdf9; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); position:relative;">
+      ${inspectItems.length>1 ? `<button type="button" data-rmitem="${it.id}" style="position:absolute; top:10px; inset-inline-end:10px; background:#a33a2c; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>` : ""}
+      <div style="font-weight:700; font-size:12.5px; color:#23211f; margin-bottom:10px;">${t('inspectItemLabel')} ${i+1}</div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectItemName')}</label>
-        <input type="text" data-itemfield="item" list="insp_equipment_list" autocomplete="off" placeholder="${t('inspectItemPlaceholder')}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+        <input type="text" data-itemfield="item" list="insp_equipment_list" autocomplete="off" placeholder="${t('inspectItemPlaceholder')}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectFinding')}</label>
-        <textarea data-itemfield="finding" style="width:100%; min-height:60px; padding:9px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+        <textarea data-itemfield="finding" style="width:100%; min-height:60px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;"></textarea>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectPhotos')}</label>
@@ -5289,7 +5376,7 @@ function renderInspectItems(){
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectSeverity')}</label>
-        <select data-itemfield="severity" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+        <select data-itemfield="severity" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
           <option value="منخفض">${optLabel('منخفض')}</option>
           <option value="متوسط" selected>${optLabel('متوسط')}</option>
           <option value="عالٍ">${optLabel('عالٍ')}</option>
@@ -5298,15 +5385,15 @@ function renderInspectItems(){
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAction')}</label>
-        <textarea data-itemfield="action" style="width:100%; min-height:50px; padding:9px; border-radius:8px; border:1.5px solid #d8dde6; font-family:inherit;"></textarea>
+        <textarea data-itemfield="action" style="width:100%; min-height:50px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;"></textarea>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAssignee')}</label>
-        <input type="text" data-itemfield="assignee" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+        <input type="text" data-itemfield="assignee" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
       <div class="field">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectTargetDate')}</label>
-        <input type="date" data-itemfield="targetDate" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #d8dde6;">
+        <input type="date" data-itemfield="targetDate" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
     </div>
   `).join("");
@@ -5349,7 +5436,7 @@ function renderInspectItemPhotoWidget(itemId){
   if(!item) return;
   w.innerHTML = item.photos.map((p,i)=>{
     const statusBadge = p.uploading
-      ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>`
       : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
     return `<div class="photo-thumb"><img src="${p.dataUrl||p.storageUrl||''}" alt="">${statusBadge}<button class="rm" data-insprm="${itemId}::${i}">✕</button></div>`;
   }).join("") + `<div class="photo-add-btn" data-inspaddbtn="${itemId}">+</div>`;
@@ -5366,12 +5453,12 @@ function renderInspectItemPhotoWidget(itemId){
 function renderInspectThankYouPage(){
   const dirAttr = LANG==='ar' ? 'rtl' : 'ltr';
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
-      <div style="max-width:420px; text-align:center; background:#fff; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+    <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dirAttr}">
+      <div style="max-width:420px; text-align:center; background:#fffdf9; border-radius:16px; padding:40px 28px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
         <div style="font-size:56px; margin-bottom:16px;">✅</div>
-        <div style="font-size:20px; font-weight:900; color:#1F3864; margin-bottom:10px;">${t('inspectThankYouTitle')}</div>
-        <div style="font-size:14px; color:#5a6577; line-height:1.7; margin-bottom:24px;">${t('inspectThankYouBody')}</div>
-        <div style="font-size:12px; color:#a0aab8;">${t('driverThankYouCloseHint')}</div>
+        <div style="font-size:20px; font-weight:700; color:#23211f; margin-bottom:10px;">${t('inspectThankYouTitle')}</div>
+        <div style="font-size:14px; color:#5c5852; line-height:1.7; margin-bottom:24px;">${t('inspectThankYouBody')}</div>
+        <div style="font-size:12px; color:#8d877e;">${t('driverThankYouCloseHint')}</div>
       </div>
     </div>
   `;
@@ -5454,10 +5541,10 @@ function renderOdometerPhotoPreview(statusMsg){
   const isError = msg === t('driverOcrFailed');
   previewEl.innerHTML = `
     <div style="position:relative; display:inline-block;">
-      <img src="${odometerPhotoEntry.dataUrl||odometerPhotoEntry.storageUrl||''}" style="max-width:220px; max-height:160px; border-radius:8px; border:1.5px solid #d8dde6; display:block;">
-      <button type="button" id="btnRemoveOdometerPhoto" style="position:absolute; top:-8px; inset-inline-end:-8px; background:#c0392b; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>
+      <img src="${odometerPhotoEntry.dataUrl||odometerPhotoEntry.storageUrl||''}" style="max-width:220px; max-height:160px; border-radius:8px; border:1.5px solid #e5dfd5; display:block;">
+      <button type="button" id="btnRemoveOdometerPhoto" style="position:absolute; top:-8px; inset-inline-end:-8px; background:#a33a2c; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>
     </div>
-    <div style="font-size:11.5px; color:${isError ? '#c0392b' : '#7a8699'}; margin-top:4px;">${msg}</div>
+    <div style="font-size:11.5px; color:${isError ? '#a33a2c' : '#8d877e'}; margin-top:4px;">${msg}</div>
   `;
   document.getElementById("btnRemoveOdometerPhoto").onclick = ()=>{
     const idx = driverPhotos.indexOf(odometerPhotoEntry);
@@ -5472,7 +5559,7 @@ function renderDriverPhotoWidget(){
   if(!w) return;
   w.innerHTML = driverPhotos.map((p,i)=>{
     const statusBadge = p.uploading
-      ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>`
       : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
     return `<div class="photo-thumb"><img src="${p.dataUrl||p.storageUrl||''}" alt="">${statusBadge}<button class="rm" data-drvrm="${i}">✕</button></div>`;
   }).join("") + `<div class="photo-add-btn" id="driverPhotoAddBtn">+</div>`;
@@ -5628,7 +5715,7 @@ function renderDashboard(){
     }
   });
   const anniversaryHtml = anniversaries.length ? `
-    <div class="banner" style="background:var(--info-bg); border-color:#cfe0fb; color:#1b3f8f; margin-bottom:16px;">
+    <div class="banner" style="background:var(--info-bg); border-color:#3e5c8a; color:#3e5c8a; margin-bottom:16px;">
       🎉 ${anniversaries.join(" · ")}
     </div>` : "";
 
@@ -5876,12 +5963,12 @@ function renderModule(mKey){
   document.getElementById("topbarMeta").textContent = (LANG==="ar"?"إجمالي السجلات: ":"Total records: ") + loadData(m.key).length;
   document.getElementById("topbarActions").innerHTML = ms.activeTab==="report" ? langSwitcherHtml() : `
     ${m.qrEnabled ? `<button class="btn btn-outline" id="btnQrScan">${t("qrScan")}</button>` : ""}
-    ${m.bulkCheckEnabled ? `<button class="btn btn-gold" id="btnBulkCheck">${t("bulkCheckBtn")}</button>` : ""}
+    ${m.bulkCheckEnabled ? `<button class="btn btn-outline" id="btnBulkCheck">${t("bulkCheckBtn")}</button>` : ""}
     <button class="btn btn-outline" id="btnPrint">${t("print")}</button>
     ${ms.activeTab==="byBranch" ? `<button class="btn btn-outline" id="btnExportByBranch">${t("exportExcel")}</button>` : `
     <button class="btn btn-outline" id="btnExportPdf">${t("exportPDF")}</button>
     <button class="btn btn-outline" id="btnExport">${t("exportExcel")}</button>`}
-    <button class="btn btn-primary" id="btnAdd">${t("add")}${ML(m,"singular")}</button>
+    <button class="btn btn-gold" id="btnAdd">${t("add")}${ML(m,"singular")}</button>
     ${langSwitcherHtml()}
   `;
   bindLangSwitcher();
@@ -6035,7 +6122,7 @@ function renderModuleRecordsBody(m){
     ${totalPages > 1 ? `
     <div class="toolbar no-print" style="justify-content:center;">
       <button class="btn btn-outline btn-sm" id="pagePrev" ${ms.page<=1?'disabled':''}>${t('calendarPrevMonth')}</button>
-      <div style="font-weight:800; font-size:13px; color:var(--navy); min-width:100px; text-align:center;">${t('pageIndicator', ms.page, totalPages)}</div>
+      <div style="font-weight:700; font-size:13px; color:var(--navy); min-width:100px; text-align:center;">${t('pageIndicator', ms.page, totalPages)}</div>
       <button class="btn btn-outline btn-sm" id="pageNext" ${ms.page>=totalPages?'disabled':''}>${t('calendarNextMonth')}</button>
     </div>` : ""}
   `;
@@ -6170,7 +6257,7 @@ function renderCommentsList(comments){
   if(!comments || !comments.length) return `<div style="font-size:12.5px; color:var(--muted);">${t('commentsEmpty')}</div>`;
   return `<div style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
     ${comments.slice().reverse().map(c=>`
-      <div style="background:#fafbfd; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px;">
+      <div style="background:#fbf8f3; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px;">
         <div>${escapeHtml(c.text)}</div>
         <div style="font-size:10.5px; color:var(--muted); margin-top:4px;">${new Date(c.ts).toLocaleString(LANG==='ar'?'ar-EG':'en-GB')}</div>
       </div>
@@ -6225,22 +6312,22 @@ function buildProjectOverviewHtml(rec){
   const cur = steps.find(s=> s.status!=="تم");
   const daysLeft = rec.targetOpenDate ? Math.ceil((new Date(rec.targetOpenDate) - new Date(todayStr()))/86400000) : null;
   const remaining = cb.budget ? round2(cb.budget - cb.actual) : null;
-  const card = (label, value, color)=> `<div style="flex:1; min-width:130px; background:#f6f8fc; border:1px solid var(--line); border-radius:10px; padding:10px 12px; text-align:center;"><div style="font-size:11.5px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:17px; font-weight:900; color:${color||'var(--navy)'}; margin-top:3px;">${value}</div></div>`;
+  const card = (label, value, color)=> `<div style="flex:1; min-width:130px; background:#fbf8f3; border:1px solid var(--line); border-radius:10px; padding:10px 12px; text-align:center;"><div style="font-size:11.5px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:17px; font-weight:700; color:${color||'var(--navy)'}; margin-top:3px;">${value}</div></div>`;
   const dayText = daysLeft===null ? "" : (rec.status==="مكتمل" ? "" : (daysLeft>=0 ? t('projOvDaysLeft', daysLeft) : t('projOvDaysLate', -daysLeft)));
-  let html = `<div style="border:2px solid var(--navy); border-radius:12px; padding:14px; margin:4px 0 16px; background:#fff;">
+  let html = `<div style="border:2px solid var(--navy); border-radius:12px; padding:14px; margin:4px 0 16px; background:#fffdf9;">
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px;">
-      <div style="font-size:16px; font-weight:900; color:var(--navy);">🏗️ ${autoTr(rec.projectName||"")}</div>
+      <div style="font-size:16px; font-weight:700; color:var(--navy);">🏗️ ${autoTr(rec.projectName||"")}</div>
       <div style="display:flex; gap:6px; align-items:center;">${badge(rec.type||"")} ${badge(rec.status||"")}</div>
     </div>
-    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; margin-bottom:4px;"><span>${t('projOvProgress')}: ${pct}%${steps.length?` — ${t('projOvStepsOf', done, steps.length)}`:""}</span><span style="color:${daysLeft!==null && daysLeft<0 && rec.status!=="مكتمل" ? '#c0392b' : 'var(--muted)'};">${dayText}</span></div>
-    <div style="height:14px; background:#e6eaf2; border-radius:8px; overflow:hidden; margin-bottom:10px;"><div style="width:${pct}%; height:100%; background:linear-gradient(90deg,#1f8a4c,#4cc07f);"></div></div>
+    <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; margin-bottom:4px;"><span>${t('projOvProgress')}: ${pct}%${steps.length?` — ${t('projOvStepsOf', done, steps.length)}`:""}</span><span style="color:${daysLeft!==null && daysLeft<0 && rec.status!=="مكتمل" ? '#a33a2c' : 'var(--muted)'};">${dayText}</span></div>
+    <div style="height:14px; background:#e5dfd5; border-radius:8px; overflow:hidden; margin-bottom:10px;"><div style="width:${pct}%; height:100%; background:#4f7a3a;"></div></div>
     ${(Array.isArray(rec.owners) && rec.owners.length) ? `<div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('ownersTitle')}</th><th>${t('ownerNationality')}</th><th>${t('ownerShare')}</th><th>${t('ownerId')}</th><th>${t('ownerPhone')}</th></tr></thead><tbody>
       ${rec.owners.map(o=>`<tr><td><b>${autoTr(o.name)}</b></td><td>${autoTr(o.nationality||"")}</td><td>${o.share!=="" && o.share!==undefined ? escapeHtml(String(o.share))+"%" : "—"}</td><td>${escapeHtml(o.idNo||"—")}</td><td>${escapeHtml(o.phone||"—")}</td></tr>`).join("")}</tbody></table></div>` : ""}
     ${steps.length ? `<div style="font-size:13px; margin-bottom:12px;">📍 ${t('projOvCurrent')}: <b>${autoTr(cur ? cur.name : PROJECT_ALL_DONE_TEXT)}</b>${cur && cur.authority ? ` <span style="color:var(--muted);">(${autoTr(cur.authority)})</span>` : ""}</div>` : ""}
     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
       ${card(t('projOvBudget'), cb.budget ? fmt2(cb.budget) : "—")}
       ${card(t('projOvActual'), fmt2(cb.actual))}
-      ${card(t('projOvRemaining'), remaining===null ? "—" : fmt2(remaining), remaining!==null && remaining<0 ? '#c0392b' : '#1f8a4c')}
+      ${card(t('projOvRemaining'), remaining===null ? "—" : fmt2(remaining), remaining!==null && remaining<0 ? '#a33a2c' : '#4f7a3a')}
     </div>`;
   if(!steps.length){
     html += `<div style="font-size:12.5px; color:var(--muted);">${t('projNoSteps')}</div>`;
@@ -6249,10 +6336,10 @@ function buildProjectOverviewHtml(rec){
       ${cb.perStep.map((p,i)=>{ const s = p.step; return `<tr>
         <td>${i+1}</td><td><b>${autoTr(s.name)}</b>${isContractStep(s) && (s.contractStart||s.contractEnd) ? `<div style="font-size:11px; color:var(--navy);">📄 ${t('projContractTerm', s.contractStart||"—", s.contractEnd||"—")}</div>`:""}${s.notes?`<div style="font-size:11px; color:var(--muted);">${autoTr(s.notes)}</div>`:""}</td><td>${autoTr(s.authority||"")}</td>
         <td>${badge(s.status||"لم يبدأ")}</td><td>${p.actual?fmt2(p.actual):"—"}</td><td>${p.invoices.length||"—"}</td>
-        <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(stepAmount(s)>0) ? `<div style="font-size:10.5px; color:#c0392b;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
+        <td>${stepFilesHtml(s.invoiceFiles)}${(s.invoiceFiles||[]).length && !(stepAmount(s)>0) ? `<div style="font-size:10.5px; color:#a33a2c;">${t('stepNeedPaidShort')}</div>` : ""}</td><td>${stepFilesHtml(s.docFiles)}</td>
         <td>${escapeHtml(s.refNo||"")}</td><td>${escapeHtml(s.doneDate||"")}</td>
         <td><button class="btn btn-sm btn-outline" type="button" data-projaddinv="${i}">${t('projAddInvoice')}</button></td></tr>`; }).join("")}
-      <tr style="background:var(--bg); font-weight:900;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr style="background:var(--bg); font-weight:700;"><td></td><td>${t('expPivotTotal')}</td><td></td><td></td><td>${fmt2(cb.actual)}</td><td>${cb.invoices.length}</td><td></td><td></td><td></td><td></td><td></td></tr>
       </tbody></table></div>`;
   }
   if(cb.unassigned.length){
@@ -6360,11 +6447,11 @@ function buildFleetLinkedHtml(rec){
   ).sort((a,b)=> new Date(b.reportDate||0)-new Date(a.reportDate||0));
 
   const timelineEvents = [];
-  if(rec.purchaseDate) timelineEvents.push({date:rec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
+  if(rec.purchaseDate) timelineEvents.push({date:rec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#4f7a3a"});
   accidents.forEach(a=>{
     const isViolation = (a.type||"").trim()==="مخالفة";
     const text = isViolation ? (a.violationType||a.desc||"") : (a.desc||"");
-    timelineEvents.push({date:a.date, label:optLabel(a.type||"")+": "+String(text).slice(0,20), icon: isViolation ? "📋" : "🚨", color: isViolation ? "#d98e1f" : "#c0392b"});
+    timelineEvents.push({date:a.date, label:optLabel(a.type||"")+": "+String(text).slice(0,20), icon: isViolation ? "📋" : "🚨", color: isViolation ? "#a8731c" : "#a33a2c"});
   });
   html += `<div class="section-title">${t('timelineTitle')}</div>`;
   html += buildTimelineHtml(timelineEvents);
@@ -6420,13 +6507,13 @@ function computeHealthScore(purchasePrice, totalRepairCost, repairCount, purchas
   }
   return Math.max(0, Math.min(100, Math.round(score)));
 }
-function healthColor(score){ return score >= 70 ? "#1f8a4c" : score >= 40 ? "#b8860b" : "#c0392b"; }
+function healthColor(score){ return score >= 70 ? "#4f7a3a" : score >= 40 ? "#a8731c" : "#a33a2c"; }
 function buildHealthGaugeSvg(score){
   const color = healthColor(score);
   const r = 32, circumference = 2*Math.PI*r;
   const offset = circumference * (1 - score/100);
   return `<svg width="80" height="80" viewBox="0 0 80 80">
-    <circle cx="40" cy="40" r="${r}" fill="none" stroke="#eef0f4" stroke-width="8"/>
+    <circle cx="40" cy="40" r="${r}" fill="none" stroke="#f6f3ee" stroke-width="8"/>
     <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round"
       stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 40 40)"/>
     <text x="40" y="46" text-anchor="middle" font-size="20" font-weight="900" fill="${color}" font-family="Arial">${score}</text>
@@ -6439,7 +6526,7 @@ function buildTimelineHtml(events){
     ${sorted.map((e,i)=>`
       <div style="display:flex; flex-direction:column; align-items:center; min-width:140px; position:relative; flex-shrink:0;">
         ${i>0?`<div style="position:absolute; top:9px; inset-inline-end:50%; width:100%; height:2px; background:var(--line); z-index:0;"></div>`:''}
-        <div style="width:18px; height:18px; border-radius:50%; background:${e.color||'#1F3864'}; z-index:1; border:3px solid #fff; box-shadow:0 0 0 1px var(--line);"></div>
+        <div style="width:18px; height:18px; border-radius:50%; background:${e.color||'#23211f'}; z-index:1; border:3px solid #fff; box-shadow:0 0 0 1px var(--line);"></div>
         <div style="font-size:10.5px; color:var(--muted); margin-top:6px;">${(e.date||"").slice(0,10)}</div>
         <div style="font-size:12px; font-weight:700; text-align:center; margin-top:2px; max-width:130px;">${e.icon||''} ${escapeHtml(e.label||'')}</div>
       </div>
@@ -6484,7 +6571,7 @@ function buildAssetTcoHtml(assetRec){
   </div>`;
 
   if(risk){
-    const riskColors = { high:{bg:"var(--danger-bg)", border:"#f2c4bd", text:"#8a2a1e"}, medium:{bg:"#fff6e0", border:"#f0d9a0", text:"#8a5a00"}, low:{bg:"var(--success-bg)", border:"#b7e0c4", text:"#1b5e20"} };
+    const riskColors = { high:{bg:"var(--danger-bg)", border:"#a33a2c", text:"#a33a2c"}, medium:{bg:"#fbf2e2", border:"#a8731c", text:"#a8731c"}, low:{bg:"var(--success-bg)", border:"#4f7a3a", text:"#4f7a3a"} };
     const rc = riskColors[risk.level];
     html += `<div class="banner" style="background:${rc.bg}; border-color:${rc.border}; color:${rc.text}; margin-bottom:16px;">
       <b>${t('predictiveRiskTitle')}: ${t('predictiveRisk_'+risk.level)}</b><br>
@@ -6493,8 +6580,8 @@ function buildAssetTcoHtml(assetRec){
   }
 
   const timelineEvents = [];
-  if(assetRec.purchaseDate) timelineEvents.push({date:assetRec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#1f8a4c"});
-  linkedRequests.forEach(r=> timelineEvents.push({date:r.reportDate, label:(r.issue||"").slice(0,30)||t('assetLinkedRequestsTitle'), icon:"🔧", color:"#c0392b"}));
+  if(assetRec.purchaseDate) timelineEvents.push({date:assetRec.purchaseDate, label:t('timelinePurchased'), icon:"🛒", color:"#4f7a3a"});
+  linkedRequests.forEach(r=> timelineEvents.push({date:r.reportDate, label:(r.issue||"").slice(0,30)||t('assetLinkedRequestsTitle'), icon:"🔧", color:"#a33a2c"}));
   html += `<div class="section-title">${t('timelineTitle')}</div>`;
   html += buildTimelineHtml(timelineEvents);
 
@@ -6623,7 +6710,7 @@ function openForm(m, existing, viewMode, prefill){
     }
     const atr = (formViewOnly && isTranslatableField(f) && val) ? `data-autotranslate="1" data-original="${escapeAttr(val)}"` : "";
     if(f.readOnlyComputed){
-      return `<input type="${f.type}" data-field="${f.key}" value="${val}" readonly style="background:#f3f4f7; color:var(--muted);" ${atr}>`;
+      return `<input type="${f.type}" data-field="${f.key}" value="${val}" readonly style="background:#f6f3ee; color:var(--muted);" ${atr}>`;
     }
     return `<input type="${f.type}" data-field="${f.key}" value="${val}" ${dis} ${atr}>`;
   }
@@ -6682,7 +6769,7 @@ function openForm(m, existing, viewMode, prefill){
           ` : `
             <button class="btn btn-outline" id="btnCancel">${t('cancel')}</button>
             ${isEdit? `<button class="btn btn-danger" id="btnDeleteInModal">${t('deleteRecord')}</button>` : ""}
-            <button class="btn btn-primary" id="btnSave">${isEdit? t('saveEdits'):t('saveRecord')}</button>
+            <button class="btn btn-gold" id="btnSave">${isEdit? t('saveEdits'):t('saveRecord')}</button>
           `}
         </div>
       </div>
@@ -7039,7 +7126,7 @@ function renderAllocWidget(){
   const net = Number(q("amount") && q("amount").value) || 0, vat = Number(q("vat") && q("vat").value) || 0;
   const total = round2(net + vat);
   const fmt = n=> Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-  const box = (inner)=> `<div style="border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; background:#fafbfd;">${inner}</div>`;
+  const box = (inner)=> `<div style="border:1.5px solid var(--line); border-radius:10px; padding:12px 14px; background:#fbf8f3;">${inner}</div>`;
   if(formViewOnly){
     const saved = parseAllocations(hidden.value);
     w.innerHTML = saved.length ? box(saved.map(a=>`<div style="display:flex; justify-content:space-between; padding:4px 0; font-size:13px;"><span>🏢 ${escapeHtml(a.branch)}</span><b>${fmt(a.total)}</b></div>`).join("")) : "—";
@@ -7063,13 +7150,13 @@ function renderAllocWidget(){
     branches.map((b,i)=>`<div style="display:flex; align-items:center; gap:10px; padding:4px 0;">
         <span style="flex:1; font-size:13px;">🏢 ${escapeHtml(b)}</span>
         <input type="number" step="0.01" min="0" data-allocbranch="${escapeAttr(b)}" value="${initial[i]!==undefined?initial[i]:""}" style="width:130px; padding:7px; border:1.5px solid var(--line); border-radius:8px;">
-      </div>`).join("") + `<div id="allocRemaining" style="margin-top:8px; font-size:12.5px; font-weight:800;"></div>`);
+      </div>`).join("") + `<div id="allocRemaining" style="margin-top:8px; font-size:12.5px; font-weight:700;"></div>`);
   const sync = ()=>{
     const list = [...w.querySelectorAll("[data-allocbranch]")].map(inp=> ({branch: inp.dataset.allocbranch, total: round2(inp.value)}));
     hidden.value = JSON.stringify(list);
     const rem = round2(total - list.reduce((s,x)=>s+x.total,0));
     const el = document.getElementById("allocRemaining");
-    if(el){ el.textContent = t('expAllocRemaining', fmt(rem)); el.style.color = Math.abs(rem) < 0.01 ? "#1f8a4c" : "#c0392b"; }
+    if(el){ el.textContent = t('expAllocRemaining', fmt(rem)); el.style.color = Math.abs(rem) < 0.01 ? "#4f7a3a" : "#a33a2c"; }
   };
   w.querySelectorAll("[data-allocbranch]").forEach(inp=> inp.addEventListener("input", ()=>{ w.dataset.userEdited = "1"; sync(); }));
   sync();
@@ -7149,7 +7236,7 @@ function renderProjectStepsWidget(){
   const mini = (txt)=> `<span style="font-size:10.5px; color:var(--muted); margin-inline-end:3px;">${txt}</span>`;
   const inpStyle = "padding:7px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;";
   w.innerHTML = (formSteps.length ? formSteps.map((s,i)=>`
-    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fff;">
+    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fffdf9;">
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
         <b style="min-width:24px; text-align:center;">${i+1}</b>
         <input type="text" data-sf="name" data-si="${i}" value="${escapeAttr(s.name)}" placeholder="${t('stepName')}" style="flex:2; min-width:170px; ${inpStyle}">
@@ -7169,13 +7256,13 @@ function renderProjectStepsWidget(){
         <button type="button" class="btn btn-sm btn-danger" data-sdel="${i}">✕</button>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-        ${["invoiceFiles","docFiles"].map(kind=>`<div style="flex:1; min-width:210px; border:1.5px dashed var(--line); border-radius:10px; padding:8px 10px; background:#fafbfd;">
-          <div style="font-size:12px; font-weight:800; margin-bottom:6px;">${kind==="invoiceFiles" ? t('stepInvoiceFiles') : t('stepDocFiles')}</div>
+        ${["invoiceFiles","docFiles"].map(kind=>`<div style="flex:1; min-width:210px; border:1.5px dashed var(--line); border-radius:10px; padding:8px 10px; background:#fbf8f3;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:6px;">${kind==="invoiceFiles" ? t('stepInvoiceFiles') : t('stepDocFiles')}</div>
           <div class="photo-widget" data-stepfiles="${i}:${kind}"></div>
           <input type="file" data-stepfile="${i}:${kind}" accept="image/*,application/pdf" multiple style="display:none">
         </div>`).join("")}
       </div>
-      <div data-stephint="${i}" style="font-size:11.5px; color:#c0392b; margin-top:6px;"></div>
+      <div data-stephint="${i}" style="font-size:11.5px; color:#a33a2c; margin-top:6px;"></div>
     </div>`).join("") : `<div style="font-size:12.5px; color:var(--muted); margin-bottom:8px;">${t('stepsEmpty')}</div>`)
     + `<div style="display:flex; gap:8px; flex-wrap:wrap;">
          <button type="button" class="btn btn-outline btn-sm" id="stepAddBtn">${t('stepAdd')}</button>
@@ -7243,7 +7330,7 @@ function renderStepFiles(){
     const s = formSteps[Number(i)];
     const arr = (s && s[kind]) || [];
     box.innerHTML = arr.map((p,j)=>{
-      const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${p.progress||0}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
+      const badgeHtml = p.uploading ? `<span class="attach-status uploading" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${p.progress||0}%</span>` : (p.storageUrl ? `<span class="attach-status linked">☁️</span>` : "");
       const body = isPdfAttachment(p) ? `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:26px;">📄</div>` : `<img src="${escapeAttr(p.dataUrl||p.storageUrl||"")}" alt="">`;
       return `<div class="photo-thumb">${body}${badgeHtml}<button type="button" class="rm" data-steprm="${i}:${kind}:${j}">✕</button></div>`;
     }).join("") + `<div class="photo-add-btn" data-stepadd="${i}:${kind}">+</div>`;
@@ -7366,7 +7453,7 @@ function renderOwnersWidget(){
   if(!formOwners.length) formOwners = [newOwner()];          // the owner's box is always there; more owners are added below it
   const inp = "padding:7px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;";
   w.innerHTML = formOwners.map((o,i)=>`
-    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fff;">
+    <div style="border:1.5px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#fffdf9;">
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <b style="min-width:70px; font-size:12.5px;">${i===0 ? t('ownerLabel') : t('ownerN', i+1)}</b>
         <input type="text" data-of="name" data-oi="${i}" value="${escapeAttr(o.name)}" placeholder="${t('ownerName')}" style="flex:2; min-width:170px; ${inp}">
@@ -7543,7 +7630,7 @@ function openConvertToPmModal(rec){
         </div>
         <div class="modal-actions">
           <button class="btn btn-outline" id="btnCvCancel">${t('cancel')}</button>
-          <button class="btn btn-primary" id="btnCvConfirm">${t('convertToPmConfirmBtn')}</button>
+          <button class="btn btn-gold" id="btnCvConfirm">${t('convertToPmConfirmBtn')}</button>
         </div>
       </div>
     </div>
@@ -7599,23 +7686,23 @@ function openQrGenerateModal(m, rec, retriesLeft){
   root.innerHTML = `
     <div class="qr-overlay" id="qrOverlay">
       <div class="qr-box">
-        <div style="font-weight:900; color:var(--navy); font-size:15px;">${escapeHtml(title)}</div>
+        <div style="font-weight:700; color:var(--navy); font-size:15px;">${escapeHtml(title)}</div>
         <div style="font-size:11px; color:var(--muted); margin-top:2px;">${ML(m,"name")}</div>
         <div id="qrCanvasWrap"></div>
         <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
-          <button class="btn btn-gold btn-sm" id="btnQrPrint">${t('qrPrint')}</button>
+          <button class="btn btn-outline btn-sm" id="btnQrPrint">${t('qrPrint')}</button>
           <button class="btn btn-outline btn-sm" id="btnQrClose">${t('qrClose')}</button>
         </div>
       </div>
     </div>`;
-  new QRCode(document.getElementById("qrCanvasWrap"), { text: qrCodeValueFor(m, rec), width:180, height:180, colorDark:"#1F3864", colorLight:"#ffffff" });
+  new QRCode(document.getElementById("qrCanvasWrap"), { text: qrCodeValueFor(m, rec), width:180, height:180, colorDark:"#23211f", colorLight:"#ffffff" });
   document.getElementById("btnQrClose").onclick = ()=>{ root.innerHTML = ""; };
   document.getElementById("qrOverlay").onclick = (e)=>{ if(e.target.id==="qrOverlay") root.innerHTML = ""; };
   document.getElementById("btnQrPrint").onclick = ()=>{
     const img = document.querySelector("#qrCanvasWrap img") || document.querySelector("#qrCanvasWrap canvas");
     const src = img && img.tagName==="IMG" ? img.src : (img ? img.toDataURL() : "");
     const w = window.open("", "_blank");
-    w.document.write(`<html><body style="text-align:center; font-family:Arial;"><h3>${escapeHtml(title)}</h3><img src="${src}" onload="window.print()"></body></html>`);
+    w.document.write(`<html><body style="text-align:center; font-family:'Inter Tight','IBM Plex Sans Arabic',system-ui,sans-serif;"><h3>${escapeHtml(title)}</h3><img src="${src}" onload="window.print()"></body></html>`);
   };
 }
 let qrScanStream = null;
@@ -7717,7 +7804,7 @@ function openQrScanModal(){
   root.innerHTML = `
     <div class="qr-overlay" id="qrOverlay">
       <div class="qr-box" style="max-width:420px;">
-        <div style="font-weight:900; color:var(--navy); font-size:14px; margin-bottom:10px;">${t('qrScanTitle')}</div>
+        <div style="font-weight:700; color:var(--navy); font-size:14px; margin-bottom:10px;">${t('qrScanTitle')}</div>
         <div class="qr-video-wrap"><video id="qrVideo" playsinline autoplay muted></video><div class="qr-scan-frame"></div></div>
         <div style="font-size:11.5px; color:var(--muted); margin-top:10px;">${t('qrScanInstructions')}</div>
         <button class="btn btn-outline btn-sm" id="btnQrScanClose" style="margin-top:10px;">${t('qrClose')}</button>
@@ -7866,7 +7953,7 @@ function renderPhotoWidget(){
       ? `<div class="pdf-thumb-icon video-thumb-icon" data-viewphoto="${i}" style="cursor:zoom-in;">🎬<span>${t('attachVideoLabel')}</span></div>`
       : `<img src="${p.dataUrl || p.storageUrl || ''}" alt="${p.name||''}" data-viewphoto="${i}" style="cursor:zoom-in;">`;
     const statusBadge = p.uploading
-      ? `<span class="attach-status uploading" title="${t('attachUploading')}" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      ? `<span class="attach-status uploading" title="${t('attachUploading')}" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>`
       : p.uploadFailed
       ? `<span class="attach-status failed" data-retryupload="${i}" title="${t('attachUploadFailed')}" style="cursor:pointer;">⚠️</span>`
       : (p.storageUrl ? `<span class="attach-status linked" title="${t('attachLinked')}">☁️</span>` : "");
@@ -7943,7 +8030,7 @@ function renderPhotoWidget2(){
       ? `<div class="pdf-thumb-icon" data-viewphoto2="${i}" style="cursor:zoom-in;">📄<span>PDF</span></div>`
       : `<img src="${p.dataUrl || p.storageUrl || ''}" alt="${p.name||''}" data-viewphoto2="${i}" style="cursor:zoom-in;">`;
     const statusBadge = p.uploading
-      ? `<span class="attach-status uploading" title="${t('attachUploading')}" style="width:auto; padding:0 3px; font-size:9px; font-weight:800;">${(p.progress||0)}%</span>`
+      ? `<span class="attach-status uploading" title="${t('attachUploading')}" style="width:auto; padding:0 3px; font-size:9px; font-weight:700;">${(p.progress||0)}%</span>`
       : p.uploadFailed
       ? `<span class="attach-status failed" data-retryupload2="${i}" title="${t('attachUploadFailed')}" style="cursor:pointer;">⚠️</span>`
       : (p.storageUrl ? `<span class="attach-status linked" title="${t('attachLinked')}">☁️</span>` : "");
@@ -8041,14 +8128,14 @@ async function moduleToSheetData(m, recordsOverride, statusFilterValue, forceAll
 }
 
 /* ---- Branded, professional Excel styling (ExcelJS) ---- */
-const XL_NAVY = "FF1F3864", XL_GOLD = "FFC9A24B", XL_LIGHT = "FFF2F2F2", XL_WHITE = "FFFFFFFF",
-      XL_MUTED = "FF7F7F7F", XL_BORDER = "FFBFBFBF", XL_BORDER_LIGHT = "FFE2E6EE", XL_TEXT = "FF1C2433";
+const XL_NAVY = "FF23211F", XL_GOLD = "FFB8875A", XL_LIGHT = "FFF2F2F2", XL_WHITE = "FFFFFFFF",
+      XL_MUTED = "FF7F7F7F", XL_BORDER = "FFBFBFBF", XL_BORDER_LIGHT = "FFE5DFD5", XL_TEXT = "FF23211F";
 const EXCEL_BADGE_COLORS = {
-  "badge-danger":  { fill:"FFFDECEA", font:"FFC0392B" },
-  "badge-warning": { fill:"FFFFF6E0", font:"FFB8860B" },
-  "badge-success": { fill:"FFE8F8EE", font:"FF1F8A4C" },
-  "badge-info":    { fill:"FFEAF1FF", font:"FF2563EB" },
-  "badge-muted":   { fill:"FFEEF0F4", font:"FF6B7686" },
+  "badge-danger":  { fill:"FFF8E9E5", font:"FFA33A2C" },
+  "badge-warning": { fill:"FFFBF2E2", font:"FFA8731C" },
+  "badge-success": { fill:"FFEEF3E8", font:"FF4F7A3A" },
+  "badge-info":    { fill:"FFEAEFF6", font:"FF3E5C8A" },
+  "badge-muted":   { fill:"FFF6F3EE", font:"FF8D877E" },
 };
 function excelColorForValue(rawVal){
   if(!rawVal) return null;
@@ -8152,7 +8239,7 @@ function writeOneAttachmentCell(cell, att, index, zebraFill, isLastRow, ctx){
   if(!att) return;
   if(att.storageUrl){
     cell.value = { text: attachmentLabel(att, index), hyperlink: att.storageUrl };
-    cell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
+    cell.font = { name:"Arial", size:9.5, color:{argb:"FF3E5C8A"}, underline:true };
     const thumb = ctx ? xlThumbCache.get(xlThumbKey(att)) : null;
     if(thumb){
       // the picture sits in the cell (name stays underneath); clicking the picture opens the file
@@ -8176,7 +8263,7 @@ function writeMoreAttachmentsCell(cell, files, zebraFill, isLastRow){
   const galleryUrl = GALLERY_BASE_URL + "?urls=" + linked.slice(0, used).map(p=>encodeURIComponent(p.storageUrl)).join(",");
   const rest = linked.slice(used).map(p=>p.storageUrl);
   cell.value = { text: (LANG==='ar' ? `🖼️ باقي المرفقات (${linked.length})` : `🖼️ More attachments (${linked.length})`) + (rest.length ? "\n" + rest.join("\n") : ""), hyperlink: galleryUrl };
-  cell.font = { name:"Arial", size:9.5, color:{argb:"FF2563EB"}, underline:true };
+  cell.font = { name:"Arial", size:9.5, color:{argb:"FF3E5C8A"}, underline:true };
 }
 function addStyledSheet(workbook, sheetTitle, headers, rows, opts){
   opts = opts || {};
@@ -8342,7 +8429,7 @@ function addCoverSheet(workbook, moduleSummaries){
     row.getCell(3).value = s.alertCount;
     for(let c=1;c<=3;c++){
       const cell = row.getCell(c);
-      cell.font = { name:"Arial", size:10.5, color:{argb: c===3 && s.alertCount>0 ? "FFC0392B" : XL_TEXT}, bold: c===3 && s.alertCount>0 };
+      cell.font = { name:"Arial", size:10.5, color:{argb: c===3 && s.alertCount>0 ? "FFA33A2C" : XL_TEXT}, bold: c===3 && s.alertCount>0 };
       cell.alignment = { horizontal:"center", vertical:"middle" };
       cell.fill = { type:"pattern", pattern:"solid", fgColor:{argb: i%2===1? XL_LIGHT : "FFFFFFFF"} };
       cell.border = { top:{style:"thin",color:{argb:XL_BORDER_LIGHT}}, bottom:{style:"thin",color:{argb:XL_BORDER_LIGHT}}, left:{style:"thin",color:{argb:XL_BORDER_LIGHT}}, right:{style:"thin",color:{argb:XL_BORDER_LIGHT}} };
@@ -8418,11 +8505,11 @@ function openModuleExportBranchModal(m){
         <div class="modal-sub">${t('moduleExportBranchSub', ML(m,"name"))}</div>
         <div class="field" style="margin-bottom:14px; display:flex; align-items:center; gap:10px;">
           <input type="radio" name="exportBranchMode" id="exportModeAll" value="all" checked style="width:18px; height:18px;">
-          <label for="exportModeAll" style="margin:0; font-weight:800;">${t('moduleExportAllBranches')}</label>
+          <label for="exportModeAll" style="margin:0; font-weight:700;">${t('moduleExportAllBranches')}</label>
         </div>
         <div class="field" style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
           <input type="radio" name="exportBranchMode" id="exportModeSpecific" value="specific" style="width:18px; height:18px;">
-          <label for="exportModeSpecific" style="margin:0; font-weight:800;">${t('moduleExportSpecificBranches')}</label>
+          <label for="exportModeSpecific" style="margin:0; font-weight:700;">${t('moduleExportSpecificBranches')}</label>
         </div>
         <div id="exportBranchChecklist" style="display:none; max-height:35vh; overflow-y:auto; margin-inline-start:28px; margin-bottom:14px;">
           ${branches.map(b=>`
@@ -8433,7 +8520,7 @@ function openModuleExportBranchModal(m){
         </div>
         <div class="modal-actions">
           <button class="btn btn-outline" id="btnModuleExportBranchCancel">${t('cancel')}</button>
-          <button class="btn btn-primary" id="btnModuleExportBranchConfirm">${t('moduleExportBranchConfirmBtn')}</button>
+          <button class="btn btn-gold" id="btnModuleExportBranchConfirm">${t('moduleExportBranchConfirmBtn')}</button>
         </div>
       </div>
     </div>
@@ -8578,7 +8665,7 @@ function openExportSelectModal(){
         </div>
         <div class="modal-actions">
           <button class="btn btn-outline" id="btnExportSelectCancel">${t('cancel')}</button>
-          <button class="btn btn-primary" id="btnExportSelectConfirm">${t('exportSelectConfirmBtn')}</button>
+          <button class="btn btn-gold" id="btnExportSelectConfirm">${t('exportSelectConfirmBtn')}</button>
         </div>
       </div>
     </div>
@@ -8691,7 +8778,7 @@ function renderMastersPage(){
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
             ${(masters[type]||[]).length ? (masters[type]||[]).map(v=>`
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#fafbfd; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#fbf8f3; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px;">
                 <span>${v}</span>
                 <button class="btn btn-sm btn-danger" data-rmmaster="${type}::${v.replace(/"/g,'&quot;')}">✕</button>
               </div>
@@ -8863,7 +8950,7 @@ function getLastSync(){ return localStorage.getItem("forka_cloud_lastsync") || "
 function updateCloudStatusBadge(){
   const b = document.getElementById("cloudStatusBadge");
   if(!b) return;
-  b.style.background = cloudEnabled ? "#2E7D32" : "#888";
+  b.style.background = cloudEnabled ? "#4f7a3a" : "#8d877e";
 }
 
 function uploadFileToStorage(file, onProgress){
@@ -9222,10 +9309,10 @@ function renderReportBody(from, to){
       ${rootCauseRows.map(([cause,count])=>`
         <div style="display:flex; align-items:center; gap:10px;">
           <div style="min-width:170px; font-size:12.5px; font-weight:700;">${cause}</div>
-          <div style="flex:1; background:#eef0f4; border-radius:6px; height:20px; overflow:hidden;">
+          <div style="flex:1; background:#f6f3ee; border-radius:6px; height:20px; overflow:hidden;">
             <div style="width:${Math.round((count/maxCount)*100)}%; background:var(--navy); height:100%;"></div>
           </div>
-          <div style="min-width:24px; font-weight:800; font-size:12.5px;">${count}</div>
+          <div style="min-width:24px; font-weight:700; font-size:12.5px;">${count}</div>
         </div>`).join("")}
     </div>` : `<div style="font-size:12.5px; color:var(--muted);">${t('rootCauseEmpty')}</div>`}
   `;
@@ -9295,11 +9382,11 @@ function svgBarChart(points, opts){
     const x = pad + i*bw + bw*0.15;
     const y = h-pad-bh;
     const bwReal = bw*0.7;
-    return `<rect x="${x}" y="${y}" width="${bwReal}" height="${bh}" rx="3" fill="#1F3864"/>
-            <text x="${x+bwReal/2}" y="${h-pad+14}" font-size="9" text-anchor="middle" fill="#666">${p.label}</text>
-            <text x="${x+bwReal/2}" y="${y-4}" font-size="9" text-anchor="middle" fill="#1F3864" font-weight="700">${p.value}</text>`;
+    return `<rect x="${x}" y="${y}" width="${bwReal}" height="${bh}" rx="3" fill="#23211f"/>
+            <text x="${x+bwReal/2}" y="${h-pad+14}" font-size="9" text-anchor="middle" fill="#5c5852">${p.label}</text>
+            <text x="${x+bwReal/2}" y="${y-4}" font-size="9" text-anchor="middle" fill="#23211f" font-weight="700">${p.value}</text>`;
   }).join("");
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%; max-width:${w}px; height:${h}px;">${bars}<line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#ddd"/></svg>`;
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%; max-width:${w}px; height:${h}px;">${bars}<line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="#e5dfd5"/></svg>`;
 }
 function bucketRecordsByDay(recs, dateField, from, to){
   const fromD = new Date(from), toD = new Date(to);
@@ -9491,7 +9578,7 @@ function renderModuleReportTab(m){
 
     <div class="banner no-print" style="margin-top:20px;">
       <div>
-        <div style="font-weight:800; margin-bottom:4px;">${t('mrWeeklyScheduleTitle')}</div>
+        <div style="font-weight:700; margin-bottom:4px;">${t('mrWeeklyScheduleTitle')}</div>
         <div style="margin-bottom:8px;">${t('mrWeeklyScheduleSub')}</div>
         <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
           <input type="checkbox" id="mrWeeklyToggle" ${isWeeklyOn?'checked':''}>
@@ -9642,13 +9729,13 @@ function renderNotificationsPage(){
         </div>
         <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:14px;">${t('pushNotifDesc')}</div>
         <button class="btn btn-primary btn-sm" id="btnEnablePush">${getPushNotifEnabled() ? t('pushNotifDisableBtn') : t('pushNotifEnableBtn')}</button>
-        <button class="btn btn-gold btn-sm" id="btnTestPush" style="margin-inline-start:8px;">${t('pushNotifTestBtn')}</button>
+        <button class="btn btn-outline btn-sm" id="btnTestPush" style="margin-inline-start:8px;">${t('pushNotifTestBtn')}</button>
       </div>
 
       <div class="card">
         <div class="label" style="margin-bottom:12px;">${t('notifHowTitle')}</div>
         <div style="display:flex; flex-direction:column; gap:14px;">
-          <div class="step-card"><div class="step-num">1</div><div style="font-size:13px; line-height:1.7;">${t('notifStep1')} <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--navy); font-weight:800;">${t('notifStep1Link')}</a></div></div>
+          <div class="step-card"><div class="step-num">1</div><div style="font-size:13px; line-height:1.7;">${t('notifStep1')} <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--navy); font-weight:700;">${t('notifStep1Link')}</a></div></div>
           <div class="step-card"><div class="step-num">2</div><div style="font-size:13px; line-height:1.7;">${t('notifStep2')}</div></div>
           <div class="step-card"><div class="step-num">3</div><div style="font-size:13px; line-height:1.7;">${t('notifStep3')}</div></div>
           <div class="step-card"><div class="step-num">4</div><div style="font-size:13px; line-height:1.7;">${t('notifStep4')}</div></div>
@@ -9901,7 +9988,7 @@ function renderCloudPage(){
   const cloudEnabledExtrasHtml = cloudEnabled ? `
           <div class="banner" style="margin-top:16px;">
             <div>
-              <div style="font-weight:800; margin-bottom:6px;">${t('cloudMigrateTitle')}</div>
+              <div style="font-weight:700; margin-bottom:6px;">${t('cloudMigrateTitle')}</div>
               <div style="margin-bottom:10px;">${t('cloudMigrateSub')}</div>
               <button class="btn btn-gold btn-sm" id="btnCloudMigrate">${t('cloudMigrateBtn')}</button>
             </div>
@@ -9943,11 +10030,11 @@ if(!state.calendarDate) state.calendarDate = new Date();
 function calendarEventsForModule(){
   // {module, dateField, labelField} pairs to plot on the calendar
   return [
-    { key:"pm", dateField:"nextVisit", color:"#2563eb" },
-    { key:"amc", dateField:"nextVisit", color:"#C9A24B" },
-    { key:"inspections", dateField:"targetDate", color:"#c0392b" },
-    { key:"projects", dateField:"targetOpenDate", color:"#1f8a4c" },
-    { key:"fleet", dateField:"insuranceExpiry", color:"#b8860b" },
+    { key:"pm", dateField:"nextVisit", color:"#3e5c8a" },
+    { key:"amc", dateField:"nextVisit", color:"#b8875a" },
+    { key:"inspections", dateField:"targetDate", color:"#a33a2c" },
+    { key:"projects", dateField:"targetOpenDate", color:"#4f7a3a" },
+    { key:"fleet", dateField:"insuranceExpiry", color:"#a8731c" },
   ];
 }
 function getAllCalendarEvents(){
@@ -10047,7 +10134,7 @@ function renderCalendarPage(){
   document.getElementById("content").innerHTML = `
     <div class="toolbar no-print" style="justify-content:center;">
       <button class="btn btn-outline btn-sm" id="calPrev">${t('calendarPrevMonth')}</button>
-      <div style="font-weight:900; font-size:16px; color:var(--navy); min-width:160px; text-align:center;">${monthNames[month]} ${year}</div>
+      <div style="font-weight:700; font-size:16px; color:var(--navy); min-width:160px; text-align:center;">${monthNames[month]} ${year}</div>
       <button class="btn btn-outline btn-sm" id="calNext">${t('calendarNextMonth')}</button>
     </div>
     <div class="cal-grid cal-header-row">
@@ -10430,15 +10517,15 @@ function expenseResultsHtml(st, mode){
   const lines = expenseLines(invoices, st);
   const sum = expenseSummary(invoices, lines, st);
   const pv = expensePivot(lines, st);
-  const card = (label, value, color)=> `<div class="card" style="flex:1; min-width:150px; text-align:center;"><div style="font-size:12px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:21px; font-weight:900; color:${color||'var(--navy)'}; margin-top:4px;">${value}</div></div>`;
+  const card = (label, value, color)=> `<div class="card" style="flex:1; min-width:150px; text-align:center;"><div style="font-size:12px; color:var(--muted); font-weight:700;">${label}</div><div style="font-size:21px; font-weight:700; color:${color||'var(--navy)'}; margin-top:4px;">${value}</div></div>`;
   const cards = `<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
     ${card(t('expSumInvoices'), sum.count)}${card(t('expSumTotal')+" ("+(st.basis==='total'?t('expBasisTotal'):t('expBasisNet'))+")", fmt2(sum.total))}
-    ${card(t('expSumUnpaid'), `${fmt2(sum.unpaid)} <span style="font-size:12px;">(${sum.unpaidCount})</span>`, sum.unpaid?'#c0392b':'#1f8a4c')}
-    ${card(t('expSumToReview'), sum.toReview, sum.toReview?'#d98e1f':'#1f8a4c')}</div>`;
+    ${card(t('expSumUnpaid'), `${fmt2(sum.unpaid)} <span style="font-size:12px;">(${sum.unpaidCount})</span>`, sum.unpaid?'#a33a2c':'#4f7a3a')}
+    ${card(t('expSumToReview'), sum.toReview, sum.toReview?'#a8731c':'#4f7a3a')}</div>`;
   const pivot = pv.groups.length ? `<div class="section-title">${t('expPivotTitle')}</div>
     <div class="table-wrap" style="margin-bottom:16px;"><table><thead><tr><th>${expenseGroupLabel(st.groupBy)}</th>${pv.branches.map(b=>`<th>${autoTr(b)}</th>`).join("")}<th>${t('expPivotTotal')}</th></tr></thead>
       <tbody>${pv.groups.map(g=>`<tr><td><b>${st.groupBy==="vendor" ? autoTr(g) : escapeHtml(expenseGroupShown(g, st.groupBy))}</b></td>${pv.branches.map(b=>`<td>${pv.rows[g].byBranch[b] ? fmt2(pv.rows[g].byBranch[b]) : "—"}</td>`).join("")}<td><b>${fmt2(pv.rows[g].total)}</b></td></tr>`).join("")}
-      <tr style="background:var(--bg); font-weight:900;"><td>${t('expPivotTotal')}</td>${pv.branches.map(b=>`<td>${fmt2(pv.colTotals[b])}</td>`).join("")}<td>${fmt2(pv.grand)}</td></tr></tbody></table></div>` : "";
+      <tr style="background:var(--bg); font-weight:700;"><td>${t('expPivotTotal')}</td>${pv.branches.map(b=>`<td>${fmt2(pv.colTotals[b])}</td>`).join("")}<td>${fmt2(pv.grand)}</td></tr></tbody></table></div>` : "";
   const list = `<div class="section-title">${t('expListTitle')}</div>
     <div class="table-wrap"><table><thead><tr><th>${t('expColEntry')}</th><th>${t('expColDate')}</th><th>${t('expColVendor')}</th><th>${t('expColInvoiceNo')}</th><th>${t('expColType')}</th><th>${t('expColSplit')}</th><th>${t('expColTotal')}</th><th>${t('expColPayment')}</th><th>${t('expColReview')}</th><th>${t('actions')}</th></tr></thead>
     <tbody>${invoices.length ? invoices.map(r=>{
@@ -10501,11 +10588,11 @@ function openExpenseDetailsModal(id, mode, onChanged){
     return isImg ? `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" style="display:inline-block; margin:4px;"><img src="${escapeAttr(p.dataUrl||p.storageUrl||'')}" style="width:96px; height:96px; object-fit:cover; border-radius:8px; border:1px solid var(--line);" alt=""></a>`
       : `<a href="${escapeAttr(href)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline" style="margin:4px;">${isPdfAttachment(p)?"📄":"🎬"} ${escapeHtml(p.name||"file")}</a>`;
   }).join("") : `<span style="color:var(--muted); font-size:12.5px;">${t('expNoAttachments')}</span>`;
-  const attach = `<div style="margin-bottom:8px;"><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColInvFile')}</div>${attachList(rec.photos)}</div>
-    <div><div style="font-size:12px; font-weight:800; color:var(--navy);">${t('projColDocFile')}</div>${attachList(invoiceDocs(rec))}</div>`;
+  const attach = `<div style="margin-bottom:8px;"><div style="font-size:12px; font-weight:700; color:var(--navy);">${t('projColInvFile')}</div>${attachList(rec.photos)}</div>
+    <div><div style="font-size:12px; font-weight:700; color:var(--navy);">${t('projColDocFile')}</div>${attachList(invoiceDocs(rec))}</div>`;
   root.innerHTML = `<div class="modal-overlay" id="expDetailsOverlay"><div class="modal" style="max-width:720px;">
     <h2>🧾 ${escapeHtml(rec.expNo||"")} — ${autoTr(rec.vendor||"")}</h2>
-    <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#f6f7fa; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
+    <div class="form-grid" style="margin-bottom:12px;">${keys.map(k=>`<div class="field ${k==='notes'?'full':''}"><label>${efl(k)}</label><div style="padding:8px 10px; background:#fbf8f3; border-radius:8px; min-height:36px; font-size:13.5px;">${val(k)}</div></div>`).join("")}</div>
     <div class="section-title">${t('expDetailsSplit')}</div>
     <div class="table-wrap" style="margin-bottom:12px;"><table><thead><tr><th>${t('expXlBranch')}</th><th>${t('expXlNet')}</th><th>${t('expXlVat')}</th><th>${t('expXlTotal')}</th></tr></thead><tbody>${allocs.map(a=>`<tr><td>${autoTr(a.branch)}</td><td>${fmt2(a.net)}</td><td>${fmt2(a.vat)}</td><td><b>${fmt2(a.total)}</b></td></tr>`).join("")}</tbody></table></div>
     <div class="section-title">${t('expAttachments')}</div><div style="margin-bottom:14px;">${attach}</div>
@@ -10515,7 +10602,7 @@ function openExpenseDetailsModal(id, mode, onChanged){
       <div class="field"><label>${efl('bimoRef')}</label><input type="text" id="expDtBimo" value="${escapeAttr(rec.bimoRef||"")}"></div>
       <div class="field full"><label>${efl('accountantNotes')}</label><textarea id="expDtNotes">${escapeHtml(rec.accountantNotes||"")}</textarea></div>
     </div>
-    <div class="modal-actions"><button class="btn btn-outline" id="expDtClose">${t('close')}</button>${mode==="admin"?`<button class="btn btn-outline" id="expDtEdit">${t('edit')}</button>`:""}<button class="btn btn-primary" id="expDtSave">${t('expSaveReview')}</button></div>
+    <div class="modal-actions"><button class="btn btn-outline" id="expDtClose">${t('close')}</button>${mode==="admin"?`<button class="btn btn-outline" id="expDtEdit">${t('edit')}</button>`:""}<button class="btn btn-gold" id="expDtSave">${t('expSaveReview')}</button></div>
   </div></div>`;
   autoTranslateDOM(root);
   const close = ()=>{ root.innerHTML = ""; };
@@ -10706,9 +10793,9 @@ function renderBranchComparePage(){
       ${rows.map(r=>`
         <div style="display:flex; align-items:center; gap:10px;">
           <div style="min-width:130px; font-size:12.5px; font-weight:700; text-align:end;">${escapeHtml(r.branch)}</div>
-          <div style="flex:1; background:#eef0f4; border-radius:6px; height:22px; overflow:hidden; position:relative;">
+          <div style="flex:1; background:#f6f3ee; border-radius:6px; height:22px; overflow:hidden; position:relative;">
             <div style="width:${Math.max(Math.round((r.totalCost/maxCost)*100),2)}%; background:var(--navy); height:100%; display:flex; align-items:center; padding-inline-start:8px;">
-              <span style="color:#fff; font-size:10.5px; font-weight:800; white-space:nowrap;">${fmtMoney(r.totalCost)}</span>
+              <span style="color:#fff; font-size:10.5px; font-weight:700; white-space:nowrap;">${fmtMoney(r.totalCost)}</span>
             </div>
           </div>
         </div>`).join("")}
@@ -10916,15 +11003,15 @@ function renderAccountantPage(){
 function renderAccountantGate(){
   const dir = LANG==='ar' ? 'rtl' : 'ltr';
   document.body.innerHTML = `
-    <div style="min-height:100vh; background:#EEF1F6; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
-      <div style="max-width:380px; width:100%; text-align:center; background:#fff; border-radius:16px; padding:34px 26px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
-        <div style="display:flex; justify-content:flex-end; margin-bottom:6px;"><button id="acctLangBtn" type="button" style="background:#fff; border:1.5px solid #d8dde6; border-radius:20px; padding:5px 12px; font-size:12px; font-weight:800; color:#1F3864; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button></div>
-        <div style="font-size:20px; font-weight:900; color:#1F3864;">GROUP FORKA</div>
-        <div style="font-size:14px; font-weight:800; color:#1F3864; margin:6px 0 4px;">🔐 ${t('acctGateTitle')}</div>
-        <div style="font-size:12.5px; color:#7a8699; margin-bottom:18px;">${t('acctGateHint')}</div>
-        <input type="password" id="acctCodeInput" autocomplete="off" style="width:100%; padding:12px; border-radius:10px; border:1.5px solid #d8dde6; font-size:16px; text-align:center; letter-spacing:3px; margin-bottom:12px;">
-        <button id="acctEnterBtn" type="button" style="width:100%; background:#1F3864; color:#fff; border:none; border-radius:10px; padding:13px; font-weight:900; font-size:15px; cursor:pointer;">${t('acctGateBtn')}</button>
-        <div id="acctGateMsg" style="margin-top:12px; font-size:13px; min-height:18px; color:#7a8699;"></div>
+    <div style="min-height:100vh; background:#f6f3ee; display:flex; align-items:center; justify-content:center; padding:20px;" dir="${dir}">
+      <div style="max-width:380px; width:100%; text-align:center; background:#fffdf9; border-radius:16px; padding:34px 26px; box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:6px;"><button id="acctLangBtn" type="button" style="background:#fffdf9; border:1.5px solid #e5dfd5; border-radius:20px; padding:5px 12px; font-size:12px; font-weight:700; color:#23211f; cursor:pointer;">${LANG==='ar' ? 'English' : 'عربي'}</button></div>
+        <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
+        <div style="font-size:14px; font-weight:700; color:#23211f; margin:6px 0 4px;">🔐 ${t('acctGateTitle')}</div>
+        <div style="font-size:12.5px; color:#8d877e; margin-bottom:18px;">${t('acctGateHint')}</div>
+        <input type="password" id="acctCodeInput" autocomplete="off" style="width:100%; padding:12px; border-radius:10px; border:1.5px solid #e5dfd5; font-size:16px; text-align:center; letter-spacing:3px; margin-bottom:12px;">
+        <button id="acctEnterBtn" type="button" style="width:100%; background:#9a6b3f; color:#fff; border:none; border-radius:10px; padding:13px; font-weight:700; font-size:15px; cursor:pointer;">${t('acctGateBtn')}</button>
+        <div id="acctGateMsg" style="margin-top:12px; font-size:13px; min-height:18px; color:#8d877e;"></div>
       </div>
     </div>`;
   const msg = document.getElementById("acctGateMsg");
@@ -10932,9 +11019,9 @@ function renderAccountantGate(){
   const input = document.getElementById("acctCodeInput");
   const tryEnter = ()=>{
     const code = getAccountantCode();
-    if(!code){ msg.style.color = "#c0392b"; msg.textContent = t('acctGateOff'); return; }
+    if(!code){ msg.style.color = "#a33a2c"; msg.textContent = t('acctGateOff'); return; }
     if(input.value.trim() === code){ sessionStorage.setItem("forka_acct_ok","1"); renderAccountantMain(); }
-    else { msg.style.color = "#c0392b"; msg.textContent = t('acctGateWrong'); input.value = ""; }
+    else { msg.style.color = "#a33a2c"; msg.textContent = t('acctGateWrong'); input.value = ""; }
   };
   document.getElementById("acctEnterBtn").onclick = tryEnter;
   input.onkeydown = (e)=>{ if(e.key==="Enter") tryEnter(); };
@@ -10945,7 +11032,7 @@ function renderAccountantGate(){
       waited += 700;
       if(!document.getElementById("acctGateMsg")){ clearInterval(timer); return; }
       if(getAccountantCode()){ clearInterval(timer); msg.textContent = ""; }
-      else if(waited >= 8000){ clearInterval(timer); msg.style.color = "#c0392b"; msg.textContent = t('acctGateOff'); }
+      else if(waited >= 8000){ clearInterval(timer); msg.style.color = "#a33a2c"; msg.textContent = t('acctGateOff'); }
     }, 700);
   }
 }
@@ -10955,7 +11042,7 @@ function renderAccountantMain(){
     <div style="min-height:100vh; background:var(--bg); padding:16px 14px 50px;" dir="${dir}">
       <div style="max-width:1250px; margin:0 auto;">
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:16px;">
-          <div><div style="font-size:19px; font-weight:900; color:#1F3864;">GROUP FORKA</div><div style="font-size:13px; font-weight:800; color:#5a6577;">🧾 ${t('acctTitle')}</div></div>
+          <div><div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:19px; color:#23211f;">GROUP FORKA</div><div style="font-size:13px; font-weight:700; color:#5c5852;">🧾 ${t('acctTitle')}</div></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-gold" id="acctExport" type="button">${t('expBtnExport')}</button>
             <button class="btn btn-outline" id="acctLang" type="button">${LANG==='ar' ? 'English 🌐' : '🌐 العربية'}</button>
@@ -10989,7 +11076,7 @@ function openQrLinkModal(url, title){
     <h2 style="font-size:16px;">${escapeHtml(title||"")}</h2><div id="qrLinkBox" style="display:flex; justify-content:center; margin:16px 0;"></div>
     <div style="font-size:11px; color:var(--muted); word-break:break-all; direction:ltr;">${escapeHtml(url)}</div>
     <div class="modal-actions"><button class="btn btn-primary" id="qrLinkClose">${t('close')}</button></div></div></div>`;
-  new QRCode(document.getElementById("qrLinkBox"), { text: url, width:220, height:220, colorDark:"#1F3864", colorLight:"#ffffff" });
+  new QRCode(document.getElementById("qrLinkBox"), { text: url, width:220, height:220, colorDark:"#23211f", colorLight:"#ffffff" });
   document.getElementById("qrLinkClose").onclick = ()=>{ root.innerHTML = ""; };
   document.getElementById("qrLinkOverlay").onclick = (e)=>{ if(e.target.id==="qrLinkOverlay") root.innerHTML = ""; };
 }
@@ -10997,8 +11084,8 @@ function expenseLinksCardHtml(){
   const row = (label, kind)=> ["ar","en"].map(lg=>{
     const url = expenseLinkUrl(kind, lg);
     return `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px;">
-      <span style="min-width:150px; font-weight:800; font-size:13px;">${label} — ${lg==='ar' ? t('expLinkArabic') : t('expLinkEnglish')}</span>
-      <input type="text" readonly value="${escapeAttr(url)}" style="flex:1; min-width:220px; direction:ltr; font-size:12px; padding:7px; border:1.5px solid var(--line); border-radius:8px; background:#f7f8fb;">
+      <span style="min-width:150px; font-weight:700; font-size:13px;">${label} — ${lg==='ar' ? t('expLinkArabic') : t('expLinkEnglish')}</span>
+      <input type="text" readonly value="${escapeAttr(url)}" style="flex:1; min-width:220px; direction:ltr; font-size:12px; padding:7px; border:1.5px solid var(--line); border-radius:8px; background:#fbf8f3;">
       <button class="btn btn-sm btn-outline" data-copylink="${escapeAttr(url)}" type="button">${t('expLinkCopy')}</button>
       <button class="btn btn-sm btn-outline" data-qrlink="${escapeAttr(url)}" data-qrtitle="${escapeAttr(label)} — ${lg==='ar' ? t('expLinkArabic') : t('expLinkEnglish')}" type="button">QR</button></div>`;
   }).join("");
@@ -11009,7 +11096,7 @@ function expenseLinksCardHtml(){
     <div style="height:8px;"></div>
     ${row(t('expLinkAccountant'), "accountant")}
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;">
-      <span style="font-weight:800; font-size:13px; min-width:150px;">${t('expAcctCodeLabel')}</span>
+      <span style="font-weight:700; font-size:13px; min-width:150px;">${t('expAcctCodeLabel')}</span>
       <input type="text" id="acctCodeSetting" value="${escapeAttr(getAccountantCode())}" placeholder="••••" style="width:160px; padding:8px; border:1.5px solid var(--line); border-radius:8px; letter-spacing:2px; text-align:center;">
       <button class="btn btn-sm btn-primary" id="btnSaveAcctCode" type="button">${t('expAcctCodeSave')}</button>
     </div>
@@ -11031,8 +11118,8 @@ function refreshCloudHealthLine(){
   const el = document.getElementById("cloudHealthLine");
   if(!el) return;
   if(!cloudEnabled){ el.style.color = "var(--muted)"; el.textContent = t('cloudHealthOff'); return; }
-  if(cloudWriteFail > 0){ el.style.color = "#c0392b"; el.textContent = t('cloudHealthFail', cloudLastErrorCode, cloudWriteFail); return; }
-  el.style.color = "#1f8a4c"; el.textContent = t('cloudHealthOk', cloudWriteOk);
+  if(cloudWriteFail > 0){ el.style.color = "#a33a2c"; el.textContent = t('cloudHealthFail', cloudLastErrorCode, cloudWriteFail); return; }
+  el.style.color = "#4f7a3a"; el.textContent = t('cloudHealthOk', cloudWriteOk);
 }
 function refreshStorageInfoLine(){
   refreshCloudHealthLine();
@@ -11083,19 +11170,19 @@ function openBranchAuditModal(){
         <h2>${t('branchAuditTitle')}</h2>
         <div class="modal-sub">${t('branchAuditModalSub', assets.length)}</div>
         ${duplicateGroups.length ? `
-          <div class="banner" style="margin-bottom:14px; background:#fdecea; color:#c0392b;">${t('branchAuditDuplicatesFound', duplicateGroups.length)}</div>
+          <div class="banner" style="margin-bottom:14px; background:#f8e9e5; color:#a33a2c;">${t('branchAuditDuplicatesFound', duplicateGroups.length)}</div>
           <button class="btn btn-danger" id="btnAutoFixDuplicates" style="width:100%; margin-bottom:14px;">${t('branchAuditAutoFixBtn')}</button>
-        ` : `<div class="banner" style="margin-bottom:14px; background:#eafaf0; color:#1f8a4c;">${t('branchAuditNoDuplicates')}</div>`}
+        ` : `<div class="banner" style="margin-bottom:14px; background:#eef3e8; color:#4f7a3a;">${t('branchAuditNoDuplicates')}</div>`}
         <div style="max-height:55vh; overflow-y:auto;">
           ${groupList.map(g=>{
             const total = g.reduce((s,x)=>s+x.count,0);
             const isDup = g.length > 1;
             return `
-            <div style="border:1.5px solid ${isDup?'#e08a8a':'var(--line)'}; background:${isDup?'#fff7f7':'#fff'}; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+            <div style="border:1.5px solid ${isDup?'#a33a2c':'var(--line)'}; background:${isDup?'#f8e9e5':'#fffdf9'}; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
               ${g.map(x=>`<div style="display:flex; justify-content:space-between; padding:3px 0; font-weight:${isDup?'800':'700'}; font-size:14px;">
                 <span>${escapeHtml(x.raw)}</span><span style="color:var(--muted); font-weight:700;">${t('branchAuditRecordCount', x.count)}</span>
               </div>`).join("")}
-              ${isDup ? `<div style="font-size:11.5px; color:#c0392b; margin-top:4px; font-weight:700;">${t('branchAuditDuplicateWarning')}</div>` : ""}
+              ${isDup ? `<div style="font-size:11.5px; color:#a33a2c; margin-top:4px; font-weight:700;">${t('branchAuditDuplicateWarning')}</div>` : ""}
             </div>`;
           }).join("")}
         </div>
@@ -11164,7 +11251,7 @@ function openBulkAssetImportModal(){
         <button type="button" id="btnAddBulkImportRow" style="margin-top:10px;" class="btn btn-outline btn-sm">${t('bulkAssetImportAddRow')}</button>
         <div class="modal-actions">
           <button class="btn btn-outline" id="btnBulkImportCancel">${t('cancel')}</button>
-          <button class="btn btn-primary" id="btnBulkImportConfirm">${t('bulkAssetImportConfirmBtn')}</button>
+          <button class="btn btn-gold" id="btnBulkImportConfirm">${t('bulkAssetImportConfirmBtn')}</button>
         </div>
       </div>
     </div>
@@ -11295,8 +11382,8 @@ function renderSettingsPage(){
       <div class="card">
         <div class="label" style="margin-bottom:6px;">${t('storageInfoTitle')}</div>
         <div class="sub" style="margin-bottom:10px;">${t('storageInfoSub')}</div>
-        <div id="storageInfoLine" style="font-weight:800; font-size:14px; color:var(--navy);">…</div>
-        <div id="cloudHealthLine" style="font-weight:800; font-size:13.5px; margin-top:8px;"></div>
+        <div id="storageInfoLine" style="font-weight:700; font-size:14px; color:var(--navy);">…</div>
+        <div id="cloudHealthLine" style="font-weight:700; font-size:13.5px; margin-top:8px;"></div>
       </div>
       ${expenseLinksCardHtml()}
       <div class="card">
@@ -11510,6 +11597,8 @@ function navigateToQrDeepLinkIfPresent(){
   }
 }
 function startApp(){
+/* direction/language of the page follow the saved language from the very first paint (English reloads were staying right-to-left) */
+document.getElementById("htmlRoot").setAttribute("lang", LANG); document.getElementById("htmlRoot").setAttribute("dir", LANG==="ar" ? "rtl" : "ltr");
 purgeExpiredTrash();
 applyStaticText();
 setupServiceWorker();
