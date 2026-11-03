@@ -394,6 +394,7 @@
   <div class="brand">
     <div class="logo">GROUP FORKA</div>
     <div class="sub" id="brandSub"></div>
+    <div id="brandUser" style="font-size:11.5px; margin-top:6px; opacity:.9;"></div>
   </div>
   <div class="nav-group-title" id="navGeneralTitle"></div>
   <div class="nav-item" data-view="dashboard"><span class="ic">🏠</span><span id="navDashboardLabel"></span></div>
@@ -701,6 +702,17 @@ const STR = {
     exportUploading:(i,n)=>`⬆️ جاري رفع مرفقات محفوظة على الجهاز عشان تفتح من الإكسل (${i}/${n})...`,
     exportLocalLeft:(n)=>`⚠️ ${n} مرفق محفوظ على الجهاز بس ومعندوش رابط سحابي، فمش هيفتح من الإكسل (بيظهر مكتوب «محفوظ على الجهاز فقط»).\n\nالسبب غالبًا: النت مقطوع أو خدمة الرفع مش شغالة. افتح البرنامج تاني مع النت وجرّب التصدير.`,
     expUpDoc:"المستند (اختياري) — موافقة أو شهادة أو إيصال",
+    accessGateTitle:"دخول المديرين", accessGateHint:"اكتب رمز الدخول الخاص بك", accessGateBtn:"دخول", accessGateChecking:"جاري التحقق...", accessGateWrong:"الرمز غير صحيح", accessTooMany:"محاولات كتير غلط. استنى نصف دقيقة وجرّب تاني.",
+    accessCardTitle:"👥 المديرين ورموز الدخول", accessCardSub:"كل مدير له رمز دخول خاص بيه، وبيقدر يدخل ويعدّل زيك بالظبط من أي جهاز. الرموز بتتحط من عندك هنا بس، وبتتخزن مشفّرة (محدش حتى أنت يقدر يشوفها بعد الحفظ، تقدر بس تغيّرها).",
+    accessNoUsersYet:"لسه ما حطيتش رموز: أي حد يفتح الرابط بيدخل من غير رمز. ابدأ بإضافة نفسك (هتبقى مدير النظام) وبعدها المديرين.",
+    accessColName:"الاسم", accessColRole:"الصلاحية", accessRoleAdmin:"مدير النظام (يدخل ويعدّل + يدير الرموز)", accessRoleManager:"مدير (يدخل ويعدّل كل حاجة)", accessYou:"أنت",
+    accessName:"اسم المدير", accessCode:"رمز الدخول (4 خانات أو أكتر)", accessAdd:"➕ إضافة", accessChangeCode:"تغيير الرمز", accessDelete:"حذف",
+    accessNewCodePrompt:(n)=>`اكتب الرمز الجديد لـ ${n}:`, accessConfirmDelete:(n)=>`تحذف ${n}؟ هيتسجّل خروجه من كل أجهزته.`,
+    accessNeedName:"اكتب اسم المدير", accessCodeShort:"الرمز لازم يكون 4 خانات على الأقل", accessCodeTaken:"الرمز ده مستخدم لمدير تاني، اختار رمز مختلف", accessLastAdmin:"لازم يفضل مدير نظام واحد على الأقل",
+    accessSaved:"✅ تم الحفظ", accessLogout:"خروج", accessRevoked:"تم إلغاء صلاحية دخولك من الإدارة. هتحتاج رمز جديد.",
+    accessLocalOnly:"⚠️ الجهاز مش متصل بالسحابة، فالرموز ما اتشاركتش مع أجهزة المديرين. اتصل بالنت وسجّلها تاني.",
+    accessSecurityNote:"ملاحظة: الرموز بتمنع الدخول من البرنامج نفسه، مش تشفير كامل لقاعدة البيانات (قواعد Firebase لسه مفتوحة للتطبيق). لو نسيت رمز مدير النظام تقدر تمسح مستند «access» من Firebase.",
+    accessLastEdit:(n,d)=>`آخر تعديل بواسطة ${n}${d ? " — " + d : ""}`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1101,6 +1113,17 @@ const STR = {
     exportUploading:(i,n)=>`⬆️ Uploading attachments saved only on this device so they open from Excel (${i}/${n})...`,
     exportLocalLeft:(n)=>`⚠️ ${n} attachment(s) are saved only on this device and have no cloud link, so they will not open from Excel (they show as "Stored on the device only").\n\nUsually the internet is off or the upload service is not working. Open the program again with internet and re-export.`,
     expUpDoc:"Document (optional) — approval, certificate or receipt",
+    accessGateTitle:"Managers sign-in", accessGateHint:"Enter your personal access code", accessGateBtn:"Enter", accessGateChecking:"Checking...", accessGateWrong:"Incorrect code", accessTooMany:"Too many wrong attempts. Wait half a minute and try again.",
+    accessCardTitle:"👥 Managers & access codes", accessCardSub:"Every manager has a personal access code and can sign in and edit exactly like you from any device. Codes are set here by you only and stored encrypted (nobody, not even you, can read them after saving; you can only change them).",
+    accessNoUsersYet:"No codes yet: anyone who opens the link enters without a code. Start by adding yourself (you become the system manager), then the managers.",
+    accessColName:"Name", accessColRole:"Role", accessRoleAdmin:"System manager (enters, edits + manages codes)", accessRoleManager:"Manager (enters and edits everything)", accessYou:"You",
+    accessName:"Manager name", accessCode:"Access code (4+ characters)", accessAdd:"➕ Add", accessChangeCode:"Change code", accessDelete:"Delete",
+    accessNewCodePrompt:(n)=>`Enter the new code for ${n}:`, accessConfirmDelete:(n)=>`Delete ${n}? They will be signed out of all their devices.`,
+    accessNeedName:"Enter the manager's name", accessCodeShort:"The code must be at least 4 characters", accessCodeTaken:"This code belongs to another manager, choose a different one", accessLastAdmin:"At least one system manager must remain",
+    accessSaved:"✅ Saved", accessLogout:"Sign out", accessRevoked:"Your access was removed by management. You will need a new code.",
+    accessLocalOnly:"⚠️ This device is not connected to the cloud, so the codes were not shared with the managers' devices. Connect to the internet and save them again.",
+    accessSecurityNote:"Note: the codes stop people from entering through the program itself; they are not full database encryption (the Firebase rules are still open to the app). If you forget the system manager code, delete the \"access\" document in Firebase.",
+    accessLastEdit:(n,d)=>`Last edited by ${n}${d ? " — " + d : ""}`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -2579,6 +2602,214 @@ function buildDatalistsHtml(){
 function getPin(){ return localStorage.getItem("forka_pin") || ""; }
 function setPinValue(pin){ localStorage.setItem("forka_pin", pin); }
 function removePinValue(){ localStorage.removeItem("forka_pin"); }
+/* ---------------- ACCESS: one access code per manager, managed centrally ----------------
+   The owner creates a code for every manager (Settings). A device that has not been approved yet asks for a code before anything
+   is loaded; managers can then enter and edit exactly like the owner. Codes are stored only as salted hashes. "System manager"
+   users can manage the codes; plain "manager" users cannot. */
+const ACCESS_USER_KEY = "forka_device_user", ACCESS_CACHE_KEY = "forka_access_cache";
+function getDeviceUser(){ try{ return JSON.parse(localStorage.getItem(ACCESS_USER_KEY) || "null"); }catch(e){ return null; } }
+function setDeviceUser(u){ localStorage.setItem(ACCESS_USER_KEY, JSON.stringify({ id:u.id, name:u.name, role:u.role })); }
+function clearDeviceUser(){ localStorage.removeItem(ACCESS_USER_KEY); }
+function getAccessCache(){ try{ const d = JSON.parse(localStorage.getItem(ACCESS_CACHE_KEY) || "null"); return (d && Array.isArray(d.users)) ? d : { users:[], salt:"" }; }catch(e){ return { users:[], salt:"" }; } }
+function saveAccessCache(doc){ localStorage.setItem(ACCESS_CACHE_KEY, JSON.stringify({ users: Array.isArray(doc && doc.users) ? doc.users : [], salt: (doc && doc.salt) || "" })); }
+function accessUsers(){ return getAccessCache().users; }
+function isAccessAdmin(){ const users = accessUsers(); if(!users.length) return true; const u = getDeviceUser(); return !!u && u.role === "admin"; }
+function newAccessSalt(){
+  const a = new Uint8Array(8);
+  if(window.crypto && crypto.getRandomValues) crypto.getRandomValues(a); else for(let i = 0; i < 8; i++) a[i] = Math.floor(Math.random() * 256);
+  return Array.from(a).map(b=> b.toString(16).padStart(2, "0")).join("");
+}
+/* SHA-256 written out in plain JavaScript so it works on every browser (also when the file is opened from a folder) */
+function sha256Hex(msg){
+  const s = unescape(encodeURIComponent(String(msg))); const bytes = [];
+  for(let i = 0; i < s.length; i++) bytes.push(s.charCodeAt(i));
+  const K = [], H = []; let n = 2;
+  const isPrime = (x)=>{ for(let i = 2; i * i <= x; i++) if(x % i === 0) return false; return true; };
+  while(K.length < 64){ if(isPrime(n)){ if(H.length < 8) H.push(Math.floor((Math.pow(n, 1/2) % 1) * 4294967296)); K.push(Math.floor((Math.pow(n, 1/3) % 1) * 4294967296)); } n++; }
+  const l = bytes.length; bytes.push(0x80); while(bytes.length % 64 !== 56) bytes.push(0);
+  const hi = Math.floor(l * 8 / 4294967296), lo = (l * 8) >>> 0;
+  for(let i = 3; i >= 0; i--) bytes.push((hi >>> (i * 8)) & 0xff);
+  for(let i = 3; i >= 0; i--) bytes.push((lo >>> (i * 8)) & 0xff);
+  const h = H.slice(); const w = new Array(64);
+  for(let off = 0; off < bytes.length; off += 64){
+    for(let i = 0; i < 16; i++) w[i] = (bytes[off+i*4] << 24) | (bytes[off+i*4+1] << 16) | (bytes[off+i*4+2] << 8) | bytes[off+i*4+3];
+    for(let i = 16; i < 64; i++){
+      const a = w[i-15], b = w[i-2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3);
+      const s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let a = h[0], b = h[1], cc = h[2], d = h[3], e = h[4], f = h[5], g = h[6], hh = h[7];
+    for(let i = 0; i < 64; i++){
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (hh + S1 + ch + K[i] + w[i]) | 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+      const maj = (a & b) ^ (a & cc) ^ (b & cc);
+      const t2 = (S0 + maj) | 0;
+      hh = g; g = f; f = e; e = (d + t1) | 0; d = cc; cc = b; b = a; a = (t1 + t2) | 0;
+    }
+    h[0] = (h[0] + a) | 0; h[1] = (h[1] + b) | 0; h[2] = (h[2] + cc) | 0; h[3] = (h[3] + d) | 0;
+    h[4] = (h[4] + e) | 0; h[5] = (h[5] + f) | 0; h[6] = (h[6] + g) | 0; h[7] = (h[7] + hh) | 0;
+  }
+  return h.map(x=> (x >>> 0).toString(16).padStart(8, "0")).join("");
+}
+function hashAccessCode(code, salt){
+  let h = sha256Hex(salt + "|" + String(code).trim());
+  for(let i = 0; i < 300; i++) h = sha256Hex(h + salt);
+  return h;
+}
+function findAccessUser(code, doc){
+  const salt = (doc && doc.salt) || ""; const h = hashAccessCode(code, salt);
+  return ((doc && doc.users) || []).find(u=> u.hash === h) || null;
+}
+function isStandaloneStart(){
+  return location.hash === "#public" || location.hash === "#driver" || isBranchInspectMode || isExpenseMode || isAccountantMode || isAssetViewMode;
+}
+function needsAccessGate(){
+  if(isStandaloneStart() || getDeviceUser()) return false;
+  const cfg = (typeof getCloudConfig === "function") ? getCloudConfig() : null;
+  return !!(window.firebase && cfg && cfg.apiKey);
+}
+/* connects to the cloud ONLY far enough to read the access list — no data is loaded until a code is accepted */
+function cloudAuthOnly(timeoutMs){
+  return new Promise(resolve=>{
+    const cfg = getCloudConfig();
+    let done = false; const finish = (v)=>{ if(!done){ done = true; resolve(v); } };
+    if(typeof navigator !== "undefined" && navigator.onLine === false){ finish({ ok:false, reason:"offline" }); return; }   // no internet: do not make anyone wait
+    setTimeout(()=> finish({ ok:false, reason:"timeout" }), timeoutMs || 7000);
+    try{
+      if(!firebase.apps || !firebase.apps.length) firebase.initializeApp(cfg);
+      cloudDb = firebase.firestore();
+      firebase.auth().signInAnonymously()
+        .then(()=> cloudDb.collection("forka_meta").doc("access").get())
+        .then(doc=> finish({ ok:true, data: doc.exists ? doc.data() : null }))
+        .catch(err=> finish({ ok:false, reason:"error", err }));
+    }catch(e){ finish({ ok:false, reason:"error", err:e }); }
+  });
+}
+function runNormalStartSequence(){
+  render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent();
+  setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500);
+  scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration();
+  scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill();
+}
+function afterAccessStart(){ if(needsLock()) renderLockScreen(); else runNormalStartSequence(); }
+function onAccessGranted(user){
+  setDeviceUser(user);
+  document.getElementById("lockRoot").innerHTML = "";
+  initCloud();                        // only now the data starts to load
+  applyStaticText();
+  afterAccessStart();
+}
+function renderAccessGate(doc){
+  document.getElementById("lockRoot").innerHTML = `
+    <div class="lock-screen"><div class="lock-box">
+      <div class="lg">GROUP FORKA</div>
+      <div class="ls">${t('accessGateTitle')}</div>
+      <div style="font-size:12px; opacity:.85; margin-bottom:10px;">${t('accessGateHint')}</div>
+      <input type="password" id="accessInput" maxlength="12" autocomplete="off" placeholder="${t('lockPlaceholder')}" autofocus>
+      <div class="err" id="accessErr"></div>
+      <button class="btn btn-gold" style="width:100%; justify-content:center;" id="accessBtn">${t('accessGateBtn')}</button>
+    </div></div>`;
+  const inp = document.getElementById("accessInput"), err = document.getElementById("accessErr");
+  let fails = 0, lockedUntil = 0;
+  const tryIn = ()=>{
+    if(Date.now() < lockedUntil){ err.textContent = t('accessTooMany'); return; }
+    const user = findAccessUser(inp.value, doc);
+    if(user){ onAccessGranted(user); return; }
+    fails++; inp.value = ""; inp.focus(); err.textContent = t('accessGateWrong');
+    if(fails >= 5){ fails = 0; lockedUntil = Date.now() + 30000; err.textContent = t('accessTooMany'); }
+  };
+  document.getElementById("accessBtn").onclick = tryIn;
+  inp.onkeydown = (e)=>{ if(e.key === "Enter") tryIn(); };
+}
+async function runAccessGate(){
+  document.getElementById("lockRoot").innerHTML = `<div class="lock-screen"><div class="lock-box"><div class="lg">GROUP FORKA</div><div class="ls">${t('accessGateChecking')}</div></div></div>`;
+  const res = await cloudAuthOnly(9000);
+  let doc = null;
+  if(res.ok){ doc = res.data; if(doc) saveAccessCache(doc); }
+  else { const cache = getAccessCache(); if(cache.users.length) doc = cache; }   // offline: check against the last list this device saw
+  if(doc && Array.isArray(doc.users) && doc.users.length){ renderAccessGate(doc); return; }
+  // no codes were set up (or the cloud cannot be reached and nothing is cached): the system opens as before
+  document.getElementById("lockRoot").innerHTML = "";
+  initCloud();
+  afterAccessStart();
+}
+function logoutAccess(){ clearDeviceUser(); unlockedThisSession = false; location.reload(); }
+function revokeDevice(){ clearDeviceUser(); alert(t('accessRevoked')); location.reload(); }
+function renderBrandUser(){
+  const el = document.getElementById("brandUser"); if(!el) return;
+  const u = getDeviceUser();
+  if(!u){ el.innerHTML = ""; return; }
+  el.innerHTML = `👤 ${escapeHtml(u.name)} · <a href="#" id="brandLogout" style="color:inherit; text-decoration:underline;">${t('accessLogout')}</a>`;
+  document.getElementById("brandLogout").onclick = (e)=>{ e.preventDefault(); logoutAccess(); };
+}
+function saveAccessDoc(doc){
+  saveAccessCache(doc);
+  if(cloudEnabled && cloudDb) return cloudWrite(cloudDb.collection("forka_meta").doc("access").set({ users: doc.users, salt: doc.salt, updatedAt: Date.now() }), "access");
+  return Promise.resolve(false);
+}
+function accessCardHtml(){
+  if(!isAccessAdmin()) return "";
+  const users = accessUsers(); const me = getDeviceUser();
+  const roleLabel = (r)=> r === "admin" ? t('accessRoleAdmin') : t('accessRoleManager');
+  return `<div class="card" style="grid-column:1/-1;">
+    <div class="label" style="margin-bottom:6px;">${t('accessCardTitle')}</div>
+    <div class="sub" style="margin-bottom:12px;">${t('accessCardSub')}</div>
+    ${users.length ? "" : `<div class="banner" style="margin-bottom:12px;">${t('accessNoUsersYet')}</div>`}
+    ${users.length ? `<div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>${t('accessColName')}</th><th>${t('accessColRole')}</th><th></th></tr></thead><tbody>
+      ${users.map((u,i)=>`<tr><td><b>${escapeHtml(u.name)}</b>${me && me.id===u.id ? ` <span class="badge badge-info">${t('accessYou')}</span>` : ""}</td><td>${escapeHtml(roleLabel(u.role))}</td>
+        <td style="white-space:nowrap;"><button class="btn btn-sm btn-outline" data-acc-code="${i}" type="button">${t('accessChangeCode')}</button> <button class="btn btn-sm btn-danger" data-acc-del="${i}" type="button">${t('accessDelete')}</button></td></tr>`).join("")}
+    </tbody></table></div>` : ""}
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end;">
+      <div class="field" style="min-width:180px;"><label style="font-size:12px;">${t('accessName')}</label><input type="text" id="accNewName"></div>
+      <div class="field" style="min-width:150px;"><label style="font-size:12px;">${t('accessCode')}</label><input type="text" id="accNewCode" maxlength="12" autocomplete="off"></div>
+      <div class="field" style="min-width:220px;"><label style="font-size:12px;">${t('accessColRole')}</label><select id="accNewRole"><option value="manager">${t('accessRoleManager')}</option><option value="admin">${t('accessRoleAdmin')}</option></select></div>
+      <button class="btn btn-primary" id="accAddBtn" type="button">${t('accessAdd')}</button>
+    </div>
+    ${(!cloudEnabled) ? `<div style="font-size:12px; color:#c0392b; margin-top:10px;">${t('accessLocalOnly')}</div>` : ""}
+    <div style="font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.7;">${t('accessSecurityNote')}</div>
+  </div>`;
+}
+function bindAccessCard(){
+  const add = document.getElementById("accAddBtn");
+  if(!add) return;
+  const doc = ()=>{ const cache = getAccessCache(); return { users: cache.users.map(u=>({...u})), salt: cache.salt || newAccessSalt() }; };
+  const commit = async (d, after)=>{ await saveAccessDoc(d); if(after) after(); renderBrandUser(); renderSettingsPage(); showToast(t('accessSaved')); };
+  add.onclick = async ()=>{
+    const name = document.getElementById("accNewName").value.trim(), code = document.getElementById("accNewCode").value.trim();
+    let role = document.getElementById("accNewRole").value;
+    if(!name){ alert(t('accessNeedName')); return; }
+    if(code.length < 4){ alert(t('accessCodeShort')); return; }
+    const d = doc();
+    if(d.users.some(u=> findAccessUser(code, { users:[u], salt:d.salt }))){ alert(t('accessCodeTaken')); return; }
+    const first = d.users.length === 0;
+    if(first) role = "admin";                                   // the first person created is always a system manager
+    const user = { id: uid(), name, role, hash: hashAccessCode(code, d.salt) };
+    d.users.push(user);
+    await commit(d, ()=>{ if(first) setDeviceUser(user); });   // creating the first code keeps THIS device signed in
+  };
+  document.querySelectorAll("[data-acc-code]").forEach(b=>{ b.onclick = async ()=>{
+    const d = doc(); const u = d.users[Number(b.dataset.accCode)];
+    const code = (prompt(t('accessNewCodePrompt', u.name)) || "").trim();
+    if(!code) return;
+    if(code.length < 4){ alert(t('accessCodeShort')); return; }
+    if(d.users.some(x=> x.id !== u.id && findAccessUser(code, { users:[x], salt:d.salt }))){ alert(t('accessCodeTaken')); return; }
+    u.hash = hashAccessCode(code, d.salt);
+    await commit(d);
+  }; });
+  document.querySelectorAll("[data-acc-del]").forEach(b=>{ b.onclick = async ()=>{
+    const d = doc(); const i = Number(b.dataset.accDel); const u = d.users[i];
+    if(u.role === "admin" && d.users.filter(x=> x.role === "admin").length <= 1){ alert(t('accessLastAdmin')); return; }
+    if(!confirm(t('accessConfirmDelete', u.name))) return;
+    d.users.splice(i, 1);
+    const me = getDeviceUser();
+    await commit(d, ()=>{ if(me && me.id === u.id){ clearDeviceUser(); } });
+    if(me && me.id === u.id) location.reload();
+  }; });
+}
+
 let unlockedThisSession = false;
 function needsLock(){ return !!getPin() && !unlockedThisSession; }
 /* ---------------- ONE-TIME: replace the Fujairah equipment with the supplied list ----------------
@@ -5270,6 +5501,7 @@ function renderNav(){
     el.classList.toggle("active", el.dataset.view===state.view);
     el.onclick = ()=>{ state.view = el.dataset.view; closeSidebar(); render(); };
   });
+  renderBrandUser();
 }
 function openSidebar(){
   document.getElementById("sidebar").classList.add("open");
@@ -6440,6 +6672,7 @@ function openForm(m, existing, viewMode, prefill){
         ${m.key==="projects" ? linkedRecordsHtml : ""}
         <div class="form-grid">${fieldsHtml}</div>
         ${m.key==="projects" ? "" : linkedRecordsHtml}
+        ${(viewMode && rec._updatedBy) ? `<div style="font-size:11.5px; color:var(--muted); margin-top:10px;">${t('accessLastEdit', rec._updatedBy, rec._updatedAt ? new Date(rec._updatedAt).toLocaleString(LANG==='ar' ? 'ar-EG' : 'en-GB') : "")}</div>` : ""}
         ${commentsHtml}
         <div class="modal-actions">
           ${formViewOnly ? `
@@ -8777,6 +9010,17 @@ function attachCloudListeners(){
       if(data.accountantCode !== undefined) localStorage.setItem("forka_accountant_code", data.accountantCode);
     }
   }, err=> console.error("Cloud sync error [settings]:", err));
+  cloudUnsubscribers.access = cloudDb.collection("forka_meta").doc("access").onSnapshot(doc=>{
+    const data = doc.exists ? doc.data() : { users:[], salt:"" };
+    saveAccessCache(data);
+    const me = getDeviceUser();
+    if(me && Array.isArray(data.users) && data.users.length){
+      const still = data.users.find(u=> u.id === me.id);
+      if(!still){ revokeDevice(); return; }                                    // the manager was removed: this device is signed out
+      if(still.name !== me.name || still.role !== me.role){ setDeviceUser(still); renderBrandUser(); }
+    }
+    if(state.view === "settings") renderSettingsPage();
+  }, err=> console.error("Cloud sync error [access]:", err));
   ["daily","monthly"].forEach(kind=>{
     cloudUnsubscribers["checklist_"+kind] = cloudDb.collection("forka_meta").doc("checklist_"+kind).onSnapshot(doc=>{
       if(doc.exists){
@@ -8810,6 +9054,7 @@ function cloudWrite(promise, label){
 }
 function cloudPushRecord(moduleKey, record){
   if(!cloudEnabled || !cloudDb) return Promise.resolve(true);
+  const du = getDeviceUser(); if(du && record && typeof record === "object") record._updatedBy = du.name;      // who made the change
   return cloudWrite(cloudDb.collection("forka_"+moduleKey).doc(record.id).set(record), "push "+moduleKey);
 }
 function cloudDeleteRecord(moduleKey, id){
@@ -10994,6 +11239,7 @@ function renderSettingsPage(){
   document.getElementById("content").innerHTML = `
     <div class="banner">${t('settingsSecurityNote')}</div>
     <div class="grid-cards" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));">
+      ${accessCardHtml()}
       <div class="card">
         <div class="label" style="margin-bottom:6px;">${hasPin? t('settingsPinOnTitle') : t('settingsPinOffTitle')}</div>
         <div class="sub" style="margin-bottom:16px;">${hasPin? t('settingsPinOnSub') : t('settingsPinOffSub')}</div>
@@ -11114,6 +11360,7 @@ function renderSettingsPage(){
   document.getElementById("btnOpenBulkAssetImport").onclick = openBulkAssetImportModal;
   document.getElementById("btnOpenBranchAudit").onclick = openBranchAuditModal;
   bindExpenseLinksCard();
+  bindAccessCard();
   refreshStorageInfoLine();
 }
 
@@ -11268,7 +11515,7 @@ applyStaticText();
 setupServiceWorker();
 initEmailJsIfConfigured();
 updateCloudStatusBadge();
-initCloud();
+if(needsAccessGate()){ /* the cloud is connected only after an access code is accepted */ } else initCloud();
 if(location.hash === "#public"){
   renderPublicStatusPage();
 } else if(location.hash === "#driver"){
@@ -11281,7 +11528,7 @@ if(location.hash === "#public"){
   renderAccountantPage();
 } else if(isAssetViewMode){
   setTimeout(renderAssetViewPage, 1200); // brief delay lets cloud sync populate data first
-} else if(needsLock()){ renderLockScreen(); } else { render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent(); setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill(); }
+} else if(needsAccessGate()){ runAccessGate(); } else if(needsLock()){ renderLockScreen(); } else { runNormalStartSequence(); }
 }
 BigStore.init().then(startApp, startApp);
 </script>
