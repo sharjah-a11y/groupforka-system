@@ -126,7 +126,7 @@
   tbody tr:nth-child(even){background:#fbf8f3;}
   tbody tr:hover{background:#fbf8f3;}
   tbody tr.clickable-row{cursor:pointer;}
-  td.desc-cell, th.desc-cell{width:380px; min-width:320px; max-width:480px; text-align:start; white-space:normal;}
+  td.desc-cell, th.desc-cell{width:300px; min-width:240px; max-width:400px; text-align:start; white-space:normal;}
   .row-actions{display:flex; gap:5px; justify-content:center;}
   .empty-row td{padding:40px; color:var(--muted); font-size:14px;}
 
@@ -468,6 +468,7 @@
   .lock-box .lg{font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px;}
   .lock-box .ls{color:var(--fk-bronze-soft);}
   .delay-block,.cond-block,.success-block{border-width:1px;}
+  tr.group-start td{border-top:3px solid var(--fk-bronze-soft);}
   @media print{ thead th{background:#f6f3ee !important; color:#23211f !important;} }
   </style>
 </head>
@@ -1943,7 +1944,7 @@ const MODULES = [
     {key:"photos", label:"الصور والمرفقات (قبل / بعد)", labelEn:"Photos & Attachments (Before/After)", type:"photo", full:true},
     {key:"notes", label:"ملاحظات", labelEn:"Notes", type:"textarea", full:true},
   ],
-  listColumns:["reqNo","branch","equipment","severity","contractor","status","cost"],
+  listColumns:["reqNo","reportDate","branch","equipment","issue","severity","status","contractor","cost"],
   dateFieldForReports:"reportDate", costField:"cost", freqField:"equipment", branchField:"branch", contractorField:"contractor"
 },
 {
@@ -2122,7 +2123,7 @@ const MODULES = [
     {key:"status", label:"الحالة", labelEn:"Status", type:"select", options:["مفتوح","قيد التنفيذ","مغلق"]},
     {key:"photos", label:"الصور والمرفقات", labelEn:"Photos & Attachments", type:"photo", full:true},
   ],
-  listColumns:["date","branch","item","severity","assignee","status"],
+  listColumns:["date","branch","item","finding","severity","assignee","status"],
   dateFieldForReports:"date", costField:"expCost", freqField:"item", branchField:"branch"
 },
 {
@@ -6127,13 +6128,13 @@ function renderModuleRecordsBody(m){
           <th class="no-print">${t('actions')}</th>
         </tr></thead>
         <tbody>
-        ${pageData.length ? pageData.map(r=>{
+        ${pageData.length ? pageData.map((r,ri)=>{
           const overdue = isOverdue(m, r);
           const photoCount = (r.photos && r.photos.length) ? r.photos.length : 0;
           const photo2Field = moduleSecondAttachmentField(m);
           const photo2Count = (photo2Field && r[photo2Field.key] && r[photo2Field.key].length) ? r[photo2Field.key].length : 0;
           return `
-          <tr class="clickable-row" data-rowid="${r.id}">
+          <tr class="clickable-row${(m.key==="requests" && ri>0 && (r.status||"").trim()==="مغلق" && (pageData[ri-1].status||"").trim()!=="مغلق") ? " group-start" : ""}" data-rowid="${r.id}">
             ${cols.map(c=>{
               const f = m.fields.find(x=>x.key===c);
               let val = r[c]||"";
@@ -6159,6 +6160,7 @@ function renderModuleRecordsBody(m){
               else if(f && isTranslatableField(f) && val){
                 return `<td><span data-autotranslate="1" data-original="${escapeAttr(val)}">${val}</span></td>`;
               }
+              else if(f && f.type==="datetime-local" && val){ return `<td style="white-space:nowrap;">${escapeHtml(String(val).replace("T"," "))}</td>`; }
               return `<td>${val}</td>`;
             }).join("")}
             <td class="no-print"><div class="row-actions">
