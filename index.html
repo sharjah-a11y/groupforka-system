@@ -475,6 +475,8 @@
   .pmb-cell small{font-weight:400; font-size:11px;}
   .pmb-done{background:var(--fk-success-bg); color:var(--fk-success);} .pmb-late{background:var(--fk-danger-bg); color:var(--fk-danger);} .pmb-pending{background:var(--fk-warning-bg); color:var(--fk-warning);}
   .pmb-cell:hover{filter:brightness(.96);} .pmb-na{color:var(--fk-muted);}
+  .pmb-multi{display:flex; gap:6px;} .pmb-multi .pmb-cell{min-width:78px; flex:1;} .pmb-nax{color:var(--fk-muted); background:var(--fk-paper); cursor:default;}
+  .pmb-no{font-size:11px; font-weight:700; opacity:.75;}
   @media print{ thead th{background:#f6f3ee !important; color:#23211f !important;} }
   </style>
 </head>
@@ -819,6 +821,15 @@ const STR = {
     pmSvcTitle:"الخدمات الثابتة", pmSvcSub:"الخدمات اللي بتتكرر (مكافحة حشرات، مصيدة دهون...). البرنامج بيجهّز زيارة لكل فرع في كل شهر، وإنت بس بتسجّل «تم».",
     pmSvcName:"اسم الخدمة", pmSvcFreq:"التكرار", pmSvcDue:"الموعد النهائي", pmSvcDueEnd:"آخر الشهر", pmSvcStart:"تبدأ من شهر", pmSvcContractor:"الشركة / الفني", pmSvcActive:"شغّالة",
     pmSvcAllBranches:"كل الفروع", pmSvcAdd:"إضافة خدمة", pmSvcDelete:"حذف", pmSvcNeedName:"اكتب اسم كل خدمة", pmSvcDupName:"فيه خدمتين بنفس الاسم", pmSvcSaved:"✅ تم حفظ الخدمات",
+    pmSave:"حفظ", pmPickTitle:"اختار الفروع اللي هتتابعها هنا", pmPickSub:"اختار الفروع اللي شغّالة فعلًا عشان تتابع عليها الخدمات الثابتة. البرنامج مش بيفترض أي فرع، وأماكن المشاريع والرخص الجديدة ما بتظهرش إلا لو اخترتها.",
+    pmPickAll:"تحديد الكل", pmPickNone:"إلغاء الكل", pmPickProjTip:"الاسم ده جاي من مشروع أو رخصة جديدة مش من فرع شغّال", pmPickDup:"اسم مكرر؟", pmPickDupTip:"فيه اسم تاني مكتوب بنفس الشكل تقريبًا، اختار الصح",
+    pmBoardPickFirst:"اختار الفروع اللي هتتابعها الأول", pmBoardPickNone:"مفيش فروع مختارة", pmBoardPickBtn:"اختيار الفروع", pmBoardBranchesBtn:"الفروع",
+    pmPickSavedRemoved:(n)=>`✅ تم الحفظ، وشلت ${n} زيارة فاضية لفروع مش مختارة`, pmVisitN:(a,b)=>`الزيارة ${a} من ${b}`,
+    pmSvcTimes:"عدد الزيارات في الشهر",
+    pmCleanedNote:(n)=>`🧹 شلت ${n} زيارة فاضية كان البرنامج جهّزها لكل الأسماء في قايمة الفروع (بما فيها أماكن المشاريع). افتح الصيانة الوقائية ← «لوحة الشهر» واختار الفروع اللي عايزها بس. اللي اتسجّل «تم» ما اتمسحش.`,
+    mastersProjTag:"من المشاريع", mastersProjTip:"الاسم ده مكتوب في مشروع بس، وما اتستخدمش في أي فرع أو سجل تاني",
+    mastersProjBox:(n)=>`فيه ${n} مكان في قايمة الفروع جاي من المشاريع (رخص جديدة) ومش مستخدم في أي سجل تاني.`, mastersProjBtn:"شيلهم من قايمة الفروع",
+    mastersProjConfirm:(names)=>`تشيل الأماكن دي من قايمة الفروع؟\n${names}\n\nالمشاريع نفسها وبياناتها ما بتتأثرش.`, mastersProjDone:(n)=>`✅ اتشال ${n} مكان من قايمة الفروع`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1242,6 +1253,15 @@ const STR = {
     pmSvcTitle:"Standing services", pmSvcSub:"Services that repeat (pest control, grease trap...). The program prepares one visit per branch every month; you only mark “Done”.",
     pmSvcName:"Service name", pmSvcFreq:"Frequency", pmSvcDue:"Due", pmSvcDueEnd:"End of month", pmSvcStart:"Starts from", pmSvcContractor:"Company / technician", pmSvcActive:"Active",
     pmSvcAllBranches:"All branches", pmSvcAdd:"Add a service", pmSvcDelete:"Delete", pmSvcNeedName:"Enter a name for every service", pmSvcDupName:"Two services have the same name", pmSvcSaved:"✅ Services saved",
+    pmSave:"Save", pmPickTitle:"Choose the branches to follow here", pmPickSub:"Choose the branches that really operate, to follow the standing services on. The program assumes no branch, and places of new projects / licences never show up unless you choose them.",
+    pmPickAll:"Select all", pmPickNone:"Clear all", pmPickProjTip:"This name comes from a project / new licence, not from an operating branch", pmPickDup:"Duplicate?", pmPickDupTip:"Another name is spelled almost the same, choose the right one",
+    pmBoardPickFirst:"Choose the branches to follow first", pmBoardPickNone:"No branches chosen", pmBoardPickBtn:"Choose branches", pmBoardBranchesBtn:"Branches",
+    pmPickSavedRemoved:(n)=>`✅ Saved, and ${n} blank visit(s) of branches not chosen were removed`, pmVisitN:(a,b)=>`Visit ${a} of ${b}`,
+    pmSvcTimes:"Visits per month",
+    pmCleanedNote:(n)=>`🧹 I removed ${n} blank visit(s) that the program had prepared for every name in the branch list (project places included). Open Preventive Maintenance → “Monthly board” and choose only the branches you want. Anything marked done was kept.`,
+    mastersProjTag:"From projects", mastersProjTip:"This name was typed in a project only and is not used by any branch or other record",
+    mastersProjBox:(n)=>`${n} place(s) in the branch list came from projects (new licences) and are not used in any other record.`, mastersProjBtn:"Remove them from the branch list",
+    mastersProjConfirm:(names)=>`Remove these places from the branch list?\n${names}\n\nThe projects and their data are not affected.`, mastersProjDone:(n)=>`✅ ${n} place(s) removed from the branch list`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -1476,7 +1496,7 @@ const OPT_EN = {
   "حادث":"Accident","مخالفة":"Violation",
   "قيد الإصلاح":"Under Repair",
   "استمرار الاستخدام":"Keep in Use","إصلاح":"Repair","بيع":"Sell","إتلاف":"Dispose","استبدال":"Replace",
-  "يومي":"Daily","أسبوعي":"Weekly","شهري":"Monthly","ربع سنوي":"Quarterly","نصف سنوي":"Semi-Annual","سنوي":"Annual",
+  "يومي":"Daily","أسبوعي":"Weekly","شهري":"Monthly","مرتين في الشهر":"Twice a month","3 مرات في الشهر":"3 times a month","4 مرات في الشهر":"4 times a month","ربع سنوي":"Quarterly","نصف سنوي":"Semi-Annual","سنوي":"Annual",
   "تم التسليم":"Delivered","فشل":"Failed",
   "مكتملة":"Complete","ناقصة":"Incomplete","منتهية":"Expired","نشطة":"Active",
   "مدفوعة":"Paid","غير مدفوعة":"Unpaid",
@@ -1984,7 +2004,7 @@ const MODULES = [
     {key:"branch", label:"اسم المطعم / الفرع", labelEn:"Restaurant / Branch", type:"text", required:true, master:"branches"},
     {key:"equipment", label:"الجهاز / المعدة", labelEn:"Equipment", type:"text"},
     {key:"serviceType", label:"نوع الخدمة", labelEn:"Service Type", type:"text"},
-    {key:"frequency", label:"التكرار", labelEn:"Frequency", type:"select", options:["يومي","أسبوعي","شهري","ربع سنوي","نصف سنوي","سنوي"]},
+    {key:"frequency", label:"التكرار", labelEn:"Frequency", type:"select", options:["يومي","أسبوعي","مرتين في الشهر","شهري","ربع سنوي","نصف سنوي","سنوي"]},
     {key:"contractor", label:"المقاول المسؤول", labelEn:"Responsible Contractor", type:"text", master:"contractors"},
     {key:"lastVisit", label:"تاريخ آخر زيارة", labelEn:"Last Visit Date", type:"date"},
     {key:"nextVisit", label:"تاريخ الزيارة القادمة", labelEn:"Next Visit Date", type:"date"},
@@ -2191,7 +2211,7 @@ const MODULES = [
   fields:[
     {key:"projectName", label:"اسم المشروع / اسم المطعم", labelEn:"Project / Restaurant Name", type:"text", required:true},
     {key:"type", label:"نوع المشروع", labelEn:"Project Type", type:"select", required:true, options:[...PROJECT_TYPES, ...PROJECT_LEGACY_TYPES]},
-    {key:"branch", label:"الفرع / الموقع", labelEn:"Branch / Site", type:"text", master:"branches"},
+    {key:"branch", label:"الفرع / الموقع", labelEn:"Branch / Site", type:"text", master:"branches", noMasterRegister:true},
     {key:"owners", label:"اسم المالك (وبياناته)", labelEn:"Owner name (and details)", type:"owners", full:true, hideInList:true},
     {key:"ownerNames", label:"المالك / الملاك", labelEn:"Owner(s)", type:"text", formHidden:true},
     {key:"owner", label:"المسؤول عن المتابعة (المندوب)", labelEn:"Follow-up Owner (PRO)", type:"text"},
@@ -7025,7 +7045,7 @@ function openForm(m, existing, viewMode, prefill){
       }
     }
     m.fields.forEach(f=>{
-      if(!f.master || !newRec[f.key]) return;
+      if(!f.master || !newRec[f.key] || f.noMasterRegister) return;
       if(f.master === "branches"){
         splitBranchNames(newRec[f.key]).forEach(b=> addMasterValue("branches", b));
       } else {
@@ -7141,33 +7161,36 @@ function openForm(m, existing, viewMode, prefill){
   };
 }
 /* ---------------- PREVENTIVE MAINTENANCE: standing services + the monthly board ----------------
-   The services that repeat (pest control, grease trap...) are defined ONCE. Every month the program prepares one scheduled visit
-   per branch per service (ordinary records of the Preventive Maintenance module, so alerts, reports, calendar and Excel keep working)
-   and the board shows them as a grid: one tap = done. */
+   The services that repeat (pest control, grease trap...) are defined ONCE, together with the branches the owner chooses to follow
+   here (a project's place is never assumed to be a branch). Every month the program prepares the scheduled visits (once, twice...
+   a month) as ordinary records of the Preventive Maintenance module, and the board shows them as a grid: one tap = done. */
 const PM_SVC_KEY = "forka_pm_services";
 let cloudPmServicesSynced = false;
 const PM_FREQS = [["شهري",1],["ربع سنوي",3],["نصف سنوي",6],["سنوي",12]];
-function pmFreqLabel(every){ const f = PM_FREQS.find(x=>x[1]===every); return f ? f[0] : "شهري"; }
+const PM_TIMES_LABEL = {1:"شهري", 2:"مرتين في الشهر", 3:"3 مرات في الشهر", 4:"4 مرات في الشهر"};
+function pmSvcTimes(svc){ return (svc && svc.every === 1) ? Math.min(4, Math.max(1, Number(svc.times) || 1)) : 1; }
+function pmFreqLabel(every, times){ if(every === 1) return PM_TIMES_LABEL[times || 1] || "شهري"; const f = PM_FREQS.find(x=>x[1]===every); return f ? f[0] : "شهري"; }
 function curMonthKey(){ return todayStr().slice(0,7); }
 function monthShift(mk, n){ const p = mk.split("-").map(Number); const d = new Date(p[0], p[1]-1+n, 1); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function monthDiff(a, b){ const x = a.split("-").map(Number), y = b.split("-").map(Number); return (y[0]-x[0])*12 + (y[1]-x[1]); }
 function monthLabelOf(mk){ const p = mk.split("-").map(Number); return new Date(p[0], p[1]-1, 1).toLocaleDateString(LANG==="ar" ? "ar-EG" : "en-GB", { month:"long", year:"numeric" }); }
 function pmNorm(s){ return String(s||"").replace(/[\s\u064B-\u065F\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").toLowerCase(); }
 function hash32(s){ let h = 2166136261; s = String(s); for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
-function getPmServices(){
-  try{ const raw = localStorage.getItem(PM_SVC_KEY); if(raw){ const o = JSON.parse(raw); if(o && Array.isArray(o.services)) return o.services; } }catch(e){}
-  return null;
-}
+function getPmDoc(){ try{ const raw = localStorage.getItem(PM_SVC_KEY); if(raw){ const o = JSON.parse(raw); if(o && typeof o === "object") return o; } }catch(e){} return null; }
+function getPmServices(){ const o = getPmDoc(); return (o && Array.isArray(o.services)) ? o.services : null; }
+/* the branches the owner chose to follow on this board (null = not chosen yet) */
+function getPmBranchSel(){ const o = getPmDoc(); return (o && Array.isArray(o.branches)) ? o.branches : null; }
 function defaultPmServices(){
   const mk = curMonthKey();
-  return [ { id:"svc_pest", name:"مكافحة الحشرات", every:1, dueDay:0, contractor:"", branches:[], anchor:mk, active:true },
-           { id:"svc_grease", name:"تنظيف مصيدة الدهون", every:1, dueDay:0, contractor:"", branches:[], anchor:mk, active:true } ];
+  return [ { id:"svc_pest", name:"مكافحة الحشرات", every:1, times:1, dueDay:0, contractor:"", branches:[], anchor:mk, active:true },
+           { id:"svc_grease", name:"تنظيف مصيدة الدهون", every:1, times:1, dueDay:0, contractor:"", branches:[], anchor:mk, active:true } ];
 }
-function savePmServices(list){
-  const obj = { services: list, updatedAt: Date.now() };
+function savePmDoc(patch){
+  const obj = Object.assign({}, getPmDoc() || {}, patch, { updatedAt: Date.now() });
   localStorage.setItem(PM_SVC_KEY, JSON.stringify(obj));
   if(cloudEnabled && cloudDb) cloudWrite(cloudDb.collection("forka_meta").doc("pmservices").set(obj), "pmservices");
 }
+function savePmServices(list){ savePmDoc({ services: list }); }
 /* nothing is generated until the cloud copy of the visits AND of the services has arrived (so nothing that exists elsewhere is overwritten) */
 function pmEnsureAllowed(){
   const cfg = (typeof getCloudConfig === "function") ? getCloudConfig() : null;
@@ -7177,6 +7200,7 @@ function pmEnsureAllowed(){
 }
 function pmSvcApplies(svc, branch, mk){
   if(!svc || !svc.active) return false;
+  const sel = getPmBranchSel(); if(!sel || !sel.includes(branch)) return false;                 // only the branches the owner chose
   if(Array.isArray(svc.branches) && svc.branches.length && !svc.branches.includes(branch)) return false;
   const d = monthDiff(svc.anchor || mk, mk);
   return d >= 0 && d % (svc.every || 1) === 0;
@@ -7186,14 +7210,23 @@ function pmDueDate(mk, dueDay){
   const day = dueDay > 0 ? Math.min(dueDay, last) : last;
   return `${mk}-${String(day).padStart(2,"0")}`;
 }
-function pmRecordId(svc, branch, mk){ return `pms_${svc.id}_${hash32(branch)}_${mk}`; }
-/* the visit of this service in this branch in this month: the generated one, or a visit someone already entered by hand */
-function pmFindRecord(arr, svc, branch, mk){
-  const id = pmRecordId(svc, branch, mk);
+/* the due dates of the visits of a month: one (end of month / chosen day), or evenly spread when the service is visited several times */
+function pmVisitDueDates(mk, svc){
+  const n = pmSvcTimes(svc);
+  if(n === 1) return [pmDueDate(mk, svc.dueDay)];
+  const p = mk.split("-").map(Number); const last = new Date(p[0], p[1], 0).getDate();
+  return Array.from({length:n}, (_,i)=> `${mk}-${String(Math.floor((i+1)*last/n)).padStart(2,"0")}`);
+}
+function pmRecordId(svc, branch, mk, n){ const base = `pms_${svc.id}_${hash32(branch)}_${mk}`; return (n && n > 1) ? base + "_" + n : base; }
+/* visit number n of this service in this branch in this month: the generated one, or a visit someone already entered by hand */
+function pmFindRecord(arr, svc, branch, mk, n){
+  n = n || 1; const id = pmRecordId(svc, branch, mk, n);
   const gen = arr.find(x=> x.id===id && !x._deleted); if(gen) return gen;
   const sn = pmNorm(svc.name), bn = pmNorm(branch);
-  return arr.find(x=> !x._deleted && x.id!==id && pmNorm(x.branch)===bn && (pmNorm(x.equipment)===sn || pmNorm(x.serviceType)===sn) &&
-                      ((x.actualVisit||"").slice(0,7)===mk || (x.nextVisit||"").slice(0,7)===mk)) || null;
+  const manual = arr.filter(x=> !x._deleted && !x.standingSvc && pmNorm(x.branch)===bn && (pmNorm(x.equipment)===sn || pmNorm(x.serviceType)===sn) &&
+                                ((x.actualVisit||"").slice(0,7)===mk || (x.nextVisit||"").slice(0,7)===mk))
+                    .sort((a,b)=> String(a.actualVisit||a.nextVisit||"").localeCompare(String(b.actualVisit||b.nextVisit||"")));
+  return manual[n-1] || null;
 }
 function pmCellState(rec){
   const st = (rec.status||"").trim();
@@ -7201,21 +7234,24 @@ function pmCellState(rec){
   if(st === "متأخر" || (rec.nextVisit && rec.nextVisit < todayStr())) return "late";
   return "pending";
 }
+function pmNewRecord(svc, b, mk, n, due){
+  return { id: pmRecordId(svc, b, mk, n), branch:b, equipment:svc.name, serviceType:svc.name, frequency: pmFreqLabel(svc.every, pmSvcTimes(svc)), contractor: svc.contractor || "",
+           nextVisit: due, status:"مجدول", standingSvc: svc.id, period: mk, visitNo: n, visitsPerMonth: pmSvcTimes(svc), _nextCreated:true,
+           _updatedAt: new Date(mk + "-01").getTime() };      // an old stamp: anything really done always wins over a blank placeholder
+}
 function ensurePmStandingRecords(mk){
   if(!pmEnsureAllowed()) return 0;
-  const svcs = getPmServices(); if(!svcs) return 0;
+  const svcs = getPmServices(), sel = getPmBranchSel(); if(!svcs || !sel || !sel.length) return 0;
   if(monthDiff(mk, curMonthKey()) < 0) return 0;               // never prepare a month that has not started
-  const branches = loadMasters().branches || [];
   const raw = loadDataRaw("pm"); const created = [];
-  svcs.forEach(svc=> branches.forEach(b=>{
+  svcs.forEach(svc=> sel.forEach(b=>{
     if(!pmSvcApplies(svc, b, mk)) return;
-    const id = pmRecordId(svc, b, mk);
-    if(raw.some(x=> x.id===id)) return;                         // already there (a deleted one is respected, not re-created)
-    if(pmFindRecord(raw, svc, b, mk)) return;                   // a hand-entered visit already covers it
-    const rec = { id, branch:b, equipment:svc.name, serviceType:svc.name, frequency: pmFreqLabel(svc.every), contractor: svc.contractor || "",
-                  nextVisit: pmDueDate(mk, svc.dueDay), status:"مجدول", standingSvc: svc.id, period: mk, _nextCreated:true,
-                  _updatedAt: new Date(mk + "-01").getTime() };   // an old stamp: anything really done always wins over a blank placeholder
-    raw.push(rec); created.push(rec);
+    pmVisitDueDates(mk, svc).forEach((due, i)=>{
+      const n = i + 1, id = pmRecordId(svc, b, mk, n);
+      if(raw.some(x=> x.id===id)) return;                       // already there (a deleted one is respected, not re-created)
+      if(pmFindRecord(raw, svc, b, mk, n)) return;              // a hand-entered visit already covers it
+      const rec = pmNewRecord(svc, b, mk, n, due); raw.push(rec); created.push(rec);
+    });
   }));
   if(created.length){ saveData("pm", raw); created.forEach(r=> cloudPushRecord("pm", r)); }
   return created.length;
@@ -7234,15 +7270,47 @@ function pmUndoDone(id){
   const arr = loadDataRaw("pm"); const r = arr.find(x=>x.id===id); if(!r) return;
   r.actualVisit = ""; r.status = "مجدول"; r._updatedAt = Date.now(); saveData("pm", arr); cloudPushRecord("pm", r);
 }
-/* when a service is removed / switched off / a branch is taken out, the blank placeholders of it disappear (finished visits stay) */
+function pmIsBlankPlaceholder(r){
+  return !r._deleted && !!r.standingSvc && (r.status||"").trim() === "مجدول" && !r.actualVisit && !r.tech && !r.cost && !r.work && !r.notes && !(r.photos && r.photos.length);
+}
+/* blank prepared visits that no longer apply (service removed / switched off / branch not followed / fewer visits per month) are removed;
+   anything that was done or touched is never removed */
 function pmCleanupPlaceholders(svcs){
-  const raw = loadDataRaw("pm"); const now = Date.now(); let n = 0;
+  const raw = loadDataRaw("pm"); const keep = [], gone = [];
   raw.forEach(r=>{
-    if(r._deleted || !r.standingSvc || (r.status||"").trim() !== "مجدول" || r.actualVisit) return;
-    const svc = svcs.find(s=>s.id===r.standingSvc);
-    if(!svc || !pmSvcApplies(svc, r.branch, r.period)){ r._deleted = true; r._deletedAt = now; r._updatedAt = now; cloudPushRecord("pm", r); n++; }
+    if(pmIsBlankPlaceholder(r)){
+      const svc = (svcs||[]).find(s=>s.id===r.standingSvc);
+      const ok = svc && pmSvcApplies(svc, r.branch, r.period) && (r.visitNo || 1) <= pmSvcTimes(svc);
+      if(!ok){ gone.push(r); return; }
+    }
+    keep.push(r);
   });
-  if(n) saveData("pm", raw);
+  if(gone.length){ saveData("pm", keep); gone.forEach(r=> cloudDeleteRecord("pm", r.id)); }
+  return gone.length;
+}
+/* blank prepared visits follow the service when it changes (visits per month, due day, company) — finished or edited ones are never touched */
+function pmRefreshPlaceholders(svcs){
+  const raw = loadDataRaw("pm"); const changed = [];
+  raw.forEach(r=>{
+    if(!pmIsBlankPlaceholder(r)) return;
+    const svc = (svcs||[]).find(s=>s.id===r.standingSvc); if(!svc || !pmSvcApplies(svc, r.branch, r.period)) return;
+    const due = pmVisitDueDates(r.period, svc)[(r.visitNo || 1) - 1]; if(!due) return;
+    const freq = pmFreqLabel(svc.every, pmSvcTimes(svc));
+    if(r.nextVisit !== due || r.frequency !== freq || r.visitsPerMonth !== pmSvcTimes(svc) || (r.contractor||"") !== (svc.contractor||"")){
+      r.nextVisit = due; r.frequency = freq; r.visitsPerMonth = pmSvcTimes(svc); r.contractor = svc.contractor || ""; r._updatedAt = Date.now(); changed.push(r);
+    }
+  });
+  if(changed.length){ saveData("pm", raw); changed.forEach(r=> cloudPushRecord("pm", r)); }
+  return changed.length;
+}
+/* ONE TIME: the first version prepared visits for EVERY name in the branch list (project places included). Blank ones are removed
+   until the owner chooses the branches. */
+const PM_LEGACY_FLAG = "forka_pm_legacy_clean_v1";
+function pmLegacyClean(){
+  if(localStorage.getItem(PM_LEGACY_FLAG) || !pmEnsureAllowed()) return 0;
+  let n = 0;
+  if(getPmBranchSel() === null) n = pmCleanupPlaceholders(getPmServices() || []);
+  localStorage.setItem(PM_LEGACY_FLAG, "1");
   return n;
 }
 function schedulePmStandingEnsure(){
@@ -7252,12 +7320,70 @@ function schedulePmStandingEnsure(){
     waited += 1000;
     if(!pmEnsureAllowed() && waited < 20000) return;
     clearInterval(timer);
-    try{ const n = ensurePmStandingRecords(curMonthKey()); if(n){ renderNav(); if(state.view==="dashboard") renderDashboard(); } }catch(err){ console.error("PM standing services failed:", err); }
+    try{
+      const cleaned = pmLegacyClean();
+      if(cleaned) alert(t('pmCleanedNote', cleaned));
+      const n = ensurePmStandingRecords(curMonthKey()); if(n || cleaned){ renderNav(); if(state.view==="dashboard") renderDashboard(); }
+    }catch(err){ console.error("PM standing services failed:", err); }
   }, 1000);
+}
+
+/* ----- names that only came from a project (a licence place), never from a real branch ----- */
+function projectOnlyBranchNames(){
+  const masters = (loadMasters().branches || []);
+  const split = (v)=> String(v||"").split(/[،,]/).map(x=>x.trim()).filter(Boolean);
+  const proj = new Set(); loadData("projects").forEach(p=> split(p.branch).forEach(n=> proj.add(branchKeyOf(n))));
+  if(!proj.size) return [];
+  const used = new Set();
+  MODULES.forEach(m=>{
+    if(m.key === "projects") return;
+    const keys = m.fields.filter(f=> f.master === "branches" || f.type === "branchMultiSelect").map(f=>f.key);
+    if(!keys.length) return;
+    loadData(m.key).forEach(r=>{
+      if(m.key === "expenses" && r.autoFromProject) return;               // an invoice that only belongs to a project
+      if(m.key === "pm" && pmIsBlankPlaceholder(r)) return;               // a blank prepared visit
+      keys.forEach(k=> split(r[k]).forEach(n=> used.add(branchKeyOf(n))));
+    });
+  });
+  return masters.filter(b=> proj.has(branchKeyOf(b)) && !used.has(branchKeyOf(b)));
 }
 
 /* ----- the board ----- */
 function pmShortDate(d){ return d ? d.slice(8,10) + "/" + d.slice(5,7) : ""; }
+function pmBoardBranchList(){
+  const sel = getPmBranchSel() || []; const masters = loadMasters().branches || [];
+  return [...masters.filter(b=> sel.includes(b)), ...sel.filter(b=> !masters.includes(b))];
+}
+function openPmBranchesModal(){
+  const masters = loadMasters().branches || []; const sel = new Set(getPmBranchSel() || []);
+  const projOnly = new Set(projectOnlyBranchNames());
+  const keyCount = {}; masters.forEach(b=>{ const k = branchKeyOf(b); keyCount[k] = (keyCount[k]||0) + 1; });
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:600px;">
+    <h2>🏢 ${t('pmPickTitle')}</h2><div class="modal-sub">${t('pmPickSub')}</div>
+    ${masters.length ? `<div style="display:flex; gap:8px; margin-bottom:10px;"><button class="btn btn-outline btn-sm" id="pmPickAll" type="button">${t('pmPickAll')}</button><button class="btn btn-outline btn-sm" id="pmPickNone" type="button">${t('pmPickNone')}</button></div>
+    <div style="max-height:50vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+      ${masters.map(b=>`<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; cursor:pointer;">
+        <input type="checkbox" data-pmpick="${escapeAttr(b)}" ${sel.has(b) ? "checked" : ""} style="width:18px; height:18px;">
+        <span style="flex:1;">${escapeHtml(b)}</span>
+        ${projOnly.has(b) ? `<span class="badge badge-info" title="${t('pmPickProjTip')}">🏗️ ${t('mastersProjTag')}</span>` : ""}
+        ${keyCount[branchKeyOf(b)] > 1 ? `<span class="badge badge-warning" title="${t('pmPickDupTip')}">⚠️ ${t('pmPickDup')}</span>` : ""}
+      </label>`).join("")}</div>` : `<div class="card" style="text-align:center; color:var(--muted);">${t('pmBoardNoBranches')}</div>`}
+    <div class="modal-actions"><button class="btn btn-outline" id="pmPickCancel" type="button">${t('cancel')}</button><button class="btn btn-gold" id="pmPickSave" type="button">${t('pmSave')}</button></div></div></div>`;
+  const boxes = ()=> Array.from(root.querySelectorAll("[data-pmpick]"));
+  const all = document.getElementById("pmPickAll"), none = document.getElementById("pmPickNone");
+  if(all) all.onclick = ()=> boxes().forEach(b=> b.checked = true);
+  if(none) none.onclick = ()=> boxes().forEach(b=> b.checked = false);
+  document.getElementById("pmPickCancel").onclick = closeModal;
+  document.getElementById("pmPickSave").onclick = ()=>{
+    const chosen = boxes().filter(b=>b.checked).map(b=>b.dataset.pmpick);
+    savePmDoc({ branches: chosen });
+    if(!getPmServices()) savePmServices(defaultPmServices());
+    const removed = pmCleanupPlaceholders(getPmServices() || []);
+    ensurePmStandingRecords(curMonthKey());
+    closeModal(); renderModule("pm"); renderNav(); showToast(removed ? t('pmPickSavedRemoved', removed) : t('pmBoardSaved'));
+  };
+}
 function renderPmBoard(){
   const body = document.getElementById("moduleBody"); if(!body) return;
   const ms = state.moduleState.pm; if(!ms.boardMonth) ms.boardMonth = curMonthKey();
@@ -7271,20 +7397,36 @@ function renderPmBoard(){
   }
   let stored = getPmServices(), seeded = false;
   if(canCreate && !stored){ stored = defaultPmServices(); savePmServices(stored); seeded = true; }
+  const sel = getPmBranchSel();
+  // the branches are chosen by the owner, never assumed
+  if(sel === null || !sel.length){
+    body.innerHTML = `<div class="card" style="text-align:center; padding:28px 18px;">
+      <div style="font-size:15px; font-weight:600; margin-bottom:8px;">🏢 ${sel === null ? t('pmBoardPickFirst') : t('pmBoardPickNone')}</div>
+      <div style="color:var(--muted); font-size:13px; margin-bottom:14px;">${t('pmPickSub')}</div>
+      <button class="btn btn-gold" id="pmBoardPick" type="button">${t('pmBoardPickBtn')}</button></div>`;
+    document.getElementById("pmBoardPick").onclick = openPmBranchesModal;
+    if(!ms._pickAsked){ ms._pickAsked = true; openPmBranchesModal(); }
+    return;
+  }
   const svcs = (stored || defaultPmServices()).filter(s=>s.active);
   if(canCreate && monthDiff(mk, cur) >= 0){ const made = ensurePmStandingRecords(mk); if(made) renderNav(); }
   { const meta = document.getElementById("topbarMeta"); if(meta) meta.textContent = (LANG==="ar" ? "إجمالي السجلات: " : "Total records: ") + loadData("pm").length; }
-  const branches = loadMasters().branches || [];
+  const branches = pmBoardBranchList();
   const raw = loadDataRaw("pm");
   let total = 0, done = 0, late = 0;
+  const NUM = ["①","②","③","④"];
+  const visitHtml = (svc, b, i, due, many)=>{
+    const rec = pmFindRecord(raw, svc, b, mk, i + 1); const tag = many ? `<span class="pmb-no">${NUM[i]}</span>` : "";
+    if(!rec) return monthDiff(mk, cur) < 0 ? `<span class="pmb-cell pmb-nax">${tag}⏳</span>` : `<button type="button" class="pmb-cell pmb-pending" data-pmnew="${escapeAttr(svc.id)}|${escapeAttr(b)}|${i+1}">${tag}⏳</button>`;
+    total++; const st = pmCellState(rec);
+    if(st === "done"){ done++; return `<button type="button" class="pmb-cell pmb-done" data-pmrec="${rec.id}">${tag}✅ ${pmShortDate(rec.actualVisit)}${rec.status==="منجز متأخر" ? " ⚠️" : ""}</button>`; }
+    if(st === "late"){ late++; return `<button type="button" class="pmb-cell pmb-late" data-pmrec="${rec.id}">${tag}⚠️ ${t('pmBoardLate')}<small>${pmShortDate(rec.nextVisit)}</small></button>`; }
+    return `<button type="button" class="pmb-cell pmb-pending" data-pmrec="${rec.id}">${tag}⏳ ${t('pmBoardDueBy')}<small>${pmShortDate(rec.nextVisit)}</small></button>`;
+  };
   const cellHtml = (svc, b)=>{
     if(!pmSvcApplies(svc, b, mk)) return `<td class="pmb-na">—</td>`;
-    const rec = pmFindRecord(raw, svc, b, mk);
-    if(!rec) return monthDiff(mk, cur) < 0 ? `<td class="pmb-na">⏳</td>` : `<td><button type="button" class="pmb-cell pmb-pending" data-pmnew="${escapeAttr(svc.id)}|${escapeAttr(b)}">⏳</button></td>`;
-    total++; const st = pmCellState(rec);
-    if(st === "done"){ done++; return `<td><button type="button" class="pmb-cell pmb-done" data-pmrec="${rec.id}">✅ ${pmShortDate(rec.actualVisit)}${rec.status==="منجز متأخر" ? " ⚠️" : ""}</button></td>`; }
-    if(st === "late"){ late++; return `<td><button type="button" class="pmb-cell pmb-late" data-pmrec="${rec.id}">⚠️ ${t('pmBoardLate')}<small>${pmShortDate(rec.nextVisit)}</small></button></td>`; }
-    return `<td><button type="button" class="pmb-cell pmb-pending" data-pmrec="${rec.id}">⏳ ${t('pmBoardDueBy')}<small>${pmShortDate(rec.nextVisit)}</small></button></td>`;
+    const dues = pmVisitDueDates(mk, svc);
+    return `<td><div class="pmb-multi">${dues.map((due,i)=> visitHtml(svc, b, i, due, dues.length > 1)).join("")}</div></td>`;
   };
   const rowsHtml = branches.map(b=> `<tr><th class="pmb-branch">${autoTr(b)}</th>${svcs.map(s=> cellHtml(s, b)).join("")}</tr>`).join("");
   body.innerHTML = `
@@ -7297,35 +7439,37 @@ function renderPmBoard(){
       <div class="spacer"></div>
       <span style="font-size:13px; color:var(--muted);">${t('pmBoardSummary', done, total, late)}</span>
       <button class="btn btn-outline btn-sm" id="pmBoardExport">${t('exportExcel')}</button>
+      <button class="btn btn-outline btn-sm" id="pmBoardBranches">🏢 ${t('pmBoardBranchesBtn')}</button>
       <button class="btn btn-outline btn-sm" id="pmBoardServices">⚙️ ${t('pmBoardServices')}</button>
     </div>
-    ${!svcs.length ? `<div class="card" style="text-align:center; color:var(--muted);">${t('pmBoardNoServices')}</div>` : !branches.length ? `<div class="card" style="text-align:center; color:var(--muted);">${t('pmBoardNoBranches')}</div>` : `
+    ${!svcs.length ? `<div class="card" style="text-align:center; color:var(--muted);">${t('pmBoardNoServices')}</div>` : `
     <div class="table-wrap"><table class="pmb-table"><thead><tr><th>${t('pmBoardBranch')}</th>
-      ${svcs.map(s=> `<th>${autoTr(s.name)}<div class="pmb-sub">${escapeHtml(optLabel(pmFreqLabel(s.every)))}${s.contractor ? " · " + escapeHtml(s.contractor) : ""}</div>${monthDiff(mk,cur) >= 0 ? `<button type="button" class="btn btn-sm btn-outline no-print" data-pmbulk="${escapeAttr(s.id)}" style="margin-top:6px;">✅ ${t('pmBoardDoneAll')}</button>` : ""}</th>`).join("")}
+      ${svcs.map(s=> `<th>${autoTr(s.name)}<div class="pmb-sub">${escapeHtml(optLabel(pmFreqLabel(s.every, pmSvcTimes(s))))}${s.contractor ? " · " + escapeHtml(s.contractor) : ""}</div>${monthDiff(mk,cur) >= 0 ? `<button type="button" class="btn btn-sm btn-outline no-print" data-pmbulk="${escapeAttr(s.id)}" style="margin-top:6px;">✅ ${t('pmBoardDoneAll')}</button>` : ""}</th>`).join("")}
     </tr></thead><tbody>${rowsHtml}</tbody></table></div>`}
     ${canCreate ? "" : `<div style="font-size:12px; color:#a33a2c; margin-top:8px;">${t('pmBoardOffline')}</div>`}`;
   autoTranslateDOM(body);
   body.querySelectorAll("[data-pmmonth]").forEach(b=> b.onclick = ()=>{ const v = Number(b.dataset.pmmonth); ms.boardMonth = v === 0 ? cur : monthShift(ms.boardMonth, v); renderPmBoard(); });
   body.querySelectorAll("[data-pmrec]").forEach(b=> b.onclick = ()=> openPmDoneModal(b.dataset.pmrec));
   body.querySelectorAll("[data-pmnew]").forEach(b=> b.onclick = ()=>{
-    const [sid, br] = b.dataset.pmnew.split("|"); const svc = (getPmServices()||[]).find(s=>s.id===sid); if(!svc) return;
-    const arr = loadDataRaw("pm"); const id = pmRecordId(svc, br, mk);
-    if(!arr.some(x=>x.id===id)){
-      const rec = { id, branch:br, equipment:svc.name, serviceType:svc.name, frequency: pmFreqLabel(svc.every), contractor: svc.contractor||"", nextVisit: pmDueDate(mk, svc.dueDay), status:"مجدول", standingSvc:svc.id, period:mk, _nextCreated:true, _updatedAt: new Date(mk+"-01").getTime() };
-      arr.push(rec); saveData("pm", arr); cloudPushRecord("pm", rec);
-    }
+    const [sid, br, nn] = b.dataset.pmnew.split("|"); const svc = (getPmServices()||[]).find(s=>s.id===sid); if(!svc) return;
+    const n = Number(nn) || 1, arr = loadDataRaw("pm"); const id = pmRecordId(svc, br, mk, n);
+    if(!arr.some(x=>x.id===id)){ const rec = pmNewRecord(svc, br, mk, n, pmVisitDueDates(mk, svc)[n-1]); arr.push(rec); saveData("pm", arr); cloudPushRecord("pm", rec); }
     openPmDoneModal(id);
   });
   body.querySelectorAll("[data-pmbulk]").forEach(b=> b.onclick = ()=>{
     const svc = svcs.find(s=>s.id===b.dataset.pmbulk); if(!svc) return;
-    const fresh = loadDataRaw("pm");
-    const pend = branches.map(br=> pmSvcApplies(svc, br, mk) ? pmFindRecord(fresh, svc, br, mk) : null).filter(r=> r && pmCellState(r) !== "done");
+    const fresh = loadDataRaw("pm"); const pend = [];
+    branches.forEach(br=>{
+      if(!pmSvcApplies(svc, br, mk)) return;
+      for(let n = 1; n <= pmSvcTimes(svc); n++){ const r = pmFindRecord(fresh, svc, br, mk, n); if(r && pmCellState(r) !== "done"){ pend.push(r); break; } }   // the earliest visit still waiting in each branch
+    });
     if(!pend.length) return;
     if(!confirm(t('pmBoardDoneAllConfirm', pend.length, svc.name))) return;
     pend.forEach(r=> pmMarkDone(r.id, { date: todayStr() }));
     renderPmBoard(); renderNav(); showToast(t('pmBoardSaved'));
   });
   document.getElementById("pmBoardServices").onclick = openPmServicesModal;
+  document.getElementById("pmBoardBranches").onclick = openPmBranchesModal;
   document.getElementById("pmBoardExport").onclick = exportPmBoardExcel;
 }
 let pmDonePhotos = [];
@@ -7344,8 +7488,9 @@ function openPmDoneModal(recId){
   const isDone = pmCellState(rec) === "done";
   pmDonePhotos = (Array.isArray(rec.photos) ? rec.photos : []).map(p=>({...p}));
   const root = document.getElementById("modalRoot");
+  const many = (rec.visitsPerMonth || 1) > 1;
   root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:560px;">
-    <h2>${isDone ? "✅" : "🔧"} ${autoTr(rec.serviceType || rec.equipment)} — ${autoTr(rec.branch)}</h2>
+    <h2>${isDone ? "✅" : "🔧"} ${autoTr(rec.serviceType || rec.equipment)} — ${autoTr(rec.branch)}${many ? ` <span style="font-size:14px; color:var(--muted);">(${t('pmVisitN', rec.visitNo || 1, rec.visitsPerMonth)})</span>` : ""}</h2>
     <div class="modal-sub">${t('pmDoneDueBy')} ${escapeHtml(rec.nextVisit || "—")}</div>
     <div class="form-grid">
       <div class="field"><label>${t('pmDoneDate')}</label><input type="date" id="pmDoneDate" value="${escapeAttr(rec.actualVisit || todayStr())}"></div>
@@ -7390,14 +7535,16 @@ function openPmDoneModal(recId){
   };
 }
 function openPmServicesModal(){
-  const list = (getPmServices() || defaultPmServices()).map(s=>({...s, branches:[...(s.branches||[])]}));
-  const branches = loadMasters().branches || []; const contractors = loadMasters().contractors || [];
+  const list = (getPmServices() || defaultPmServices()).map(s=>({ times:1, ...s, branches:[...(s.branches||[])] }));
+  const branches = pmBoardBranchList(); const contractors = loadMasters().contractors || [];
   const root = document.getElementById("modalRoot");
   const dueOpts = (v)=> [0,5,10,15,20,25].map(d=>`<option value="${d}" ${Number(v)===d?"selected":""}>${d===0 ? t('pmSvcDueEnd') : (LANG==='ar' ? "يوم " + d : "Day " + d)}</option>`).join("");
+  const timesOpts = (v)=> [1,2,3,4].map(n=>`<option value="${n}" ${Number(v)===n?"selected":""}>${escapeHtml(optLabel(PM_TIMES_LABEL[n]))}</option>`).join("");
   const card = (s, i)=> `<div class="card" data-svc="${i}" style="margin-bottom:10px; padding:12px 14px;">
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end;">
       <div class="field" style="flex:2; min-width:180px;"><label>${t('pmSvcName')}</label><input type="text" data-sf="name" value="${escapeAttr(s.name)}"></div>
       <div class="field" style="min-width:120px;"><label>${t('pmSvcFreq')}</label><select data-sf="every">${PM_FREQS.map(f=>`<option value="${f[1]}" ${s.every===f[1]?"selected":""}>${escapeHtml(optLabel(f[0]))}</option>`).join("")}</select></div>
+      <div class="field" data-timesbox style="min-width:150px; ${s.every===1 ? "" : "display:none;"}"><label>${t('pmSvcTimes')}</label><select data-sf="times">${timesOpts(s.times)}</select></div>
       <div class="field" style="min-width:120px;"><label>${t('pmSvcDue')}</label><select data-sf="dueDay">${dueOpts(s.dueDay)}</select></div>
       <div class="field" style="min-width:140px;"><label>${t('pmSvcStart')}</label><input type="month" data-sf="anchor" value="${escapeAttr(s.anchor||curMonthKey())}"></div>
       <div class="field" style="flex:1; min-width:150px;"><label>${t('pmSvcContractor')}</label><input type="text" data-sf="contractor" list="pmSvcContractors" value="${escapeAttr(s.contractor||"")}"></div>
@@ -7411,13 +7558,13 @@ function openPmServicesModal(){
       </span>
     </div></div>`;
   const draw = ()=>{
-    root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:860px;">
+    root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:900px;">
       <h2>⚙️ ${t('pmSvcTitle')}</h2><div class="modal-sub">${t('pmSvcSub')}</div>
       <datalist id="pmSvcContractors">${contractors.map(x=>`<option value="${escapeAttr(x)}">`).join("")}</datalist>
       <div id="pmSvcList">${list.map(card).join("")}</div>
       <button class="btn btn-outline btn-sm" id="pmSvcAdd" type="button">➕ ${t('pmSvcAdd')}</button>
       <div id="pmSvcMsg" style="color:#a33a2c; font-size:12.5px; min-height:18px; margin-top:8px;"></div>
-      <div class="modal-actions"><button class="btn btn-outline" id="pmSvcCancel" type="button">${t('cancel')}</button><button class="btn btn-gold" id="pmSvcSave" type="button">${t('save')}</button></div>
+      <div class="modal-actions"><button class="btn btn-outline" id="pmSvcCancel" type="button">${t('cancel')}</button><button class="btn btn-gold" id="pmSvcSave" type="button">${t('pmSave')}</button></div>
     </div></div>`;
     root.querySelectorAll("[data-svc]").forEach(cardEl=>{
       const i = Number(cardEl.dataset.svc);
@@ -7426,8 +7573,9 @@ function openPmServicesModal(){
         const upd = ()=>{
           if(f === "allBranches"){ cardEl.querySelector("[data-svcbr]").style.display = el.checked ? "none" : ""; if(el.checked) list[i].branches = []; return; }
           if(f === "active") list[i].active = el.checked;
-          else if(f === "every" || f === "dueDay") list[i][f] = Number(el.value);
+          else if(f === "every" || f === "dueDay" || f === "times") list[i][f] = Number(el.value);
           else list[i][f] = el.value;
+          if(f === "every"){ cardEl.querySelector("[data-timesbox]").style.display = list[i].every === 1 ? "" : "none"; if(list[i].every !== 1) list[i].times = 1; }
         };
         el.addEventListener("input", upd); el.addEventListener("change", upd);
       });
@@ -7436,15 +7584,16 @@ function openPmServicesModal(){
       }));
       cardEl.querySelector("[data-svcdel]").onclick = ()=>{ list.splice(i, 1); draw(); };
     });
-    document.getElementById("pmSvcAdd").onclick = ()=>{ list.push({ id:"svc_" + uid(), name:"", every:1, dueDay:0, contractor:"", branches:[], anchor:curMonthKey(), active:true }); draw(); };
+    document.getElementById("pmSvcAdd").onclick = ()=>{ list.push({ id:"svc_" + uid(), name:"", every:1, times:1, dueDay:0, contractor:"", branches:[], anchor:curMonthKey(), active:true }); draw(); };
     document.getElementById("pmSvcCancel").onclick = closeModal;
     document.getElementById("pmSvcSave").onclick = ()=>{
       const msg = document.getElementById("pmSvcMsg"); const names = list.map(s=> pmNorm(s.name));
       if(list.some(s=> !s.name.trim())){ msg.textContent = t('pmSvcNeedName'); return; }
       if(new Set(names).size !== names.length){ msg.textContent = t('pmSvcDupName'); return; }
-      list.forEach(s=>{ s.name = s.name.trim(); s.contractor = (s.contractor||"").trim(); });
+      list.forEach(s=>{ s.name = s.name.trim(); s.contractor = (s.contractor||"").trim(); if(s.every !== 1) s.times = 1; });
       savePmServices(list);
       pmCleanupPlaceholders(list);
+      pmRefreshPlaceholders(list);
       ensurePmStandingRecords(curMonthKey());
       closeModal(); renderModule("pm"); renderNav(); showToast(t('pmSvcSaved'));
     };
@@ -7453,20 +7602,20 @@ function openPmServicesModal(){
 }
 async function exportPmBoardExcel(){
   showToast(t('exportPreparing'));
-  const ms = state.moduleState.pm; const mk = ms.boardMonth || curMonthKey(), cur = curMonthKey();
-  const svcs = (getPmServices() || defaultPmServices()).filter(s=>s.active); const branches = loadMasters().branches || []; const raw = loadDataRaw("pm");
+  const ms = state.moduleState.pm; const mk = ms.boardMonth || curMonthKey();
+  const svcs = (getPmServices() || defaultPmServices()).filter(s=>s.active); const branches = pmBoardBranchList(); const raw = loadDataRaw("pm");
   const tr = await buildExportTranslator([...branches, ...svcs.map(s=>s.name)]);
   const head = [t('pmBoardBranch'), ...svcs.map(s=> tr(s.name))];
   const rows = branches.map(b=>{
     const o = { [head[0]]: tr(b) };
     svcs.forEach((s,i)=>{
-      let txt = "—";
-      if(pmSvcApplies(s, b, mk)){
-        const rec = pmFindRecord(raw, s, b, mk);
-        if(!rec) txt = "⏳";
-        else { const st = pmCellState(rec); txt = st === "done" ? `✅ ${rec.actualVisit}${rec.status==="منجز متأخر" ? " (⚠️)" : ""}` : st === "late" ? `⚠️ ${t('pmBoardLate')} (${rec.nextVisit})` : `⏳ ${t('pmBoardDueBy')} ${rec.nextVisit}`; }
-      }
-      o[head[i+1]] = txt;
+      if(!pmSvcApplies(s, b, mk)){ o[head[i+1]] = "—"; return; }
+      const parts = pmVisitDueDates(mk, s).map((due, k)=>{
+        const rec = pmFindRecord(raw, s, b, mk, k + 1); if(!rec) return "⏳";
+        const st = pmCellState(rec);
+        return st === "done" ? `✅ ${rec.actualVisit}${rec.status==="منجز متأخر" ? " (⚠️)" : ""}` : st === "late" ? `⚠️ ${t('pmBoardLate')} (${rec.nextVisit})` : `⏳ ${t('pmBoardDueBy')} ${rec.nextVisit}`;
+      });
+      o[head[i+1]] = parts.join("  |  ");
     });
     return o;
   });
@@ -7476,7 +7625,7 @@ async function exportPmBoardExcel(){
   showToast(t('exportedFile'));
 }
 function autoScheduleNextPM(rec){
-  const freqDays = { "يومي":1, "أسبوعي":7 };
+  const freqDays = { "يومي":1, "أسبوعي":7, "مرتين في الشهر":15, "3 مرات في الشهر":10, "4 مرات في الشهر":7 };
   const freqMonths = { "شهري":1, "ربع سنوي":3, "نصف سنوي":6, "سنوي":12 };
   const freq = (rec.frequency||"").trim();
   if(!freqDays[freq] && !freqMonths[freq]) return false;
@@ -9194,6 +9343,7 @@ function renderMastersPage(){
   document.getElementById("topbarActions").innerHTML = langSwitcherHtml();
   bindLangSwitcher();
   const masters = loadMasters();
+  const projOnly = projectOnlyBranchNames(); const projOnlySet = new Set(projOnly);
   const labels = {branches:t('mastersBranches'), contractors:t('mastersContractors'), drivers:t('mastersDrivers')};
   document.getElementById("content").innerHTML = `
     <div class="banner">${t('mastersHint')}</div>
@@ -9201,6 +9351,7 @@ function renderMastersPage(){
       ${MASTER_TYPES.map(type=>`
         <div class="card">
           <div class="label" style="margin-bottom:10px;">${labels[type]} (${(masters[type]||[]).length})</div>
+          ${(type==="branches" && projOnly.length) ? `<div class="banner" style="margin-bottom:10px; display:block;"><div style="margin-bottom:8px;">🏗️ ${t('mastersProjBox', projOnly.length)}</div><button class="btn btn-sm btn-outline" id="btnRmProjPlaces" type="button">🧹 ${t('mastersProjBtn')}</button></div>` : ""}
           <div style="display:flex; gap:6px; margin-bottom:12px;">
             <input type="text" id="add_${type}" placeholder="${t('mastersAddPlaceholder')}" style="flex:1; border:1.5px solid var(--line); border-radius:8px; padding:8px 10px; font-family:inherit;">
             <button class="btn btn-primary btn-sm" data-addtype="${type}">${t('mastersAdd')}</button>
@@ -9208,7 +9359,7 @@ function renderMastersPage(){
           <div style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
             ${(masters[type]||[]).length ? (masters[type]||[]).map(v=>`
               <div style="display:flex; justify-content:space-between; align-items:center; background:#fbf8f3; border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:13px;">
-                <span>${v}</span>
+                <span>${v}${(type==="branches" && projOnlySet.has(v)) ? ` <span class="badge badge-info" title="${t('mastersProjTip')}">🏗️ ${t('mastersProjTag')}</span>` : ""}</span>
                 <button class="btn btn-sm btn-danger" data-rmmaster="${type}::${v.replace(/"/g,'&quot;')}">✕</button>
               </div>
             `).join("") : `<div style="color:var(--muted); font-size:13px;">${t('mastersEmpty')}</div>`}
@@ -9217,6 +9368,12 @@ function renderMastersPage(){
       `).join("")}
     </div>
   `;
+  const rmProj = document.getElementById("btnRmProjPlaces");
+  if(rmProj) rmProj.onclick = ()=>{
+    if(!confirm(t('mastersProjConfirm', projOnly.join("، ")))) return;
+    projOnly.forEach(n=> removeMasterValue("branches", n));
+    showToast(t('mastersProjDone', projOnly.length)); renderMastersPage();
+  };
   document.querySelectorAll("[data-addtype]").forEach(b=>{
     b.onclick = ()=>{
       const type = b.dataset.addtype;
