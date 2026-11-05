@@ -2300,7 +2300,7 @@ let isAccountantMode = /^#accountant(-ar|-en)?$/.test(location.hash);
 if(/^#(inspect|expense|accountant)-en$/.test(location.hash)) LANG = "en";
 else if(/^#(inspect|expense|accountant)-ar$/.test(location.hash)) LANG = "ar";
 let isAssetViewMode = /^#asset-/.test(location.hash);
-MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:true, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
+MODULES.forEach(m => state.moduleState[m.key] = { search:"", status:"all", sortKey:null, sortDir:1, showAllColumns:false, dateRange:{preset:"all", from:"", to:""}, activeTab: m.key==="assets" ? "byBranch" : "records" });
 let formPhotos = []; /* temp array of {name,dataUrl} while a form modal is open */
 let formPhotos2 = []; /* second, independent attachment field (e.g. technical report) */
 let formQuotes = []; /* temp array of {company,amount,selected} while a form modal is open */
