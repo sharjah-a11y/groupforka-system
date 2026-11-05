@@ -800,6 +800,7 @@ const STR = {
     accessLocalOnly:"⚠️ الجهاز مش متصل بالسحابة، فالرموز ما اتشاركتش مع أجهزة المديرين. اتصل بالنت وسجّلها تاني.",
     accessSecurityNote:"ملاحظة: الرموز بتمنع الدخول من البرنامج نفسه، مش تشفير كامل لقاعدة البيانات (قواعد Firebase لسه مفتوحة للتطبيق). لو نسيت رمز مدير النظام تقدر تمسح مستند «access» من Firebase.",
     accessLastEdit:(n,d)=>`آخر تعديل بواسطة ${n}${d ? " — " + d : ""}`,
+    inspSentToRequests:(n)=>`🔍 اتحوّلت الملاحظة لبلاغ صيانة عامة رقم ${n}`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1211,6 +1212,7 @@ const STR = {
     accessLocalOnly:"⚠️ This device is not connected to the cloud, so the codes were not shared with the managers' devices. Connect to the internet and save them again.",
     accessSecurityNote:"Note: the codes stop people from entering through the program itself; they are not full database encryption (the Firebase rules are still open to the app). If you forget the system manager code, delete the \"access\" document in Firebase.",
     accessLastEdit:(n,d)=>`Last edited by ${n}${d ? " — " + d : ""}`,
+    inspSentToRequests:(n)=>`🔍 The finding was sent to General Repair Requests as ${n}`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -1923,7 +1925,7 @@ const MODULES = [
     {key:"result", label:"نتيجة الفحص بعد الإصلاح", labelEn:"Post-Repair Check Result", type:"select",
       options:["تم الإصلاح بنجاح","تم الإصلاح مؤقتًا","يحتاج متابعة","لم يتم الإصلاح","تم الاستبدال"],
       alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
-    {key:"techReport", label:"تقرير فني / فاتورة", labelEn:"Technical Report / Invoice", type:"photo2",
+    {key:"techReport", label:"الفواتير والتقرير النهائي", labelEn:"Invoices & Final Report", type:"photo2",
       alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"cost", label:"التكلفة (د.إ)", labelEn:"Cost (AED)", type:"number", alwaysInList:true, showIf:{field:"status",value:"مغلق"}},
     {key:"paymentStatus", label:"هل تم الدفع؟", labelEn:"Payment Made?", type:"select", options:["تم الدفع","لم يتم الدفع"],
@@ -5345,6 +5347,7 @@ function renderBranchInspectPage(){
           status: "مفتوح",
           _updatedAt: Date.now(),
         };
+        createRequestFromInspection(rec);          // arrives in General Repair Requests (open, on top)
         arr.push(rec);
         cloudPushRecord("inspections", rec);
       });
@@ -5357,17 +5360,21 @@ function renderBranchInspectPage(){
 function renderInspectItems(){
   const container = document.getElementById("inspectItemsContainer");
   if(!container) return;
-  container.innerHTML = inspectItems.map((it,i)=>`
+  document.querySelectorAll("[data-itemrow]").forEach(row=>{            // keep what is already typed in the other rows
+    const prev = inspectItems.find(x=>x.id===row.dataset.rowid); if(!prev) return;
+    prev.vals = {}; row.querySelectorAll("[data-itemfield]").forEach(el=>{ prev.vals[el.dataset.itemfield] = el.value; });
+  });
+  container.innerHTML = inspectItems.map((it,i)=>{ const v = it.vals || {}; return `
     <div data-itemrow data-rowid="${it.id}" style="background:#fffdf9; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); position:relative;">
       ${inspectItems.length>1 ? `<button type="button" data-rmitem="${it.id}" style="position:absolute; top:10px; inset-inline-end:10px; background:#a33a2c; color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:13px; cursor:pointer;">✕</button>` : ""}
       <div style="font-weight:700; font-size:12.5px; color:#23211f; margin-bottom:10px;">${t('inspectItemLabel')} ${i+1}</div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectItemName')}</label>
-        <input type="text" data-itemfield="item" list="insp_equipment_list" autocomplete="off" placeholder="${t('inspectItemPlaceholder')}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
+        <input type="text" data-itemfield="item" list="insp_equipment_list" autocomplete="off" value="${escapeAttr(v.item||"")}" placeholder="${t('inspectItemPlaceholder')}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectFinding')}</label>
-        <textarea data-itemfield="finding" style="width:100%; min-height:60px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;"></textarea>
+        <textarea data-itemfield="finding" style="width:100%; min-height:60px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;">${escapeHtml(v.finding||"")}</textarea>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectPhotos')}</label>
@@ -5377,26 +5384,23 @@ function renderInspectItems(){
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectSeverity')}</label>
         <select data-itemfield="severity" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
-          <option value="منخفض">${optLabel('منخفض')}</option>
-          <option value="متوسط" selected>${optLabel('متوسط')}</option>
-          <option value="عالٍ">${optLabel('عالٍ')}</option>
-          <option value="حرج">${optLabel('حرج')}</option>
+          ${["منخفض","متوسط","عالٍ","حرج"].map(o=>`<option value="${o}" ${(v.severity||"متوسط")===o?"selected":""}>${optLabel(o)}</option>`).join("")}
         </select>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAction')}</label>
-        <textarea data-itemfield="action" style="width:100%; min-height:50px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;"></textarea>
+        <textarea data-itemfield="action" style="width:100%; min-height:50px; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5; font-family:inherit;">${escapeHtml(v.action||"")}</textarea>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectAssignee')}</label>
-        <input type="text" data-itemfield="assignee" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
+        <input type="text" data-itemfield="assignee" value="${escapeAttr(v.assignee||"")}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
       <div class="field">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">${t('inspectTargetDate')}</label>
-        <input type="date" data-itemfield="targetDate" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
+        <input type="date" data-itemfield="targetDate" value="${escapeAttr(v.targetDate||"")}" style="width:100%; padding:9px; border-radius:8px; border:1.5px solid #e5dfd5;">
       </div>
     </div>
-  `).join("");
+  `; }).join("");
   document.querySelectorAll("[data-rmitem]").forEach(b=>{
     b.onclick = ()=>{ inspectItems = inspectItems.filter(it=>it.id!==b.dataset.rmitem); renderInspectItems(); };
   });
@@ -5790,6 +5794,56 @@ function renderDashboard(){
 }
 
 /* ---------------- MODULE VIEW ---------------- */
+/* ---------------- Branch inspection rounds  →  General Repair Requests ----------------
+   Every finding sent from a branch inspection (the public link or inside the program) arrives as a repair request that
+   stays linked to the finding. When the request is moved forward / closed, the finding follows it. */
+function localDateTimeNow(){ const d = new Date(Date.now() - new Date().getTimezoneOffset()*60000); return d.toISOString().slice(0,16); }
+function nextRepairRequestNo(arr){
+  const m = MODULES.find(x=>x.key==="requests"); const yr = new Date().getFullYear();
+  const used = new Set(arr.filter(r=>!r._deleted).map(r=>r[m.numberField]).filter(Boolean));
+  let n = used.size + 1, cand = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`;
+  while(used.has(cand)){ n++; cand = `${m.numberPrefix}-${yr}-${String(n).padStart(3,"0")}`; }
+  return cand;
+}
+function createRequestFromInspection(insp){
+  if(!insp || insp.requestId) return null;
+  const arr = loadDataRaw("requests");
+  const notes = [ `🔍 ${LANG==='en' ? 'From the branch inspection round on' : 'من جولة تفتيش الفرع بتاريخ'} ${insp.date||""}`,
+                  insp.manager ? `${LANG==='en' ? 'Branch manager' : 'مسؤول الفرع'}: ${insp.manager}${insp.phone ? " — " + insp.phone : ""}` : "",
+                  insp.targetDate ? `${LANG==='en' ? 'Target date' : 'الموعد المستهدف'}: ${insp.targetDate}` : "" ].filter(Boolean).join("\n");
+  const req = {
+    id: uid(), reqNo: nextRepairRequestNo(arr), reportDate: localDateTimeNow(),
+    branch: insp.branch, reporter: insp.manager ? insp.manager : (LANG==='en' ? "Branch inspection round" : "جولة تفتيش الفرع"),
+    equipment: insp.item || "",
+    issue: [insp.finding || insp.item || "", insp.action ? `${LANG==='en' ? 'Required action' : 'الإجراء المطلوب'}: ${insp.action}` : ""].filter(Boolean).join("\n"),
+    severity: insp.severity || "متوسط", status: "مفتوح",
+    contractor: insp.assignee || "",
+    photos: Array.isArray(insp.photos) ? insp.photos.map(p=>({...p})) : [],
+    notes, inspectionId: insp.id, _updatedAt: Date.now(),
+  };
+  arr.push(req); saveData("requests", arr); cloudPushRecord("requests", req);
+  insp.requestId = req.id; insp.requestNo = req.reqNo;
+  fireWebhook("critical_item_created", { module:"requests", branch:req.branch, issue:req.issue, status:req.status, from:"branch_inspection" });
+  return req;
+}
+/* the finding follows its request: open → open, in progress / delayed → in progress, closed → closed */
+function syncInspectionFromRequest(req){
+  if(!req || !req.inspectionId) return;
+  const st = (req.status||"").trim();
+  const target = st === "مغلق" ? "مغلق" : (st === "قيد التنفيذ" || st === "متأخر") ? "قيد التنفيذ" : "مفتوح";
+  const arr = loadDataRaw("inspections"); const i = arr.findIndex(x=>x.id===req.inspectionId);
+  if(i < 0 || arr[i].status === target) return;
+  arr[i].status = target; arr[i]._updatedAt = Date.now();
+  saveData("inspections", arr); cloudPushRecord("inspections", arr[i]);
+}
+/* repair requests: the open ones on top (newest first), the closed ones below */
+function orderRequestsOpenFirst(data){
+  const ts = (r)=> new Date(r.reportDate || 0).getTime() || r._updatedAt || 0;
+  const closedAt = (r)=> new Date(r.closeDate || r.doneDate || r.reportDate || 0).getTime() || r._updatedAt || 0;
+  const open = data.filter(r=> (r.status||"").trim() !== "مغلق").sort((a,b)=> ts(b) - ts(a) || (b._updatedAt||0) - (a._updatedAt||0));
+  const closed = data.filter(r=> (r.status||"").trim() === "مغلق").sort((a,b)=> closedAt(b) - closedAt(a));
+  return [...open, ...closed];
+}
 function getFilteredData(m){
   const ms = state.moduleState[m.key];
   let data = loadData(m.key);
@@ -5818,6 +5872,8 @@ function getFilteredData(m){
       if(f && f.type==="number"){ va = Number(va)||0; vb = Number(vb)||0; return (va-vb)*ms.sortDir; }
       return va.toString().localeCompare(vb.toString(), LANG==="ar"?"ar":"en") * ms.sortDir;
     });
+  } else if(m.key === "requests"){
+    data = orderRequestsOpenFirst(data);
   }
   return data;
 }
@@ -7015,6 +7071,11 @@ function openForm(m, existing, viewMode, prefill){
     }
     saveData(m.key, arr);
     cloudPushRecord(m.key, newRec);
+    if(m.key==="inspections" && !isEdit && (newRec.status||"") !== "مغلق"){
+      const made = createRequestFromInspection(newRec);
+      if(made){ let a2 = loadDataRaw("inspections"); a2 = a2.map(x=> x.id===newRec.id ? newRec : x); saveData("inspections", a2); cloudPushRecord("inspections", newRec); setTimeout(()=> showToast(t('inspSentToRequests', made.reqNo)), 2500); }
+    }
+    if(m.key==="requests") syncInspectionFromRequest(newRec);
     if(m.key==="projects"){ const sent = finalizeProjectAfterSave(newRec); if(sent) setTimeout(()=> showToast(t('projInvoicesSent', sent)), 2500); }   // after the generic 'saved' toast
     if(m.key==="requests"){
       if(!isEdit && (m.alertValues||[]).includes((newRec.status||"").trim())){
