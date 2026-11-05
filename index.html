@@ -677,8 +677,8 @@ const STR = {
     driverWaitUpload:"استنى لحد ما الصور تخلص رفع", driverSubmitSuccess:"✅ تم إرسال الفحص بنجاح! وصل للنظام الرئيسي",
     driverThankYouTitle:"تم إرسال الفحص بنجاح", driverThankYouBody:"شكرًا لك، البيانات وصلت للنظام الرئيسي مباشرة.",
     driverThankYouCloseHint:"تقدر تقفل الصفحة دلوقتي",
-    inspectPageTitle:"تفتيش الفرع اليومي — نهاية الدوام", inspectIntroHint:"راجع كل المعدات والآلات والسيارات في الفرع، وسجّل أي جهاز أو سيارة تحتاج إصلاح أو صيانة. لو كل شيء سليم علّم على الخانة الخضراء.", inspectItemPlaceholder:"اختر من القائمة أو اكتب الاسم", inspectDate:"تاريخ الجولة", inspectBranch:"الفرع",
-    inspectManager:"اسم مسؤول الفرع", inspectPhone:"رقم التواصل", inspectItemsTitle:"البنود اللي محتاجة صيانة",
+    inspectPageTitle:"تفتيش الفرع اليومي — نهاية الدوام",inspectItemPlaceholder:"اختر من القائمة أو اكتب الاسم", inspectDate:"تاريخ الجولة", inspectBranch:"الفرع",
+    inspectManager:"اسم مسؤول الفرع", inspectPhone:"رقم التواصل", inspectItemsTitle:"البنود التي تحتاج إلى صيانة",
     inspectAddItemBtn:"➕ إضافة بند جديد", inspectItemLabel:"بند", inspectItemName:"اسم المعدة / الآلة / السيارة",
     inspectFinding:"الملاحظة", inspectPhotos:"صور (إن وجدت)", inspectSeverity:"درجة الخطورة", inspectAction:"الإجراء المطلوب",
     inspectAssignee:"المسؤول عن التنفيذ (اختياري)", inspectTargetDate:"الموعد المستهدف (اختياري)",
@@ -765,7 +765,7 @@ const STR = {
     expSaveReview:"حفظ", expReviewSaved:"✅ تم الحفظ",
     expSheetSummary:"ملخص حسب الفرع", expSheetLines:"توزيع الفواتير على الفروع", expSheetInvoices:"الفواتير",
     expXlMonth:"الشهر المحاسبي", expXlBranch:"الفرع", expXlNet:"قبل الضريبة", expXlVat:"الضريبة", expXlTotal:"الإجمالي", expXlAttach:"روابط المرفقات", expXlLocal:"(مرفق محفوظ محليًا)",
-    expUpTitle:"رفع فاتورة", expUpIntro:"ارفع صورة الفاتورة واكتب بياناتها واختار الفرع، وهتوصل للمحاسب على طول.",
+    expUpTitle:"رفع فاتورة",
     expUpSubmitter:"اسمك", expUpAttach:"الفاتورة (صورة أو PDF)", expUpVatBtn:"ضريبة 5%", expUpPaymentTitle:"الدفع والملاحظات (اختياري)", expUpSubmit:"إرسال الفاتورة",
     expUpMissing:"من فضلك أكمل الخانات دي:", expUpNeedFile:"ارفع صورة أو ملف الفاتورة الأول.",
     expUpThanksTitle:"تم إرسال الفاتورة", expUpThanksBody:"وصلت للمحاسب. رقم القيد:", expUpAnother:"رفع فاتورة تانية",
@@ -789,59 +789,55 @@ const STR = {
     projColStep:"الخطوة", projColAuthority:"الجهة", projColStatus:"الحالة", projColFee:"المتوقع", projColActual:"الرسوم", projColInv:"فواتير", projColRef:"رقم المعاملة", projColDone:"تاريخ الإنجاز",
     projAddInvoice:"🧾 فاتورة", projUnassigned:"فواتير مربوطة بالمشروع بدون تحديد خطوة", projNoSteps:"لسه مفيش خطوات لهذا المشروع. اضغط «تعديل» واختار نوع المشروع وهتتحمل خطوات الترخيص.",
     projExport:"📥 تصدير تقرير المشروع (Excel)", projColItem:"البند", projColValue:"القيمة", projSheetSummary:"ملخص المشروع", projSheetSteps:"خطوات المشروع", projSheetInvoices:"فواتير المشروع",
-    stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ اكتب «الرسوم» لهذه الخطوة عشان الفاتورة توصل للمحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
+    stepInvoiceFiles:"🧾 الفاتورة", stepDocFiles:"📄 المستند (موافقة / شهادة / إيصال)", stepNeedPaid:"⚠️ أدخل «الرسوم» لإرسال الفاتورة إلى المحاسب.", stepNeedPaidShort:"⚠️ بدون مبلغ",
     projColInvFile:"الفاتورة", projColDocFile:"المستند", projInvoicesSent:(n)=>`🧾 ${n} فاتورة وصلت للمحاسب`,
     stepContractStart:"بداية العقد", stepContractEnd:"نهاية العقد", projContractTerm:(a,b)=>`العقد: من ${a} إلى ${b}`,
-    projStageUpgradeDone:(list)=>`➕ اتضافت لمشاريعك الجارية الخطوات الجديدة (عقد مكافحة الحشرات، عقد الكاميرات، حصر الأملاك، حصر الرخص)، كل واحدة في مكانها بين الموافقات:\n${list}\n\nمفيش حاجة تانية في المشاريع اتغيّرت. ولو خطوة مش محتاجها احذفها من «تعديل».`,
+    projStageUpgradeDone:(list)=>`➕ أُضيفت الخطوات الجديدة (عقد مكافحة الحشرات، عقد الكاميرات، حصر الأملاك، حصر الرخص) إلى المشاريع الجارية في مواضعها:\n${list}`,
     ownerLabel:"المالك", ownerN:(n)=>`المالك ${n}`, ownerName:"اسم المالك", ownerNationality:"الجنسية", ownerShare:"النسبة %", ownerId:"رقم الهوية / الجواز", ownerPhone:"الهاتف",
-    ownerAdd:"➕ إضافة مالك آخر", ownersTitle:"الملاك", projSheetOwners:"الملاك", ownersShareWarn:(s)=>`مجموع نسب الملاك ${s}% وليس 100%. تحفظ برضو؟`,
-    exportUploading:(i,n)=>`⬆️ جاري رفع مرفقات محفوظة على الجهاز عشان تفتح من الإكسل (${i}/${n})...`,
-    exportLocalLeft:(n)=>`⚠️ ${n} مرفق محفوظ على الجهاز بس ومعندوش رابط سحابي، فمش هيفتح من الإكسل (بيظهر مكتوب «محفوظ على الجهاز فقط»).\n\nالسبب غالبًا: النت مقطوع أو خدمة الرفع مش شغالة. افتح البرنامج تاني مع النت وجرّب التصدير.`,
+    ownerAdd:"➕ إضافة مالك آخر", ownersTitle:"الملاك", projSheetOwners:"الملاك", ownersShareWarn:(s)=>`مجموع نسب الملاك ${s}% وليس 100%. هل تريد الحفظ؟`,
+    exportUploading:(i,n)=>`⬆️ جاري رفع المرفقات المحفوظة على الجهاز (${i}/${n})...`,
+    exportLocalLeft:(n)=>`⚠️ ${n} مرفق محفوظ على الجهاز فقط بلا رابط سحابي، ولن يُفتح من ملف Excel (يظهر «محفوظ على الجهاز فقط»).\n\nتحقق من الاتصال بالإنترنت ثم أعد التصدير.`,
     expUpDoc:"المستند (اختياري) — موافقة أو شهادة أو إيصال",
-    accessGateTitle:"دخول المديرين", accessGateHint:"اكتب رمز الدخول الخاص بك", accessGateBtn:"دخول", accessGateChecking:"جاري التحقق...", accessGateWrong:"الرمز غير صحيح", accessTooMany:"محاولات كتير غلط. استنى نصف دقيقة وجرّب تاني.",
-    accessCardTitle:"👥 المديرين ورموز الدخول", accessCardSub:"كل مدير له رمز دخول خاص بيه، وبيقدر يدخل ويعدّل زيك بالظبط من أي جهاز. الرموز بتتحط من عندك هنا بس، وبتتخزن مشفّرة (محدش حتى أنت يقدر يشوفها بعد الحفظ، تقدر بس تغيّرها).",
-    accessNoUsersYet:"لسه ما حطيتش رموز: أي حد يفتح الرابط بيدخل من غير رمز. ابدأ بإضافة نفسك (هتبقى مدير النظام) وبعدها المديرين.",
-    accessColName:"الاسم", accessColRole:"الصلاحية", accessRoleAdmin:"مدير النظام (يدخل ويعدّل + يدير الرموز)", accessRoleManager:"مدير (يدخل ويعدّل كل حاجة)", accessYou:"أنت",
-    accessName:"اسم المدير", accessCode:"رمز الدخول (4 خانات أو أكتر)", accessAdd:"➕ إضافة", accessChangeCode:"تغيير الرمز", accessDelete:"حذف",
-    accessNewCodePrompt:(n)=>`اكتب الرمز الجديد لـ ${n}:`, accessConfirmDelete:(n)=>`تحذف ${n}؟ هيتسجّل خروجه من كل أجهزته.`,
-    accessNeedName:"اكتب اسم المدير", accessCodeShort:"الرمز لازم يكون 4 خانات على الأقل", accessCodeTaken:"الرمز ده مستخدم لمدير تاني، اختار رمز مختلف", accessLastAdmin:"لازم يفضل مدير نظام واحد على الأقل",
-    accessSaved:"✅ تم الحفظ", accessLogout:"خروج", accessRevoked:"تم إلغاء صلاحية دخولك من الإدارة. هتحتاج رمز جديد.",
-    accessLocalOnly:"⚠️ الجهاز مش متصل بالسحابة، فالرموز ما اتشاركتش مع أجهزة المديرين. اتصل بالنت وسجّلها تاني.",
-    accessSecurityNote:"ملاحظة: الرموز بتمنع الدخول من البرنامج نفسه، مش تشفير كامل لقاعدة البيانات (قواعد Firebase لسه مفتوحة للتطبيق). لو نسيت رمز مدير النظام تقدر تمسح مستند «access» من Firebase.",
+    accessGateTitle:"دخول المديرين",accessGateBtn:"دخول", accessGateChecking:"جاري التحقق...", accessGateWrong:"الرمز غير صحيح", accessTooMany:"تم تجاوز عدد المحاولات. حاول بعد نصف دقيقة.",
+    accessCardTitle:"👥 المديرين ورموز الدخول",
+    accessNoUsersYet:"غير مفعّلة",
+    accessColName:"الاسم", accessColRole:"الصلاحية", accessRoleAdmin:"مدير النظام", accessRoleManager:"مدير", accessYou:"أنت",
+    accessName:"اسم المدير", accessCode:"رمز الدخول (4 خانات على الأقل)", accessAdd:"➕ إضافة", accessChangeCode:"تغيير الرمز", accessDelete:"حذف",
+    accessNewCodePrompt:(n)=>`أدخل الرمز الجديد لـ ${n}:`, accessConfirmDelete:(n)=>`حذف ${n}؟ سيتم تسجيل خروجه من جميع أجهزته.`,
+    accessNeedName:"أدخل اسم المدير", accessCodeShort:"يجب ألا يقل الرمز عن 4 خانات", accessCodeTaken:"الرمز مستخدم لمدير آخر", accessLastAdmin:"يجب بقاء مدير نظام واحد على الأقل",
+    accessSaved:"✅ تم الحفظ", accessLogout:"خروج", accessRevoked:"تم إلغاء صلاحية الدخول. يلزم رمز جديد.",
+    accessLocalOnly:"⚠️ الجهاز غير متصل بالسحابة؛ لم تُشارك الرموز مع أجهزة المديرين.",
     accessLastEdit:(n,d)=>`آخر تعديل بواسطة ${n}${d ? " — " + d : ""}`,
-    inspSentToRequests:(n)=>`🔍 اتحوّلت الملاحظة لبلاغ صيانة عامة رقم ${n}`,
+    inspSentToRequests:(n)=>`🔍 تم تحويل الملاحظة إلى بلاغ صيانة رقم ${n}`,
     pmBoardTab:"لوحة الشهر", pmBoardSheet:"لوحة الصيانة الوقائية", pmBoardBranch:"الفرع", pmBoardLate:"متأخر", pmBoardDueBy:"يوم", pmBoardThisMonth:"الشهر الحالي",
-    pmBoardSummary:(d,t_,l)=>`تم ${d} من ${t_}${l ? " · متأخر " + l : ""}`, pmBoardServices:"الخدمات الثابتة", pmBoardDoneAll:"تم للكل",
-    pmBoardDoneAllConfirm:(n,name)=>`تسجّل «${name}» كمنجزة اليوم في ${n} فرع؟`, pmBoardSaved:"✅ تم الحفظ",
-    pmBoardNoServices:"مفيش خدمات ثابتة. اضغط «الخدمات الثابتة» وضيف أول خدمة.", pmBoardNoBranches:"مفيش فروع مسجّلة. ضيف الفروع من صفحة «القوائم الأساسية».",
-    pmBoardLoading:"جاري تحميل البيانات من السحابة...", pmBoardOffline:"⚠️ مفيش اتصال بالسحابة دلوقتي، فاللوحة بتعرض الموجود بس ومش بتجهّز زيارات جديدة.",
-    pmBoardSeeded:"جهّزت لك خدمتين ثابتتين لكل الفروع شهريًا: مكافحة الحشرات وتنظيف مصيدة الدهون. عدّلهم أو ضيف خدمات من «الخدمات الثابتة».",
-    pmDoneDueBy:"المطلوب قبل:", pmDoneDate:"تاريخ التنفيذ", pmDoneTech:"الفني / الشركة", pmDoneCost:"التكلفة (د.إ)", pmDoneNotes:"ملاحظات / الأعمال المنفذة", pmDoneAttach:"تقرير الزيارة / الفاتورة / الصور",
-    pmDoneSave:"تم", pmDoneSaveEdit:"حفظ التعديل", pmDoneUndo:"إلغاء الإنجاز", pmDoneUndoConfirm:"ترجّعها «مجدولة» تاني؟", pmDoneOpenFull:"فتح السجل كامل", pmDoneNeedDate:"اختار تاريخ التنفيذ",
-    pmSvcTitle:"الخدمات الثابتة", pmSvcSub:"الخدمات اللي بتتكرر (مكافحة حشرات، مصيدة دهون...). البرنامج بيجهّز زيارة لكل فرع في كل شهر، وإنت بس بتسجّل «تم».",
-    pmSvcName:"اسم الخدمة", pmSvcFreq:"التكرار", pmSvcDue:"الموعد النهائي", pmSvcDueEnd:"آخر الشهر", pmSvcStart:"تبدأ من شهر", pmSvcContractor:"الشركة / الفني", pmSvcActive:"شغّالة",
-    pmSvcAllBranches:"كل الفروع", pmSvcAdd:"إضافة خدمة", pmSvcDelete:"حذف", pmSvcNeedName:"اكتب اسم كل خدمة", pmSvcDupName:"فيه خدمتين بنفس الاسم", pmSvcSaved:"✅ تم حفظ الخدمات",
-    pmSave:"حفظ", pmPickTitle:"اختار الفروع اللي هتتابعها هنا", pmPickSub:"اختار الفروع اللي شغّالة فعلًا عشان تتابع عليها الخدمات الثابتة. البرنامج مش بيفترض أي فرع، وأماكن المشاريع والرخص الجديدة ما بتظهرش إلا لو اخترتها.",
-    pmPickAll:"تحديد الكل", pmPickNone:"إلغاء الكل", pmPickProjTip:"الاسم ده جاي من مشروع أو رخصة جديدة مش من فرع شغّال", pmPickDup:"اسم مكرر؟", pmPickDupTip:"فيه اسم تاني مكتوب بنفس الشكل تقريبًا، اختار الصح",
-    pmBoardPickFirst:"اختار الفروع اللي هتتابعها الأول", pmBoardPickNone:"مفيش فروع مختارة", pmBoardPickBtn:"اختيار الفروع", pmBoardBranchesBtn:"الفروع",
-    pmPickSavedRemoved:(n)=>`✅ تم الحفظ، وشلت ${n} زيارة فاضية لفروع مش مختارة`, pmVisitN:(a,b)=>`الزيارة ${a} من ${b}`,
+    pmBoardSummary:(d,t_,l)=>`المنجز ${d} من ${t_}${l ? " · متأخر " + l : ""}`, pmBoardServices:"الخدمات الثابتة", pmBoardDoneAll:"إنجاز الكل",
+    pmBoardDoneAllConfirm:(n,name)=>`تسجيل «${name}» كمنجزة اليوم في ${n} فرع؟`, pmBoardSaved:"✅ تم الحفظ",
+    pmBoardNoServices:"لا توجد خدمات ثابتة", pmBoardNoBranches:"لا توجد فروع مسجلة",
+    pmBoardLoading:"جاري تحميل البيانات من السحابة...", pmBoardOffline:"⚠️ لا يوجد اتصال بالسحابة. تُعرض البيانات الحالية فقط ولا تُجهَّز زيارات جديدة.",pmDoneDate:"تاريخ التنفيذ", pmDoneTech:"الفني / الشركة", pmDoneCost:"التكلفة (د.إ)", pmDoneNotes:"ملاحظات / الأعمال المنفذة", pmDoneAttach:"تقرير الزيارة / الفاتورة / الصور",
+    pmDoneSave:"تسجيل الإنجاز", pmDoneSaveEdit:"حفظ التعديلات", pmDoneUndo:"إلغاء الإنجاز", pmDoneUndoConfirm:"إعادة الزيارة إلى حالة «مجدولة»؟", pmDoneOpenFull:"فتح السجل الكامل", pmDoneNeedDate:"حدد تاريخ التنفيذ",
+    pmSvcTitle:"الخدمات الثابتة",
+    pmSvcName:"اسم الخدمة", pmSvcFreq:"التكرار",pmSvcDueEnd:"آخر الشهر", pmSvcStart:"بداية الخدمة", pmSvcContractor:"الشركة / الفني", pmSvcActive:"مفعّلة",
+    pmSvcAllBranches:"كل الفروع", pmSvcAdd:"إضافة خدمة", pmSvcDelete:"حذف", pmSvcNeedName:"أدخل اسم كل خدمة", pmSvcDupName:"يوجد خدمتان بنفس الاسم", pmSvcSaved:"✅ تم حفظ الخدمات",
+    pmSave:"حفظ", pmPickTitle:"الفروع المتابَعة في اللوحة",
+    pmPickAll:"تحديد الكل", pmPickNone:"إلغاء الكل", pmPickProjTip:"الاسم مأخوذ من مشروع وليس من فرع قائم", pmPickDup:"تكرار محتمل", pmPickDupTip:"يوجد اسم مشابه له",
+    pmBoardPickFirst:"اختيار الفروع", pmBoardPickNone:"لم يتم اختيار فروع", pmBoardPickBtn:"اختيار الفروع", pmBoardBranchesBtn:"الفروع",
+    pmPickSavedRemoved:(n)=>`✅ تم الحفظ، وحُذفت ${n} زيارة فارغة لفروع غير مختارة`, pmVisitN:(a,b)=>`الزيارة ${a} من ${b}`,
     pmSvcTimes:"عدد الزيارات في الشهر",
-    pmCleanedNote:(n)=>`🧹 شلت ${n} زيارة فاضية كان البرنامج جهّزها لكل الأسماء في قايمة الفروع (بما فيها أماكن المشاريع). افتح الصيانة الوقائية ← «لوحة الشهر» واختار الفروع اللي عايزها بس. اللي اتسجّل «تم» ما اتمسحش.`,
-    mastersProjTag:"من المشاريع", mastersProjTip:"الاسم ده مكتوب في مشروع بس، وما اتستخدمش في أي فرع أو سجل تاني",
-    mastersProjBox:(n)=>`فيه ${n} مكان في قايمة الفروع جاي من المشاريع (رخص جديدة) ومش مستخدم في أي سجل تاني.`, mastersProjBtn:"شيلهم من قايمة الفروع",
-    mastersProjConfirm:(names)=>`تشيل الأماكن دي من قايمة الفروع؟\n${names}\n\nالمشاريع نفسها وبياناتها ما بتتأثرش.`, mastersProjDone:(n)=>`✅ اتشال ${n} مكان من قايمة الفروع`,
-    pmSvcDays:"يوم الزيارة من الشهر", pmSvcDayHint:"اكتب رقم اليوم بنفسك (من 1 لـ 31). لو سيبته فاضي = آخر الشهر.", pmSvcDaysBad:"اكتب أيام صحيحة من 1 لـ 31، ومرتبة من الأصغر للأكبر لو فيه أكتر من زيارة في الشهر",
-    pmDoneDue:"موعد الزيارة", pmDoneSaveDue:"حفظ الموعد فقط", pmDoneNeedDue:"اختار موعد الزيارة",
-    pmSvcDates:"تواريخ الزيارات", pmSvcDateHint:"اكتب التاريخ بنفسك. نفس اليوم بيتكرر كل شهر (أو كل 3 شهور مثلًا حسب التكرار). لو سيبته فاضي = آخر الشهر.", pmSvcDatesBad:"التواريخ لازم تكون تواريخ صحيحة في نفس الشهر، والتانية بعد الأولى",
-    pmOrd0:"تاريخ الزيارة", pmOrd1:"تاريخ الزيارة الأولى", pmOrd2:"تاريخ الزيارة التانية", pmOrd3:"تاريخ الزيارة التالتة", pmOrd4:"تاريخ الزيارة الرابعة",
-    pmMonthDatesBtn:"مواعيد الشهر", pmMonthDatesTip:"اكتب مواعيد الزيارات للشهر ده بس (لكل الفروع)", pmMonthDatesSub:"التواريخ دي للشهر ده بس وبتتطبّق على كل الفروع. الزيارات اللي سجّلتها أو غيّرت تاريخها بإيدك ما بتتغيرش.",
-    pmMonthDatesReset:"رجوع للمواعيد العادية", pmMonthDatesBad:"كل تاريخ لازم يكون داخل الشهر ده، والتاني بعد الأول",
+    pmCleanedNote:(n)=>`تم حذف ${n} زيارة فارغة كانت مُجهَّزة لكل أسماء قائمة الفروع، ومنها أماكن المشاريع.\n\nاختر الفروع من الصيانة الوقائية ← لوحة الشهر. الزيارات المنجزة لم تتأثر.`,
+    mastersProjTag:"من المشاريع", mastersProjTip:"اسم مستخدم في مشروع فقط",
+    mastersProjBox:(n)=>`أماكن مشاريع داخل قائمة الفروع (${n})`, mastersProjBtn:"إزالتها من قائمة الفروع",
+    mastersProjConfirm:(names)=>`إزالة هذه الأماكن من قائمة الفروع؟\n${names}\n\nلا تتأثر المشاريع أو بياناتها.`, mastersProjDone:(n)=>`✅ تمت إزالة ${n} من قائمة الفروع`,
+    pmDoneDue:"موعد الزيارة", pmDoneSaveDue:"حفظ الموعد فقط", pmDoneNeedDue:"حدد موعد الزيارة",
+    pmSvcDates:"تواريخ الزيارات",pmSvcDatesBad:"يجب أن تكون التواريخ صحيحة ضمن شهر واحد، وكل تاريخ بعد الذي يسبقه",
+    pmOrd0:"تاريخ الزيارة", pmOrd1:"تاريخ الزيارة الأولى", pmOrd2:"تاريخ الزيارة الثانية", pmOrd3:"تاريخ الزيارة الثالثة", pmOrd4:"تاريخ الزيارة الرابعة",
+    pmMonthDatesBtn:"مواعيد الشهر", pmMonthDatesTip:"مواعيد زيارات هذا الشهر لكل الفروع",
+    pmMonthDatesReset:"العودة إلى المواعيد الأساسية", pmMonthDatesBad:"يجب أن يقع كل تاريخ ضمن هذا الشهر وبترتيب تصاعدي",
+    close:"إغلاق", branchMultiNoBranches:"لا توجد فروع مسجلة",
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
-    stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
     stepNoTemplate:"اختار نوع المشروع الأول (له قالب خطوات جاهز).", stepTemplateAllThere:"كل خطوات القالب موجودة عندك بالفعل.",
     expAllocPickBranch:"اختار الفرع أو الفروع الأول وبعدها بيظهر التوزيع", expAllocEqualTitle:"التوزيع التلقائي بالتساوي على الفروع المختارة:",
-    expAllocCustomHint:"اكتب إجمالي المبلغ (شامل الضريبة) اللي يخص كل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
+    expAllocCustomHint:"إجمالي المبلغ (شامل الضريبة) لكل فرع:", expAllocRemaining:(n)=>`المتبقي من إجمالي الفاتورة: ${n}`,
     expAllocMismatch:(sum,total)=>`مجموع المبالغ الموزعة على الفروع (${sum}) لا يساوي إجمالي الفاتورة (${total}). عدّل التوزيع أولًا.`,
     expDuplicateMsg:(no)=>`فيه فاتورة بنفس الرقم ومن نفس الجهة مسجلة قبل كده (${no}). تسجّلها برضو؟`,
     mayarMigrationDone:(added,removed,branch)=>`✅ تم تنزيل معدات ميار\n\n• ${added} معدة في فرع: ${branch}\n• اتنقل: الكود، الاسم، الماركة، الرقم التسلسلي/الموديل، الكمية، القسم، الملاحظات، والاسم والملاحظات بنص الملف الأصلي${removed?`\n• تم نقل ${removed} معدة قديمة (أكوادها MY-...) من استيراد سابق إلى سلة المحذوفات لتفادي التكرار (تقدر ترجّعها خلال 30 يوم)`:""}\n• باقي الفروع والسيارات لم تتأثر`,
@@ -1115,7 +1111,7 @@ const STR = {
     driverWaitUpload:"Wait for photos to finish uploading", driverSubmitSuccess:"✅ Check submitted successfully! Sent to the main system",
     driverThankYouTitle:"Check Submitted Successfully", driverThankYouBody:"Thank you, the data has been sent directly to the main system.",
     driverThankYouCloseHint:"You can close this page now",
-    inspectPageTitle:"Daily Branch Inspection — End of Shift", inspectIntroHint:"Check all equipment, machines and vehicles at the branch and log any item that needs repair or maintenance. If everything is fine, tick the green box.", inspectItemPlaceholder:"Pick from the list or type the name", inspectDate:"Round Date", inspectBranch:"Branch",
+    inspectPageTitle:"Daily Branch Inspection — End of Shift",inspectItemPlaceholder:"Pick from the list or type the name", inspectDate:"Round Date", inspectBranch:"Branch",
     inspectManager:"Branch Manager Name", inspectPhone:"Contact Number", inspectItemsTitle:"Items Needing Maintenance",
     inspectAddItemBtn:"➕ Add Another Item", inspectItemLabel:"Item", inspectItemName:"Equipment / Machine / Vehicle Name",
     inspectFinding:"Finding", inspectPhotos:"Photos (if any)", inspectSeverity:"Severity", inspectAction:"Required Action",
@@ -1203,7 +1199,7 @@ const STR = {
     expSaveReview:"Save", expReviewSaved:"✅ Saved",
     expSheetSummary:"Summary by Branch", expSheetLines:"Invoice Lines by Branch", expSheetInvoices:"Invoices",
     expXlMonth:"P&L Month", expXlBranch:"Branch", expXlNet:"Before VAT", expXlVat:"VAT", expXlTotal:"Total", expXlAttach:"Attachment links", expXlLocal:"(stored locally)",
-    expUpTitle:"Upload an Invoice", expUpIntro:"Attach the invoice, fill in its details and choose the branch — it goes straight to the accountant.",
+    expUpTitle:"Upload an Invoice",
     expUpSubmitter:"Your name", expUpAttach:"Invoice (photo or PDF)", expUpVatBtn:"VAT 5%", expUpPaymentTitle:"Payment & notes (optional)", expUpSubmit:"Submit invoice",
     expUpMissing:"Please complete these fields:", expUpNeedFile:"Please attach the invoice photo or file first.",
     expUpThanksTitle:"Invoice submitted", expUpThanksBody:"It reached the accountant. Entry no.:", expUpAnother:"Upload another invoice",
@@ -1227,59 +1223,55 @@ const STR = {
     projColStep:"Step", projColAuthority:"Authority", projColStatus:"Status", projColFee:"Planned", projColActual:"Fees", projColInv:"Invoices", projColRef:"Transaction no.", projColDone:"Completed on",
     projAddInvoice:"🧾 Invoice", projUnassigned:"Invoices linked to the project without a step", projNoSteps:"This project has no steps yet. Click Edit and choose the project type to load the licence steps.",
     projExport:"📥 Export project report (Excel)", projColItem:"Item", projColValue:"Value", projSheetSummary:"Project Summary", projSheetSteps:"Project Steps", projSheetInvoices:"Project Invoices",
-    stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the Fees amount for this step so the invoice reaches the accountant.", stepNeedPaidShort:"⚠️ No amount",
+    stepInvoiceFiles:"🧾 Invoice", stepDocFiles:"📄 Document (approval / certificate / receipt)", stepNeedPaid:"⚠️ Enter the “Fees” to send the invoice to the accountant.", stepNeedPaidShort:"⚠️ No amount",
     projColInvFile:"Invoice", projColDocFile:"Document", projInvoicesSent:(n)=>`🧾 ${n} invoice(s) sent to the accountant`,
     stepContractStart:"Contract start", stepContractEnd:"Contract end", projContractTerm:(a,b)=>`Contract: ${a} to ${b}`,
-    projStageUpgradeDone:(list)=>`➕ The new steps (pest-control contract, cameras contract, property inventory, licenses inventory) were added to your running projects, each in its place among the approvals:\n${list}\n\nNothing else in the projects was changed. Delete any step you do not need from Edit.`,
+    projStageUpgradeDone:(list)=>`➕ The new steps (pest control contract, cameras contract, property inventory, licenses inventory) were added to the running projects:\n${list}`,
     ownerLabel:"Owner", ownerN:(n)=>`Owner ${n}`, ownerName:"Owner name", ownerNationality:"Nationality", ownerShare:"Share %", ownerId:"ID / Passport no.", ownerPhone:"Phone",
     ownerAdd:"➕ Add another owner", ownersTitle:"Owners", projSheetOwners:"Owners", ownersShareWarn:(s)=>`The owners' shares add up to ${s}%, not 100%. Save anyway?`,
-    exportUploading:(i,n)=>`⬆️ Uploading attachments saved only on this device so they open from Excel (${i}/${n})...`,
-    exportLocalLeft:(n)=>`⚠️ ${n} attachment(s) are saved only on this device and have no cloud link, so they will not open from Excel (they show as "Stored on the device only").\n\nUsually the internet is off or the upload service is not working. Open the program again with internet and re-export.`,
+    exportUploading:(i,n)=>`⬆️ Uploading attachments saved on this device (${i}/${n})...`,
+    exportLocalLeft:(n)=>`⚠️ ${n} attachment(s) are saved on this device only without a cloud link and will not open from Excel (shown as “Stored on the device only”).\n\nCheck the internet connection and export again.`,
     expUpDoc:"Document (optional) — approval, certificate or receipt",
-    accessGateTitle:"Managers sign-in", accessGateHint:"Enter your personal access code", accessGateBtn:"Enter", accessGateChecking:"Checking...", accessGateWrong:"Incorrect code", accessTooMany:"Too many wrong attempts. Wait half a minute and try again.",
-    accessCardTitle:"👥 Managers & access codes", accessCardSub:"Every manager has a personal access code and can sign in and edit exactly like you from any device. Codes are set here by you only and stored encrypted (nobody, not even you, can read them after saving; you can only change them).",
-    accessNoUsersYet:"No codes yet: anyone who opens the link enters without a code. Start by adding yourself (you become the system manager), then the managers.",
-    accessColName:"Name", accessColRole:"Role", accessRoleAdmin:"System manager (enters, edits + manages codes)", accessRoleManager:"Manager (enters and edits everything)", accessYou:"You",
+    accessGateTitle:"Managers sign-in",accessGateBtn:"Enter", accessGateChecking:"Checking...", accessGateWrong:"Incorrect code", accessTooMany:"Too many attempts. Try again in 30 seconds.",
+    accessCardTitle:"👥 Managers & access codes",
+    accessNoUsersYet:"Not enabled",
+    accessColName:"Name", accessColRole:"Role", accessRoleAdmin:"System manager", accessRoleManager:"Manager", accessYou:"You",
     accessName:"Manager name", accessCode:"Access code (4+ characters)", accessAdd:"➕ Add", accessChangeCode:"Change code", accessDelete:"Delete",
     accessNewCodePrompt:(n)=>`Enter the new code for ${n}:`, accessConfirmDelete:(n)=>`Delete ${n}? They will be signed out of all their devices.`,
     accessNeedName:"Enter the manager's name", accessCodeShort:"The code must be at least 4 characters", accessCodeTaken:"This code belongs to another manager, choose a different one", accessLastAdmin:"At least one system manager must remain",
-    accessSaved:"✅ Saved", accessLogout:"Sign out", accessRevoked:"Your access was removed by management. You will need a new code.",
-    accessLocalOnly:"⚠️ This device is not connected to the cloud, so the codes were not shared with the managers' devices. Connect to the internet and save them again.",
-    accessSecurityNote:"Note: the codes stop people from entering through the program itself; they are not full database encryption (the Firebase rules are still open to the app). If you forget the system manager code, delete the \"access\" document in Firebase.",
+    accessSaved:"✅ Saved", accessLogout:"Sign out", accessRevoked:"Access revoked. A new code is required.",
+    accessLocalOnly:"⚠️ Device not connected to the cloud; the codes were not shared with the managers' devices.",
     accessLastEdit:(n,d)=>`Last edited by ${n}${d ? " — " + d : ""}`,
-    inspSentToRequests:(n)=>`🔍 The finding was sent to General Repair Requests as ${n}`,
+    inspSentToRequests:(n)=>`🔍 The finding was converted to maintenance request ${n}`,
     pmBoardTab:"Monthly board", pmBoardSheet:"PM board", pmBoardBranch:"Branch", pmBoardLate:"Late", pmBoardDueBy:"on", pmBoardThisMonth:"This month",
-    pmBoardSummary:(d,t_,l)=>`Done ${d} of ${t_}${l ? " · late " + l : ""}`, pmBoardServices:"Standing services", pmBoardDoneAll:"Done for all",
+    pmBoardSummary:(d,t_,l)=>`Done ${d} of ${t_}${l ? " · late " + l : ""}`, pmBoardServices:"Standing services", pmBoardDoneAll:"Complete all",
     pmBoardDoneAllConfirm:(n,name)=>`Mark "${name}" as done today in ${n} branch(es)?`, pmBoardSaved:"✅ Saved",
-    pmBoardNoServices:"No standing services yet. Press “Standing services” and add the first one.", pmBoardNoBranches:"No branches registered. Add them in the Masters page.",
-    pmBoardLoading:"Loading data from the cloud...", pmBoardOffline:"⚠️ Not connected to the cloud right now, so the board shows what exists and does not prepare new visits.",
-    pmBoardSeeded:"I set up two standing services for all branches, monthly: Pest Control and Grease Trap Cleaning. Edit them or add more from “Standing services”.",
-    pmDoneDueBy:"Due by:", pmDoneDate:"Date done", pmDoneTech:"Technician / company", pmDoneCost:"Cost (AED)", pmDoneNotes:"Notes / work done", pmDoneAttach:"Visit report / invoice / photos",
-    pmDoneSave:"Done", pmDoneSaveEdit:"Save changes", pmDoneUndo:"Undo done", pmDoneUndoConfirm:"Set it back to “Scheduled”?", pmDoneOpenFull:"Open full record", pmDoneNeedDate:"Choose the date done",
-    pmSvcTitle:"Standing services", pmSvcSub:"Services that repeat (pest control, grease trap...). The program prepares one visit per branch every month; you only mark “Done”.",
-    pmSvcName:"Service name", pmSvcFreq:"Frequency", pmSvcDue:"Due", pmSvcDueEnd:"End of month", pmSvcStart:"Starts from", pmSvcContractor:"Company / technician", pmSvcActive:"Active",
+    pmBoardNoServices:"No standing services", pmBoardNoBranches:"No branches registered",
+    pmBoardLoading:"Loading data from the cloud...", pmBoardOffline:"⚠️ Not connected to the cloud. Existing data is shown; no new visits are prepared.",pmDoneDate:"Date done", pmDoneTech:"Technician / company", pmDoneCost:"Cost (AED)", pmDoneNotes:"Notes / work done", pmDoneAttach:"Visit report / invoice / photos",
+    pmDoneSave:"Record completion", pmDoneSaveEdit:"Save changes", pmDoneUndo:"Undo done", pmDoneUndoConfirm:"Return the visit to “Scheduled”?", pmDoneOpenFull:"Open full record", pmDoneNeedDate:"Select the completion date",
+    pmSvcTitle:"Standing services",
+    pmSvcName:"Service name", pmSvcFreq:"Frequency",pmSvcDueEnd:"End of month", pmSvcStart:"Service start", pmSvcContractor:"Company / technician", pmSvcActive:"Active",
     pmSvcAllBranches:"All branches", pmSvcAdd:"Add a service", pmSvcDelete:"Delete", pmSvcNeedName:"Enter a name for every service", pmSvcDupName:"Two services have the same name", pmSvcSaved:"✅ Services saved",
-    pmSave:"Save", pmPickTitle:"Choose the branches to follow here", pmPickSub:"Choose the branches that really operate, to follow the standing services on. The program assumes no branch, and places of new projects / licences never show up unless you choose them.",
-    pmPickAll:"Select all", pmPickNone:"Clear all", pmPickProjTip:"This name comes from a project / new licence, not from an operating branch", pmPickDup:"Duplicate?", pmPickDupTip:"Another name is spelled almost the same, choose the right one",
-    pmBoardPickFirst:"Choose the branches to follow first", pmBoardPickNone:"No branches chosen", pmBoardPickBtn:"Choose branches", pmBoardBranchesBtn:"Branches",
-    pmPickSavedRemoved:(n)=>`✅ Saved, and ${n} blank visit(s) of branches not chosen were removed`, pmVisitN:(a,b)=>`Visit ${a} of ${b}`,
+    pmSave:"Save", pmPickTitle:"Branches followed on the board",
+    pmPickAll:"Select all", pmPickNone:"Clear all", pmPickProjTip:"Name taken from a project, not from an operating branch", pmPickDup:"Possible duplicate", pmPickDupTip:"A similar name exists",
+    pmBoardPickFirst:"Select branches", pmBoardPickNone:"No branches selected", pmBoardPickBtn:"Select branches", pmBoardBranchesBtn:"Branches",
+    pmPickSavedRemoved:(n)=>`✅ Saved. ${n} blank visit(s) of unselected branches were removed`, pmVisitN:(a,b)=>`Visit ${a} of ${b}`,
     pmSvcTimes:"Visits per month",
-    pmCleanedNote:(n)=>`🧹 I removed ${n} blank visit(s) that the program had prepared for every name in the branch list (project places included). Open Preventive Maintenance → “Monthly board” and choose only the branches you want. Anything marked done was kept.`,
-    mastersProjTag:"From projects", mastersProjTip:"This name was typed in a project only and is not used by any branch or other record",
-    mastersProjBox:(n)=>`${n} place(s) in the branch list came from projects (new licences) and are not used in any other record.`, mastersProjBtn:"Remove them from the branch list",
-    mastersProjConfirm:(names)=>`Remove these places from the branch list?\n${names}\n\nThe projects and their data are not affected.`, mastersProjDone:(n)=>`✅ ${n} place(s) removed from the branch list`,
-    pmSvcDays:"Visit day of the month", pmSvcDayHint:"Type the day yourself (1 to 31). Empty = end of the month.", pmSvcDaysBad:"Enter valid days from 1 to 31, rising from smaller to larger when there are several visits in the month",
-    pmDoneDue:"Visit date", pmDoneSaveDue:"Save the date only", pmDoneNeedDue:"Choose the visit date",
-    pmSvcDates:"Visit dates", pmSvcDateHint:"Type the date yourself. The same day repeats every month (or every 3 months etc., per the frequency). Empty = end of the month.", pmSvcDatesBad:"The dates must be valid dates in the same month, the second after the first",
+    pmCleanedNote:(n)=>`${n} blank visit(s) prepared for every name in the branch list (project places included) were removed.\n\nSelect the branches in Preventive Maintenance → Monthly board. Completed visits were not affected.`,
+    mastersProjTag:"From projects", mastersProjTip:"Name used in a project only",
+    mastersProjBox:(n)=>`Project places in the branch list (${n})`, mastersProjBtn:"Remove from the branch list",
+    mastersProjConfirm:(names)=>`Remove these places from the branch list?\n${names}\n\nProjects and their data are not affected.`, mastersProjDone:(n)=>`✅ ${n} removed from the branch list`,
+    pmDoneDue:"Visit date", pmDoneSaveDue:"Save the date only", pmDoneNeedDue:"Select the visit date",
+    pmSvcDates:"Visit dates",pmSvcDatesBad:"Dates must be valid, within one month, each after the previous one",
     pmOrd0:"Visit date", pmOrd1:"First visit date", pmOrd2:"Second visit date", pmOrd3:"Third visit date", pmOrd4:"Fourth visit date",
-    pmMonthDatesBtn:"Month dates", pmMonthDatesTip:"Type the visit dates for this month only (all branches)", pmMonthDatesSub:"These dates are for this month only and apply to all branches. Visits you already did or whose date you changed yourself are not touched.",
-    pmMonthDatesReset:"Back to the usual dates", pmMonthDatesBad:"Every date must be inside this month, the second after the first",
+    pmMonthDatesBtn:"Month dates", pmMonthDatesTip:"This month's visit dates for all branches",
+    pmMonthDatesReset:"Back to the standard dates", pmMonthDatesBad:"Each date must fall within this month, in ascending order",
+    close:"Close", branchMultiNoBranches:"No branches registered",
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
-    stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
     stepNoTemplate:"Pick the project type first (it has a ready steps template).", stepTemplateAllThere:"All the template steps are already in your list.",
     expAllocPickBranch:"Pick the branch(es) first and the split will appear", expAllocEqualTitle:"Automatic equal split between the selected branches:",
-    expAllocCustomHint:"Enter the total (incl. VAT) that belongs to each branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
+    expAllocCustomHint:"Total amount (incl. VAT) per branch:", expAllocRemaining:(n)=>`Remaining of the invoice total: ${n}`,
     expAllocMismatch:(sum,total)=>`The amounts split between the branches (${sum}) do not equal the invoice total (${total}). Please adjust the split.`,
     expDuplicateMsg:(no)=>`An invoice with the same number from the same vendor is already recorded (${no}). Record it anyway?`,
     mayarMigrationDone:(added,removed,branch)=>`✅ Mayar equipment imported\n\n• ${added} items in branch: ${branch}\n• Transferred: code, name, brand, serial/model, quantity, section, remarks, plus the original name and remarks text from the file${removed?`\n• ${removed} old items (codes MY-...) from an earlier import moved to the recycle bin to avoid duplicates (restorable for 30 days)`:""}\n• Other branches and vehicles were not affected`,
@@ -2857,7 +2849,6 @@ function renderAccessGate(doc){
     <div class="lock-screen"><div class="lock-box">
       <div class="lg">GROUP FORKA</div>
       <div class="ls">${t('accessGateTitle')}</div>
-      <div style="font-size:12px; opacity:.85; margin-bottom:10px;">${t('accessGateHint')}</div>
       <input type="password" id="accessInput" maxlength="12" autocomplete="off" placeholder="${t('lockPlaceholder')}" autofocus>
       <div class="err" id="accessErr"></div>
       <button class="btn btn-gold" style="width:100%; justify-content:center;" id="accessBtn">${t('accessGateBtn')}</button>
@@ -2905,9 +2896,7 @@ function accessCardHtml(){
   const users = accessUsers(); const me = getDeviceUser();
   const roleLabel = (r)=> r === "admin" ? t('accessRoleAdmin') : t('accessRoleManager');
   return `<div class="card" style="grid-column:1/-1;">
-    <div class="label" style="margin-bottom:6px;">${t('accessCardTitle')}</div>
-    <div class="sub" style="margin-bottom:12px;">${t('accessCardSub')}</div>
-    ${users.length ? "" : `<div class="banner" style="margin-bottom:12px;">${t('accessNoUsersYet')}</div>`}
+    <div class="label" style="margin-bottom:12px;">${t('accessCardTitle')}${users.length ? "" : ` <span class="badge badge-warning">${t('accessNoUsersYet')}</span>`}</div>
     ${users.length ? `<div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>${t('accessColName')}</th><th>${t('accessColRole')}</th><th></th></tr></thead><tbody>
       ${users.map((u,i)=>`<tr><td><b>${escapeHtml(u.name)}</b>${me && me.id===u.id ? ` <span class="badge badge-info">${t('accessYou')}</span>` : ""}</td><td>${escapeHtml(roleLabel(u.role))}</td>
         <td style="white-space:nowrap;"><button class="btn btn-sm btn-outline" data-acc-code="${i}" type="button">${t('accessChangeCode')}</button> <button class="btn btn-sm btn-danger" data-acc-del="${i}" type="button">${t('accessDelete')}</button></td></tr>`).join("")}
@@ -2919,7 +2908,6 @@ function accessCardHtml(){
       <button class="btn btn-primary" id="accAddBtn" type="button">${t('accessAdd')}</button>
     </div>
     ${(!cloudEnabled) ? `<div style="font-size:12px; color:#a33a2c; margin-top:10px;">${t('accessLocalOnly')}</div>` : ""}
-    <div style="font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.7;">${t('accessSecurityNote')}</div>
   </div>`;
 }
 function bindAccessCard(){
@@ -5124,7 +5112,6 @@ function renderExpenseUploadPage(draft){
         <div style="text-align:center; margin-bottom:18px;">
           <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
           <div style="font-size:14px; font-weight:700; color:#23211f; margin-top:4px;">🧾 ${t('expUpTitle')}</div>
-          <div style="font-size:12px; color:#8d877e; margin-top:8px; line-height:1.7;">${t('expUpIntro')}</div>
         </div>
         <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           ${fld(t('expUpSubmitter'), txt("submittedBy"), true)}
@@ -5300,7 +5287,6 @@ function renderBranchInspectPage(){
         <div style="text-align:center; margin-bottom:20px;">
           <div style="font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px; font-size:20px; color:#23211f;">GROUP FORKA</div>
           <div style="font-size:13px; color:#8d877e; margin-top:2px;">${t('inspectPageTitle')}</div>
-          <div style="font-size:12px; color:#8d877e; margin-top:8px; line-height:1.7;">${t('inspectIntroHint')}</div>
         </div>
         <div style="background:#fffdf9; border-radius:14px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,.06); margin-bottom:16px;">
           <div class="field" style="margin-bottom:14px;">
@@ -7388,7 +7374,7 @@ function openPmBranchesModal(){
   const keyCount = {}; masters.forEach(b=>{ const k = branchKeyOf(b); keyCount[k] = (keyCount[k]||0) + 1; });
   const root = document.getElementById("modalRoot");
   root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:600px;">
-    <h2>🏢 ${t('pmPickTitle')}</h2><div class="modal-sub">${t('pmPickSub')}</div>
+    <h2 style="margin-bottom:14px;">🏢 ${t('pmPickTitle')}</h2>
     ${masters.length ? `<div style="display:flex; gap:8px; margin-bottom:10px;"><button class="btn btn-outline btn-sm" id="pmPickAll" type="button">${t('pmPickAll')}</button><button class="btn btn-outline btn-sm" id="pmPickNone" type="button">${t('pmPickNone')}</button></div>
     <div style="max-height:50vh; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
       ${masters.map(b=>`<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; cursor:pointer;">
@@ -7430,7 +7416,6 @@ function renderPmBoard(){
   if(sel === null || !sel.length){
     body.innerHTML = `<div class="card" style="text-align:center; padding:28px 18px;">
       <div style="font-size:15px; font-weight:600; margin-bottom:8px;">🏢 ${sel === null ? t('pmBoardPickFirst') : t('pmBoardPickNone')}</div>
-      <div style="color:var(--muted); font-size:13px; margin-bottom:14px;">${t('pmPickSub')}</div>
       <button class="btn btn-gold" id="pmBoardPick" type="button">${t('pmBoardPickBtn')}</button></div>`;
     document.getElementById("pmBoardPick").onclick = openPmBranchesModal;
     if(!ms._pickAsked){ ms._pickAsked = true; openPmBranchesModal(); }
@@ -7458,7 +7443,6 @@ function renderPmBoard(){
   };
   const rowsHtml = branches.map(b=> `<tr><th class="pmb-branch">${autoTr(b)}</th>${svcs.map(s=> cellHtml(s, b)).join("")}</tr>`).join("");
   body.innerHTML = `
-    ${seeded ? `<div class="banner" style="margin-bottom:12px;">✨ ${t('pmBoardSeeded')}</div>` : ""}
     <div class="toolbar no-print" style="margin-bottom:12px;">
       <button class="btn btn-outline btn-sm" data-pmmonth="-1">▶</button>
       <div style="font-weight:700; min-width:140px; text-align:center;">${monthLabelOf(mk)}</div>
@@ -7581,7 +7565,7 @@ function openPmServicesModal(){
       <div class="field" style="flex:2; min-width:180px;"><label>${t('pmSvcName')}</label><input type="text" data-sf="name" value="${escapeAttr(s.name)}"></div>
       <div class="field" style="min-width:120px;"><label>${t('pmSvcFreq')}</label><select data-sf="every">${PM_FREQS.map(f=>`<option value="${f[1]}" ${s.every===f[1]?"selected":""}>${escapeHtml(optLabel(f[0]))}</option>`).join("")}</select></div>
       <div class="field" data-timesbox style="min-width:150px; ${s.every===1 ? "" : "display:none;"}"><label>${t('pmSvcTimes')}</label><select data-sf="times">${timesOpts(s.times)}</select></div>
-      <div class="field" style="min-width:210px;"><label>${t('pmSvcDates')}</label><div data-dayinputs style="display:flex; gap:8px; flex-wrap:wrap;">${dayInputs(s)}</div><div style="font-size:11px; color:var(--muted); margin-top:3px;">${t('pmSvcDateHint')}</div></div>
+      <div class="field" style="min-width:210px;"><label>${t('pmSvcDates')}</label><div data-dayinputs style="display:flex; gap:8px; flex-wrap:wrap;">${dayInputs(s)}</div></div>
       <div class="field" style="min-width:140px;"><label>${t('pmSvcStart')}</label><input type="month" data-sf="anchor" value="${escapeAttr(s.anchor||curMonthKey())}"></div>
       <div class="field" style="flex:1; min-width:150px;"><label>${t('pmSvcContractor')}</label><input type="text" data-sf="contractor" list="pmSvcContractors" value="${escapeAttr(s.contractor||"")}"></div>
       <label style="display:flex; gap:6px; align-items:center; font-weight:600;"><input type="checkbox" data-sf="active" ${s.active?"checked":""} style="width:18px; height:18px;"> ${t('pmSvcActive')}</label>
@@ -7595,7 +7579,7 @@ function openPmServicesModal(){
     </div></div>`;
   const draw = ()=>{
     root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:900px;">
-      <h2>⚙️ ${t('pmSvcTitle')}</h2><div class="modal-sub">${t('pmSvcSub')}</div>
+      <h2 style="margin-bottom:14px;">⚙️ ${t('pmSvcTitle')}</h2>
       <datalist id="pmSvcContractors">${contractors.map(x=>`<option value="${escapeAttr(x)}">`).join("")}</datalist>
       <div id="pmSvcList">${list.map(card).join("")}</div>
       <button class="btn btn-outline btn-sm" id="pmSvcAdd" type="button">➕ ${t('pmSvcAdd')}</button>
@@ -7664,7 +7648,7 @@ function openPmMonthDatesModal(svcId, mk){
   const n = pmSvcTimes(svc), dates = pmVisitDueDates(mk, svc), hasOv = !!(svc.overrides && svc.overrides[mk]);
   const first = `${mk}-01`, last = pmDueDate(mk, 0); const root = document.getElementById("modalRoot");
   root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:520px;">
-    <h2>📅 ${autoTr(svc.name)} — ${monthLabelOf(mk)}</h2><div class="modal-sub">${t('pmMonthDatesSub')}</div>
+    <h2 style="margin-bottom:14px;">📅 ${autoTr(svc.name)} — ${monthLabelOf(mk)}</h2>
     <div class="form-grid">${dates.map((d,k)=>`<div class="field"><label>${n > 1 ? t('pmOrd' + (k+1)) : t('pmOrd0')}</label><input type="date" data-mdate="${k}" min="${first}" max="${last}" value="${d}"></div>`).join("")}</div>
     <div id="pmMDMsg" style="color:#a33a2c; font-size:12.5px; min-height:18px;"></div>
     <div class="modal-actions">${hasOv ? `<button class="btn btn-outline" id="pmMDReset" type="button">↩️ ${t('pmMonthDatesReset')}</button>` : ""}<button class="btn btn-outline" id="pmMDCancel" type="button">${t('cancel')}</button><button class="btn btn-gold" id="pmMDSave" type="button">${t('pmSave')}</button></div></div></div>`;
@@ -7923,7 +7907,7 @@ function renderProjectStepsWidget(){
          <button type="button" class="btn btn-outline btn-sm" id="stepAddBtn">${t('stepAdd')}</button>
          <button type="button" class="btn btn-outline btn-sm" id="stepTemplateBtn">${t('stepLoadTemplate')}</button>
        </div>
-       <div style="font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.7;">${t('stepsHint')}</div>`;
+       `;
   w.querySelectorAll("[data-sf]").forEach(el=>{
     const upd = ()=>{
       const i = Number(el.dataset.si), f = el.dataset.sf, s = formSteps[i];
