@@ -468,7 +468,7 @@
   .lock-box .lg{font-family:var(--fk-serif); font-weight:600; letter-spacing:1.5px;}
   .lock-box .ls{color:var(--fk-bronze-soft);}
   .delay-block,.cond-block,.success-block{border-width:1px;}
-  tr.group-start td{border-top:3px solid var(--fk-bronze-soft);}
+  tr.group-start td, .pmb-table tbody tr.group-start th{border-top:3px solid var(--fk-bronze-soft);}
   .pmb-table th{vertical-align:top;} .pmb-table tbody th{vertical-align:middle;} .pmb-table td{padding:6px;} .pmb-table .pmb-branch{text-align:start; background:var(--fk-card); white-space:nowrap;}
   .pmb-sub{font-weight:400; font-size:11px; color:var(--fk-muted); margin-top:2px;}
   .pmb-cell{width:100%; min-width:92px; border:none; border-radius:10px; padding:9px 8px; font-family:inherit; font-weight:600; font-size:13px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;}
@@ -5891,6 +5891,15 @@ function orderRequestsOpenFirst(data){
   const closed = data.filter(r=> (r.status||"").trim() === "مغلق").sort((a,b)=> closedAt(b) - closedAt(a));
   return [...open, ...closed];
 }
+/* preventive maintenance visits: the ones still waiting on top (the earliest date first, so the late ones lead), the completed ones below */
+function pmIsDone(r){ return /^منجز/.test((r.status||"").trim()); }
+function orderPmPendingFirst(data){
+  const due = (r)=> r.nextVisit || r.actualVisit || "9999-12-31";
+  const open = data.filter(r=> !pmIsDone(r)).sort((a,b)=> due(a).localeCompare(due(b)) || String(a.branch||"").localeCompare(String(b.branch||""), "ar"));
+  const done = data.filter(r=> pmIsDone(r)).sort((a,b)=> String(b.actualVisit||b.nextVisit||"").localeCompare(String(a.actualVisit||a.nextVisit||"")));
+  return [...open, ...done];
+}
+function isFinishedRec(m, r){ return m.key === "pm" ? pmIsDone(r) : (r.status||"").trim() === "مغلق"; }
 function getFilteredData(m){
   const ms = state.moduleState[m.key];
   let data = loadData(m.key);
@@ -5921,6 +5930,8 @@ function getFilteredData(m){
     });
   } else if(m.key === "requests"){
     data = orderRequestsOpenFirst(data);
+  } else if(m.key === "pm"){
+    data = orderPmPendingFirst(data);
   }
   return data;
 }
@@ -6183,7 +6194,7 @@ function renderModuleRecordsBody(m){
           const photo2Field = moduleSecondAttachmentField(m);
           const photo2Count = (photo2Field && r[photo2Field.key] && r[photo2Field.key].length) ? r[photo2Field.key].length : 0;
           return `
-          <tr class="clickable-row${(m.key==="requests" && ri>0 && (r.status||"").trim()==="مغلق" && (pageData[ri-1].status||"").trim()!=="مغلق") ? " group-start" : ""}" data-rowid="${r.id}">
+          <tr class="clickable-row${((m.key==="requests" || m.key==="pm") && ri>0 && isFinishedRec(m, r) && !isFinishedRec(m, pageData[ri-1])) ? " group-start" : ""}" data-rowid="${r.id}">
             ${cols.map(c=>{
               const f = m.fields.find(x=>x.key===c);
               let val = r[c]||"";
@@ -7427,11 +7438,16 @@ function renderPmBoard(){
   const branches = pmBoardBranchList();
   const raw = loadDataRaw("pm");
   let total = 0, done = 0, late = 0;
+  let rowPend = 0, rowLate = 0, rowDue = "";                   // what is still waiting in the branch being drawn (used to order the rows)
   const NUM = ["①","②","③","④"];
   const visitHtml = (svc, b, i, due, many)=>{
     const rec = pmFindRecord(raw, svc, b, mk, i + 1); const tag = many ? `<span class="pmb-no">${NUM[i]}</span>` : "";
-    if(!rec) return monthDiff(mk, cur) < 0 ? `<span class="pmb-cell pmb-nax">${tag}⏳</span>` : `<button type="button" class="pmb-cell pmb-pending" data-pmnew="${escapeAttr(svc.id)}|${escapeAttr(b)}|${i+1}">${tag}⏳</button>`;
+    if(!rec){
+      if(monthDiff(mk, cur) >= 0){ rowPend++; if(!rowDue || due < rowDue) rowDue = due; }
+      return monthDiff(mk, cur) < 0 ? `<span class="pmb-cell pmb-nax">${tag}⏳</span>` : `<button type="button" class="pmb-cell pmb-pending" data-pmnew="${escapeAttr(svc.id)}|${escapeAttr(b)}|${i+1}">${tag}⏳</button>`;
+    }
     total++; const st = pmCellState(rec);
+    if(st !== "done"){ rowPend++; if(rec.nextVisit && (!rowDue || rec.nextVisit < rowDue)) rowDue = rec.nextVisit; if(st === "late") rowLate++; }
     if(st === "done"){ done++; return `<button type="button" class="pmb-cell pmb-done" data-pmrec="${rec.id}">${tag}✅ ${pmShortDate(rec.actualVisit)}${rec.status==="منجز متأخر" ? " ⚠️" : ""}</button>`; }
     if(st === "late"){ late++; return `<button type="button" class="pmb-cell pmb-late" data-pmrec="${rec.id}">${tag}⚠️ ${t('pmBoardLate')}<small>${pmShortDate(rec.nextVisit)}</small></button>`; }
     return `<button type="button" class="pmb-cell pmb-pending" data-pmrec="${rec.id}">${tag}⏳ ${t('pmBoardDueBy')}<small>${pmShortDate(rec.nextVisit)}</small></button>`;
@@ -7441,7 +7457,14 @@ function renderPmBoard(){
     const dues = pmVisitDueDates(mk, svc);
     return `<td><div class="pmb-multi">${dues.map((due,i)=> visitHtml(svc, b, i, due, dues.length > 1)).join("")}</div></td>`;
   };
-  const rowsHtml = branches.map(b=> `<tr><th class="pmb-branch">${autoTr(b)}</th>${svcs.map(s=> cellHtml(s, b)).join("")}</tr>`).join("");
+  const boardRows = branches.map((b, bi)=>{ rowPend = 0; rowLate = 0; rowDue = ""; const cells = svcs.map(s=> cellHtml(s, b)).join(""); return { b, bi, cells, pend: rowPend, late: rowLate, due: rowDue }; });
+  boardRows.sort((x, y)=>{                                       // branches with visits still waiting first (late ones, then the earliest date), finished branches last
+    if((x.pend > 0) !== (y.pend > 0)) return x.pend > 0 ? -1 : 1;
+    if(x.pend > 0){ if((x.late > 0) !== (y.late > 0)) return x.late > 0 ? -1 : 1; if(x.due !== y.due) return (x.due || "9999").localeCompare(y.due || "9999"); }
+    return x.bi - y.bi;
+  });
+  const firstFinished = boardRows.findIndex(r=> r.pend === 0);
+  const rowsHtml = boardRows.map((r, i)=> `<tr${(i === firstFinished && i > 0) ? ' class="group-start"' : ""}><th class="pmb-branch">${autoTr(r.b)}</th>${r.cells}</tr>`).join("");
   body.innerHTML = `
     <div class="toolbar no-print" style="margin-bottom:12px;">
       <button class="btn btn-outline btn-sm" data-pmmonth="-1">▶</button>
