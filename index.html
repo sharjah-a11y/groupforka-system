@@ -810,7 +810,7 @@ const STR = {
     accessSecurityNote:"ملاحظة: الرموز بتمنع الدخول من البرنامج نفسه، مش تشفير كامل لقاعدة البيانات (قواعد Firebase لسه مفتوحة للتطبيق). لو نسيت رمز مدير النظام تقدر تمسح مستند «access» من Firebase.",
     accessLastEdit:(n,d)=>`آخر تعديل بواسطة ${n}${d ? " — " + d : ""}`,
     inspSentToRequests:(n)=>`🔍 اتحوّلت الملاحظة لبلاغ صيانة عامة رقم ${n}`,
-    pmBoardTab:"لوحة الشهر", pmBoardSheet:"لوحة الصيانة الوقائية", pmBoardBranch:"الفرع", pmBoardLate:"متأخر", pmBoardDueBy:"قبل", pmBoardThisMonth:"الشهر الحالي",
+    pmBoardTab:"لوحة الشهر", pmBoardSheet:"لوحة الصيانة الوقائية", pmBoardBranch:"الفرع", pmBoardLate:"متأخر", pmBoardDueBy:"يوم", pmBoardThisMonth:"الشهر الحالي",
     pmBoardSummary:(d,t_,l)=>`تم ${d} من ${t_}${l ? " · متأخر " + l : ""}`, pmBoardServices:"الخدمات الثابتة", pmBoardDoneAll:"تم للكل",
     pmBoardDoneAllConfirm:(n,name)=>`تسجّل «${name}» كمنجزة اليوم في ${n} فرع؟`, pmBoardSaved:"✅ تم الحفظ",
     pmBoardNoServices:"مفيش خدمات ثابتة. اضغط «الخدمات الثابتة» وضيف أول خدمة.", pmBoardNoBranches:"مفيش فروع مسجّلة. ضيف الفروع من صفحة «القوائم الأساسية».",
@@ -830,6 +830,8 @@ const STR = {
     mastersProjTag:"من المشاريع", mastersProjTip:"الاسم ده مكتوب في مشروع بس، وما اتستخدمش في أي فرع أو سجل تاني",
     mastersProjBox:(n)=>`فيه ${n} مكان في قايمة الفروع جاي من المشاريع (رخص جديدة) ومش مستخدم في أي سجل تاني.`, mastersProjBtn:"شيلهم من قايمة الفروع",
     mastersProjConfirm:(names)=>`تشيل الأماكن دي من قايمة الفروع؟\n${names}\n\nالمشاريع نفسها وبياناتها ما بتتأثرش.`, mastersProjDone:(n)=>`✅ اتشال ${n} مكان من قايمة الفروع`,
+    pmSvcDays:"يوم الزيارة من الشهر", pmSvcDayHint:"اكتب رقم اليوم بنفسك (من 1 لـ 31). لو سيبته فاضي = آخر الشهر.", pmSvcDaysBad:"اكتب أيام صحيحة من 1 لـ 31، ومرتبة من الأصغر للأكبر لو فيه أكتر من زيارة في الشهر",
+    pmDoneDue:"موعد الزيارة", pmDoneSaveDue:"حفظ الموعد فقط", pmDoneNeedDue:"اختار موعد الزيارة",
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1242,7 +1244,7 @@ const STR = {
     accessSecurityNote:"Note: the codes stop people from entering through the program itself; they are not full database encryption (the Firebase rules are still open to the app). If you forget the system manager code, delete the \"access\" document in Firebase.",
     accessLastEdit:(n,d)=>`Last edited by ${n}${d ? " — " + d : ""}`,
     inspSentToRequests:(n)=>`🔍 The finding was sent to General Repair Requests as ${n}`,
-    pmBoardTab:"Monthly board", pmBoardSheet:"PM board", pmBoardBranch:"Branch", pmBoardLate:"Late", pmBoardDueBy:"by", pmBoardThisMonth:"This month",
+    pmBoardTab:"Monthly board", pmBoardSheet:"PM board", pmBoardBranch:"Branch", pmBoardLate:"Late", pmBoardDueBy:"on", pmBoardThisMonth:"This month",
     pmBoardSummary:(d,t_,l)=>`Done ${d} of ${t_}${l ? " · late " + l : ""}`, pmBoardServices:"Standing services", pmBoardDoneAll:"Done for all",
     pmBoardDoneAllConfirm:(n,name)=>`Mark "${name}" as done today in ${n} branch(es)?`, pmBoardSaved:"✅ Saved",
     pmBoardNoServices:"No standing services yet. Press “Standing services” and add the first one.", pmBoardNoBranches:"No branches registered. Add them in the Masters page.",
@@ -1262,6 +1264,8 @@ const STR = {
     mastersProjTag:"From projects", mastersProjTip:"This name was typed in a project only and is not used by any branch or other record",
     mastersProjBox:(n)=>`${n} place(s) in the branch list came from projects (new licences) and are not used in any other record.`, mastersProjBtn:"Remove them from the branch list",
     mastersProjConfirm:(names)=>`Remove these places from the branch list?\n${names}\n\nThe projects and their data are not affected.`, mastersProjDone:(n)=>`✅ ${n} place(s) removed from the branch list`,
+    pmSvcDays:"Visit day of the month", pmSvcDayHint:"Type the day yourself (1 to 31). Empty = end of the month.", pmSvcDaysBad:"Enter valid days from 1 to 31, rising from smaller to larger when there are several visits in the month",
+    pmDoneDue:"Visit date", pmDoneSaveDue:"Save the date only", pmDoneNeedDue:"Choose the visit date",
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -7213,9 +7217,13 @@ function pmDueDate(mk, dueDay){
 /* the due dates of the visits of a month: one (end of month / chosen day), or evenly spread when the service is visited several times */
 function pmVisitDueDates(mk, svc){
   const n = pmSvcTimes(svc);
-  if(n === 1) return [pmDueDate(mk, svc.dueDay)];
   const p = mk.split("-").map(Number); const last = new Date(p[0], p[1], 0).getDate();
-  return Array.from({length:n}, (_,i)=> `${mk}-${String(Math.floor((i+1)*last/n)).padStart(2,"0")}`);
+  const typed = Array.isArray(svc.days) ? svc.days.map(Number) : [];
+  return Array.from({length:n}, (_,i)=>{
+    let day = typed[i] > 0 ? typed[i] : 0;                                   // the day the owner typed for this visit
+    if(!day) day = (n === 1) ? (svc.dueDay > 0 ? svc.dueDay : last) : Math.floor((i+1) * last / n);   // nothing typed: end of the month / spread evenly
+    return `${mk}-${String(Math.min(day, last)).padStart(2,"0")}`;            // a day that does not exist in a short month becomes its last day
+  });
 }
 function pmRecordId(svc, branch, mk, n){ const base = `pms_${svc.id}_${hash32(branch)}_${mk}`; return (n && n > 1) ? base + "_" + n : base; }
 /* visit number n of this service in this branch in this month: the generated one, or a visit someone already entered by hand */
@@ -7258,6 +7266,7 @@ function ensurePmStandingRecords(mk){
 }
 function pmMarkDone(id, v){
   const arr = loadDataRaw("pm"); const r = arr.find(x=>x.id===id); if(!r) return null;
+  if(v.due){ if(v.due !== r.nextVisit) r.dueCustom = true; r.nextVisit = v.due; }
   r.actualVisit = v.date; r.lastVisit = v.date;
   r.status = (r.nextVisit && v.date > r.nextVisit) ? "منجز متأخر" : "منجز في موعده";
   if(v.tech !== undefined) r.tech = v.tech;
@@ -7294,7 +7303,7 @@ function pmRefreshPlaceholders(svcs){
   raw.forEach(r=>{
     if(!pmIsBlankPlaceholder(r)) return;
     const svc = (svcs||[]).find(s=>s.id===r.standingSvc); if(!svc || !pmSvcApplies(svc, r.branch, r.period)) return;
-    const due = pmVisitDueDates(r.period, svc)[(r.visitNo || 1) - 1]; if(!due) return;
+    const due = r.dueCustom ? r.nextVisit : pmVisitDueDates(r.period, svc)[(r.visitNo || 1) - 1]; if(!due) return;   // a date the owner set on the visit itself is kept
     const freq = pmFreqLabel(svc.every, pmSvcTimes(svc));
     if(r.nextVisit !== due || r.frequency !== freq || r.visitsPerMonth !== pmSvcTimes(svc) || (r.contractor||"") !== (svc.contractor||"")){
       r.nextVisit = due; r.frequency = freq; r.visitsPerMonth = pmSvcTimes(svc); r.contractor = svc.contractor || ""; r._updatedAt = Date.now(); changed.push(r);
@@ -7491,8 +7500,8 @@ function openPmDoneModal(recId){
   const many = (rec.visitsPerMonth || 1) > 1;
   root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:560px;">
     <h2>${isDone ? "✅" : "🔧"} ${autoTr(rec.serviceType || rec.equipment)} — ${autoTr(rec.branch)}${many ? ` <span style="font-size:14px; color:var(--muted);">(${t('pmVisitN', rec.visitNo || 1, rec.visitsPerMonth)})</span>` : ""}</h2>
-    <div class="modal-sub">${t('pmDoneDueBy')} ${escapeHtml(rec.nextVisit || "—")}</div>
     <div class="form-grid">
+      <div class="field"><label>${t('pmDoneDue')}</label><input type="date" id="pmDoneDue" value="${escapeAttr(rec.nextVisit || "")}"></div>
       <div class="field"><label>${t('pmDoneDate')}</label><input type="date" id="pmDoneDate" value="${escapeAttr(rec.actualVisit || todayStr())}"></div>
       <div class="field"><label>${t('pmDoneTech')}</label><input type="text" id="pmDoneTech" value="${escapeAttr(rec.tech||"")}" list="pmDoneTechList"><datalist id="pmDoneTechList">${(loadMasters().contractors||[]).map(x=>`<option value="${escapeAttr(x)}">`).join("")}</datalist></div>
       <div class="field"><label>${t('pmDoneCost')}</label><input type="number" step="0.01" min="0" id="pmDoneCost" value="${escapeAttr(rec.cost||"")}"></div>
@@ -7501,7 +7510,7 @@ function openPmDoneModal(recId){
     </div>
     <div id="pmDoneMsg" style="color:#a33a2c; font-size:12.5px; min-height:18px;"></div>
     <div class="modal-actions">
-      ${isDone ? `<button class="btn btn-outline" id="pmDoneUndo" type="button">↩️ ${t('pmDoneUndo')}</button>` : ""}
+      ${isDone ? `<button class="btn btn-outline" id="pmDoneUndo" type="button">↩️ ${t('pmDoneUndo')}</button>` : `<button class="btn btn-outline" id="pmDoneSaveDue" type="button">📅 ${t('pmDoneSaveDue')}</button>`}
       <button class="btn btn-outline" id="pmDoneFull" type="button">${t('pmDoneOpenFull')}</button>
       <button class="btn btn-outline" id="pmDoneCancel" type="button">${t('cancel')}</button>
       <button class="btn btn-gold" id="pmDoneSave" type="button">${isDone ? t('pmDoneSaveEdit') : "✅ " + t('pmDoneSave')}</button>
@@ -7526,11 +7535,17 @@ function openPmDoneModal(recId){
   document.getElementById("pmDoneFull").onclick = ()=>{ closeModal(); openForm(MODULES.find(x=>x.key==="pm"), loadDataRaw("pm").find(x=>x.id===recId)); };
   const after = ()=>{ closeModal(); renderModule("pm"); renderNav(); showToast(t('pmBoardSaved')); };
   if(isDone) document.getElementById("pmDoneUndo").onclick = ()=>{ if(confirm(t('pmDoneUndoConfirm'))){ pmUndoDone(recId); after(); } };
+  if(!isDone) document.getElementById("pmDoneSaveDue").onclick = ()=>{
+    const due = document.getElementById("pmDoneDue").value; if(!due){ document.getElementById("pmDoneMsg").textContent = t('pmDoneNeedDue'); return; }
+    const arr = loadDataRaw("pm"); const r = arr.find(x=>x.id===recId); if(!r) return;
+    if(due !== r.nextVisit){ r.nextVisit = due; r.dueCustom = true; r._updatedAt = Date.now(); saveData("pm", arr); cloudPushRecord("pm", r); }
+    after();
+  };
   document.getElementById("pmDoneSave").onclick = ()=>{
     if(pmDonePhotos.some(p=>p.uploading)){ document.getElementById("pmDoneMsg").textContent = t('driverWaitUpload'); return; }
     const date = document.getElementById("pmDoneDate").value; if(!date){ document.getElementById("pmDoneMsg").textContent = t('pmDoneNeedDate'); return; }
     const keep = (p)=> p.storageUrl ? (({dataUrl, ...rest})=>({...rest, dataUrl:null}))(p) : p;
-    pmMarkDone(recId, { date, tech: document.getElementById("pmDoneTech").value.trim(), cost: document.getElementById("pmDoneCost").value, notes: document.getElementById("pmDoneNotes").value.trim(), photos: pmDonePhotos.map(keep) });
+    pmMarkDone(recId, { date, due: document.getElementById("pmDoneDue").value, tech: document.getElementById("pmDoneTech").value.trim(), cost: document.getElementById("pmDoneCost").value, notes: document.getElementById("pmDoneNotes").value.trim(), photos: pmDonePhotos.map(keep) });
     after();
   };
 }
@@ -7538,14 +7553,16 @@ function openPmServicesModal(){
   const list = (getPmServices() || defaultPmServices()).map(s=>({ times:1, ...s, branches:[...(s.branches||[])] }));
   const branches = pmBoardBranchList(); const contractors = loadMasters().contractors || [];
   const root = document.getElementById("modalRoot");
-  const dueOpts = (v)=> [0,5,10,15,20,25].map(d=>`<option value="${d}" ${Number(v)===d?"selected":""}>${d===0 ? t('pmSvcDueEnd') : (LANG==='ar' ? "يوم " + d : "Day " + d)}</option>`).join("");
+  const dayInputs = (s)=>{ const n = pmSvcTimes(s); const NUM = ["①","②","③","④"];
+    return Array.from({length:n}, (_,k)=>{ const v = (Array.isArray(s.days) && s.days[k] > 0) ? s.days[k] : (n === 1 && s.dueDay > 0 ? s.dueDay : "");
+      return `<input type="number" min="1" max="31" step="1" inputmode="numeric" data-sday="${k}" value="${v}" placeholder="${n > 1 ? NUM[k] + " " : ""}${t('pmSvcDueEnd')}" title="${n > 1 ? NUM[k] + " " : ""}${t('pmSvcDays')}" style="width:104px;">`; }).join(""); };
   const timesOpts = (v)=> [1,2,3,4].map(n=>`<option value="${n}" ${Number(v)===n?"selected":""}>${escapeHtml(optLabel(PM_TIMES_LABEL[n]))}</option>`).join("");
   const card = (s, i)=> `<div class="card" data-svc="${i}" style="margin-bottom:10px; padding:12px 14px;">
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end;">
       <div class="field" style="flex:2; min-width:180px;"><label>${t('pmSvcName')}</label><input type="text" data-sf="name" value="${escapeAttr(s.name)}"></div>
       <div class="field" style="min-width:120px;"><label>${t('pmSvcFreq')}</label><select data-sf="every">${PM_FREQS.map(f=>`<option value="${f[1]}" ${s.every===f[1]?"selected":""}>${escapeHtml(optLabel(f[0]))}</option>`).join("")}</select></div>
       <div class="field" data-timesbox style="min-width:150px; ${s.every===1 ? "" : "display:none;"}"><label>${t('pmSvcTimes')}</label><select data-sf="times">${timesOpts(s.times)}</select></div>
-      <div class="field" style="min-width:120px;"><label>${t('pmSvcDue')}</label><select data-sf="dueDay">${dueOpts(s.dueDay)}</select></div>
+      <div class="field" style="min-width:150px;"><label>${t('pmSvcDays')}</label><div data-dayinputs style="display:flex; gap:6px; flex-wrap:wrap;">${dayInputs(s)}</div><div style="font-size:11px; color:var(--muted); margin-top:3px;">${t('pmSvcDayHint')}</div></div>
       <div class="field" style="min-width:140px;"><label>${t('pmSvcStart')}</label><input type="month" data-sf="anchor" value="${escapeAttr(s.anchor||curMonthKey())}"></div>
       <div class="field" style="flex:1; min-width:150px;"><label>${t('pmSvcContractor')}</label><input type="text" data-sf="contractor" list="pmSvcContractors" value="${escapeAttr(s.contractor||"")}"></div>
       <label style="display:flex; gap:6px; align-items:center; font-weight:600;"><input type="checkbox" data-sf="active" ${s.active?"checked":""} style="width:18px; height:18px;"> ${t('pmSvcActive')}</label>
@@ -7573,12 +7590,18 @@ function openPmServicesModal(){
         const upd = ()=>{
           if(f === "allBranches"){ cardEl.querySelector("[data-svcbr]").style.display = el.checked ? "none" : ""; if(el.checked) list[i].branches = []; return; }
           if(f === "active") list[i].active = el.checked;
-          else if(f === "every" || f === "dueDay" || f === "times") list[i][f] = Number(el.value);
+          else if(f === "every" || f === "times") list[i][f] = Number(el.value);
           else list[i][f] = el.value;
           if(f === "every"){ cardEl.querySelector("[data-timesbox]").style.display = list[i].every === 1 ? "" : "none"; if(list[i].every !== 1) list[i].times = 1; }
+          if(f === "every" || f === "times") renderDays();
         };
         el.addEventListener("input", upd); el.addEventListener("change", upd);
       });
+      const wireDays = ()=> cardEl.querySelectorAll("[data-sday]").forEach(inp=> inp.addEventListener("input", ()=>{
+        if(!Array.isArray(list[i].days)) list[i].days = []; list[i].days[Number(inp.dataset.sday)] = inp.value === "" ? 0 : Number(inp.value);
+      }));
+      const renderDays = ()=>{ cardEl.querySelector("[data-dayinputs]").innerHTML = dayInputs(list[i]); wireDays(); };
+      wireDays();
       cardEl.querySelectorAll("[data-svcbranch]").forEach(el=> el.addEventListener("change", ()=>{
         const set = new Set(list[i].branches || []); if(el.checked) set.add(el.dataset.svcbranch); else set.delete(el.dataset.svcbranch); list[i].branches = [...set];
       }));
@@ -7591,6 +7614,12 @@ function openPmServicesModal(){
       if(list.some(s=> !s.name.trim())){ msg.textContent = t('pmSvcNeedName'); return; }
       if(new Set(names).size !== names.length){ msg.textContent = t('pmSvcDupName'); return; }
       list.forEach(s=>{ s.name = s.name.trim(); s.contractor = (s.contractor||"").trim(); if(s.every !== 1) s.times = 1; });
+      for(const s of list){                                                              // the typed days: whole days 1-31, rising when there are several visits
+        const n = pmSvcTimes(s); const ds = Array.from({length:n}, (_,k)=> Number((s.days||[])[k]) || (n === 1 && k === 0 && !Array.isArray(s.days) ? Number(s.dueDay)||0 : 0));
+        const typed = ds.filter(x=>x > 0);
+        if(typed.some(x=> !Number.isInteger(x) || x < 1 || x > 31) || typed.some((x,k)=> k > 0 && x <= typed[k-1])){ msg.textContent = t('pmSvcDaysBad'); return; }
+        s.days = ds; s.dueDay = n === 1 ? (ds[0] || 0) : 0;
+      }
       savePmServices(list);
       pmCleanupPlaceholders(list);
       pmRefreshPlaceholders(list);
