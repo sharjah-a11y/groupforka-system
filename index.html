@@ -832,6 +832,10 @@ const STR = {
     mastersProjConfirm:(names)=>`تشيل الأماكن دي من قايمة الفروع؟\n${names}\n\nالمشاريع نفسها وبياناتها ما بتتأثرش.`, mastersProjDone:(n)=>`✅ اتشال ${n} مكان من قايمة الفروع`,
     pmSvcDays:"يوم الزيارة من الشهر", pmSvcDayHint:"اكتب رقم اليوم بنفسك (من 1 لـ 31). لو سيبته فاضي = آخر الشهر.", pmSvcDaysBad:"اكتب أيام صحيحة من 1 لـ 31، ومرتبة من الأصغر للأكبر لو فيه أكتر من زيارة في الشهر",
     pmDoneDue:"موعد الزيارة", pmDoneSaveDue:"حفظ الموعد فقط", pmDoneNeedDue:"اختار موعد الزيارة",
+    pmSvcDates:"تواريخ الزيارات", pmSvcDateHint:"اكتب التاريخ بنفسك. نفس اليوم بيتكرر كل شهر (أو كل 3 شهور مثلًا حسب التكرار). لو سيبته فاضي = آخر الشهر.", pmSvcDatesBad:"التواريخ لازم تكون تواريخ صحيحة في نفس الشهر، والتانية بعد الأولى",
+    pmOrd0:"تاريخ الزيارة", pmOrd1:"تاريخ الزيارة الأولى", pmOrd2:"تاريخ الزيارة التانية", pmOrd3:"تاريخ الزيارة التالتة", pmOrd4:"تاريخ الزيارة الرابعة",
+    pmMonthDatesBtn:"مواعيد الشهر", pmMonthDatesTip:"اكتب مواعيد الزيارات للشهر ده بس (لكل الفروع)", pmMonthDatesSub:"التواريخ دي للشهر ده بس وبتتطبّق على كل الفروع. الزيارات اللي سجّلتها أو غيّرت تاريخها بإيدك ما بتتغيرش.",
+    pmMonthDatesReset:"رجوع للمواعيد العادية", pmMonthDatesBad:"كل تاريخ لازم يكون داخل الشهر ده، والتاني بعد الأول",
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepsHint:"الخطوات دي قالب مقترح وتقدر تعدّل فيه: غيّر الأسماء، احذف أو أضف خطوات، ورتّبها بالأسهم. اكتب «الرسوم» لكل خطوة؛ ولما ترفع فاتورة تحت الخطوة مع الرسوم، بتوصل للمحاسب تلقائيًا كفاتورة على فرع المشروع، ومجموع الرسوم بيظهر في المشروع.",
@@ -1266,6 +1270,10 @@ const STR = {
     mastersProjConfirm:(names)=>`Remove these places from the branch list?\n${names}\n\nThe projects and their data are not affected.`, mastersProjDone:(n)=>`✅ ${n} place(s) removed from the branch list`,
     pmSvcDays:"Visit day of the month", pmSvcDayHint:"Type the day yourself (1 to 31). Empty = end of the month.", pmSvcDaysBad:"Enter valid days from 1 to 31, rising from smaller to larger when there are several visits in the month",
     pmDoneDue:"Visit date", pmDoneSaveDue:"Save the date only", pmDoneNeedDue:"Choose the visit date",
+    pmSvcDates:"Visit dates", pmSvcDateHint:"Type the date yourself. The same day repeats every month (or every 3 months etc., per the frequency). Empty = end of the month.", pmSvcDatesBad:"The dates must be valid dates in the same month, the second after the first",
+    pmOrd0:"Visit date", pmOrd1:"First visit date", pmOrd2:"Second visit date", pmOrd3:"Third visit date", pmOrd4:"Fourth visit date",
+    pmMonthDatesBtn:"Month dates", pmMonthDatesTip:"Type the visit dates for this month only (all branches)", pmMonthDatesSub:"These dates are for this month only and apply to all branches. Visits you already did or whose date you changed yourself are not touched.",
+    pmMonthDatesReset:"Back to the usual dates", pmMonthDatesBad:"Every date must be inside this month, the second after the first",
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepsHint:"These steps are a suggested template you can edit: rename, delete or add steps and reorder them with the arrows. Enter the Fees for each step; when you upload an invoice under a step together with its fees, it reaches the accountant automatically as an invoice on the project\'s branch, and the total fees show in the project.",
@@ -7219,10 +7227,21 @@ function pmVisitDueDates(mk, svc){
   const n = pmSvcTimes(svc);
   const p = mk.split("-").map(Number); const last = new Date(p[0], p[1], 0).getDate();
   const typed = Array.isArray(svc.days) ? svc.days.map(Number) : [];
+  const ov = (svc.overrides && svc.overrides[mk]) || null;                 // dates typed for THIS month only
   return Array.from({length:n}, (_,i)=>{
+    if(ov && /^\d{4}-\d{2}-\d{2}$/.test(ov[i] || "") && ov[i].slice(0,7) === mk) return ov[i];
     let day = typed[i] > 0 ? typed[i] : 0;                                   // the day the owner typed for this visit
     if(!day) day = (n === 1) ? (svc.dueDay > 0 ? svc.dueDay : last) : Math.floor((i+1) * last / n);   // nothing typed: end of the month / spread evenly
     return `${mk}-${String(Math.min(day, last)).padStart(2,"0")}`;            // a day that does not exist in a short month becomes its last day
+  });
+}
+/* the dates shown in the service window: the ones typed, or built from the day + start month of older settings */
+function pmSvcDatesFor(s){
+  const n = pmSvcTimes(s); const base = s.anchor || curMonthKey(); const p = base.split("-").map(Number); const last = new Date(p[0], p[1], 0).getDate();
+  return Array.from({length:n}, (_,k)=>{
+    if(Array.isArray(s.dates) && /^\d{4}-\d{2}-\d{2}$/.test(s.dates[k] || "")) return s.dates[k];
+    const day = (Array.isArray(s.days) && s.days[k] > 0) ? s.days[k] : ((n === 1 && s.dueDay > 0) ? s.dueDay : 0);
+    return day ? `${base}-${String(Math.min(day, last)).padStart(2,"0")}` : "";
   });
 }
 function pmRecordId(svc, branch, mk, n){ const base = `pms_${svc.id}_${hash32(branch)}_${mk}`; return (n && n > 1) ? base + "_" + n : base; }
@@ -7453,7 +7472,7 @@ function renderPmBoard(){
     </div>
     ${!svcs.length ? `<div class="card" style="text-align:center; color:var(--muted);">${t('pmBoardNoServices')}</div>` : `
     <div class="table-wrap"><table class="pmb-table"><thead><tr><th>${t('pmBoardBranch')}</th>
-      ${svcs.map(s=> `<th>${autoTr(s.name)}<div class="pmb-sub">${escapeHtml(optLabel(pmFreqLabel(s.every, pmSvcTimes(s))))}${s.contractor ? " · " + escapeHtml(s.contractor) : ""}</div>${monthDiff(mk,cur) >= 0 ? `<button type="button" class="btn btn-sm btn-outline no-print" data-pmbulk="${escapeAttr(s.id)}" style="margin-top:6px;">✅ ${t('pmBoardDoneAll')}</button>` : ""}</th>`).join("")}
+      ${svcs.map(s=> `<th>${autoTr(s.name)}<div class="pmb-sub">${escapeHtml(optLabel(pmFreqLabel(s.every, pmSvcTimes(s))))}${s.contractor ? " · " + escapeHtml(s.contractor) : ""}</div><div class="no-print" style="display:flex; gap:6px; justify-content:center; margin-top:6px;">${monthDiff(mk,cur) >= 0 ? `<button type="button" class="btn btn-sm btn-outline" data-pmbulk="${escapeAttr(s.id)}">✅ ${t('pmBoardDoneAll')}</button>` : ""}${monthDiff(cur,mk) >= 0 ? `<button type="button" class="btn btn-sm btn-outline" data-pmmdates="${escapeAttr(s.id)}" title="${t('pmMonthDatesTip')}">📅 ${t('pmMonthDatesBtn')}</button>` : ""}</div></th>`).join("")}
     </tr></thead><tbody>${rowsHtml}</tbody></table></div>`}
     ${canCreate ? "" : `<div style="font-size:12px; color:#a33a2c; margin-top:8px;">${t('pmBoardOffline')}</div>`}`;
   autoTranslateDOM(body);
@@ -7477,6 +7496,7 @@ function renderPmBoard(){
     pend.forEach(r=> pmMarkDone(r.id, { date: todayStr() }));
     renderPmBoard(); renderNav(); showToast(t('pmBoardSaved'));
   });
+  body.querySelectorAll("[data-pmmdates]").forEach(b=> b.onclick = ()=> openPmMonthDatesModal(b.dataset.pmmdates, mk));
   document.getElementById("pmBoardServices").onclick = openPmServicesModal;
   document.getElementById("pmBoardBranches").onclick = openPmBranchesModal;
   document.getElementById("pmBoardExport").onclick = exportPmBoardExcel;
@@ -7550,19 +7570,18 @@ function openPmDoneModal(recId){
   };
 }
 function openPmServicesModal(){
-  const list = (getPmServices() || defaultPmServices()).map(s=>({ times:1, ...s, branches:[...(s.branches||[])] }));
+  const list = (getPmServices() || defaultPmServices()).map(s=>({ times:1, ...s, branches:[...(s.branches||[])], dates: pmSvcDatesFor({ times:1, ...s }) }));
   const branches = pmBoardBranchList(); const contractors = loadMasters().contractors || [];
   const root = document.getElementById("modalRoot");
-  const dayInputs = (s)=>{ const n = pmSvcTimes(s); const NUM = ["①","②","③","④"];
-    return Array.from({length:n}, (_,k)=>{ const v = (Array.isArray(s.days) && s.days[k] > 0) ? s.days[k] : (n === 1 && s.dueDay > 0 ? s.dueDay : "");
-      return `<input type="number" min="1" max="31" step="1" inputmode="numeric" data-sday="${k}" value="${v}" placeholder="${n > 1 ? NUM[k] + " " : ""}${t('pmSvcDueEnd')}" title="${n > 1 ? NUM[k] + " " : ""}${t('pmSvcDays')}" style="width:104px;">`; }).join(""); };
+  const dayInputs = (s)=>{ const n = pmSvcTimes(s);
+    return pmSvcDatesFor(s).map((v,k)=> `<label style="display:flex; flex-direction:column; gap:2px; font-size:11px; color:var(--muted); font-weight:600;">${n > 1 ? t('pmOrd' + (k+1)) : t('pmOrd0')}<input type="date" data-sdate="${k}" value="${escapeAttr(v)}" style="width:150px;"></label>`).join(""); };
   const timesOpts = (v)=> [1,2,3,4].map(n=>`<option value="${n}" ${Number(v)===n?"selected":""}>${escapeHtml(optLabel(PM_TIMES_LABEL[n]))}</option>`).join("");
   const card = (s, i)=> `<div class="card" data-svc="${i}" style="margin-bottom:10px; padding:12px 14px;">
     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end;">
       <div class="field" style="flex:2; min-width:180px;"><label>${t('pmSvcName')}</label><input type="text" data-sf="name" value="${escapeAttr(s.name)}"></div>
       <div class="field" style="min-width:120px;"><label>${t('pmSvcFreq')}</label><select data-sf="every">${PM_FREQS.map(f=>`<option value="${f[1]}" ${s.every===f[1]?"selected":""}>${escapeHtml(optLabel(f[0]))}</option>`).join("")}</select></div>
       <div class="field" data-timesbox style="min-width:150px; ${s.every===1 ? "" : "display:none;"}"><label>${t('pmSvcTimes')}</label><select data-sf="times">${timesOpts(s.times)}</select></div>
-      <div class="field" style="min-width:150px;"><label>${t('pmSvcDays')}</label><div data-dayinputs style="display:flex; gap:6px; flex-wrap:wrap;">${dayInputs(s)}</div><div style="font-size:11px; color:var(--muted); margin-top:3px;">${t('pmSvcDayHint')}</div></div>
+      <div class="field" style="min-width:210px;"><label>${t('pmSvcDates')}</label><div data-dayinputs style="display:flex; gap:8px; flex-wrap:wrap;">${dayInputs(s)}</div><div style="font-size:11px; color:var(--muted); margin-top:3px;">${t('pmSvcDateHint')}</div></div>
       <div class="field" style="min-width:140px;"><label>${t('pmSvcStart')}</label><input type="month" data-sf="anchor" value="${escapeAttr(s.anchor||curMonthKey())}"></div>
       <div class="field" style="flex:1; min-width:150px;"><label>${t('pmSvcContractor')}</label><input type="text" data-sf="contractor" list="pmSvcContractors" value="${escapeAttr(s.contractor||"")}"></div>
       <label style="display:flex; gap:6px; align-items:center; font-weight:600;"><input type="checkbox" data-sf="active" ${s.active?"checked":""} style="width:18px; height:18px;"> ${t('pmSvcActive')}</label>
@@ -7592,14 +7611,23 @@ function openPmServicesModal(){
           if(f === "active") list[i].active = el.checked;
           else if(f === "every" || f === "times") list[i][f] = Number(el.value);
           else list[i][f] = el.value;
+          if(f === "anchor" && /^\d{4}-\d{2}$/.test(el.value)){                                 // moving the start month moves the typed dates with it (same day)
+            const p = el.value.split("-").map(Number), last = new Date(p[0], p[1], 0).getDate();
+            list[i].dates = (list[i].dates || []).map(d=> d ? `${el.value}-${String(Math.min(Number(d.slice(8,10)), last)).padStart(2,"0")}` : ""); renderDays();
+          }
           if(f === "every"){ cardEl.querySelector("[data-timesbox]").style.display = list[i].every === 1 ? "" : "none"; if(list[i].every !== 1) list[i].times = 1; }
           if(f === "every" || f === "times") renderDays();
         };
         el.addEventListener("input", upd); el.addEventListener("change", upd);
       });
-      const wireDays = ()=> cardEl.querySelectorAll("[data-sday]").forEach(inp=> inp.addEventListener("input", ()=>{
-        if(!Array.isArray(list[i].days)) list[i].days = []; list[i].days[Number(inp.dataset.sday)] = inp.value === "" ? 0 : Number(inp.value);
-      }));
+      const wireDays = ()=> cardEl.querySelectorAll("[data-sdate]").forEach(inp=>{
+        const upd = ()=>{
+          if(!Array.isArray(list[i].dates)) list[i].dates = []; list[i].dates[Number(inp.dataset.sdate)] = inp.value;
+          const first = list[i].dates.find(Boolean);
+          if(first){ list[i].anchor = first.slice(0,7); const mi = cardEl.querySelector('[data-sf="anchor"]'); if(mi) mi.value = list[i].anchor; }   // the first date decides the start month
+        };
+        inp.addEventListener("input", upd); inp.addEventListener("change", upd);
+      });
       const renderDays = ()=>{ cardEl.querySelector("[data-dayinputs]").innerHTML = dayInputs(list[i]); wireDays(); };
       wireDays();
       cardEl.querySelectorAll("[data-svcbranch]").forEach(el=> el.addEventListener("change", ()=>{
@@ -7614,11 +7642,13 @@ function openPmServicesModal(){
       if(list.some(s=> !s.name.trim())){ msg.textContent = t('pmSvcNeedName'); return; }
       if(new Set(names).size !== names.length){ msg.textContent = t('pmSvcDupName'); return; }
       list.forEach(s=>{ s.name = s.name.trim(); s.contractor = (s.contractor||"").trim(); if(s.every !== 1) s.times = 1; });
-      for(const s of list){                                                              // the typed days: whole days 1-31, rising when there are several visits
-        const n = pmSvcTimes(s); const ds = Array.from({length:n}, (_,k)=> Number((s.days||[])[k]) || (n === 1 && k === 0 && !Array.isArray(s.days) ? Number(s.dueDay)||0 : 0));
-        const typed = ds.filter(x=>x > 0);
-        if(typed.some(x=> !Number.isInteger(x) || x < 1 || x > 31) || typed.some((x,k)=> k > 0 && x <= typed[k-1])){ msg.textContent = t('pmSvcDaysBad'); return; }
-        s.days = ds; s.dueDay = n === 1 ? (ds[0] || 0) : 0;
+      for(const s of list){                                                              // the typed dates: real dates, in ONE month, rising when there are several visits
+        const n = pmSvcTimes(s); const dates = Array.from({length:n}, (_,k)=> (s.dates || [])[k] || "");
+        const typed = dates.filter(Boolean);
+        if(typed.some(x=> !/^\d{4}-\d{2}-\d{2}$/.test(x) || isNaN(new Date(x).getTime())) ||
+           (typed.length && (new Set(typed.map(x=>x.slice(0,7))).size !== 1 || typed.some((x,k)=> k > 0 && x <= typed[k-1])))){ msg.textContent = t('pmSvcDatesBad'); return; }
+        s.dates = dates; s.days = dates.map(x=> x ? Number(x.slice(8,10)) : 0); s.dueDay = n === 1 ? (s.days[0] || 0) : 0;
+        if(typed.length) s.anchor = typed[0].slice(0,7);                                   // the month of the first date = where the service starts
       }
       savePmServices(list);
       pmCleanupPlaceholders(list);
@@ -7628,6 +7658,24 @@ function openPmServicesModal(){
     };
   };
   draw();
+}
+function openPmMonthDatesModal(svcId, mk){
+  const svcs = getPmServices() || []; const svc = svcs.find(s=>s.id===svcId); if(!svc) return;
+  const n = pmSvcTimes(svc), dates = pmVisitDueDates(mk, svc), hasOv = !!(svc.overrides && svc.overrides[mk]);
+  const first = `${mk}-01`, last = pmDueDate(mk, 0); const root = document.getElementById("modalRoot");
+  root.innerHTML = `<div class="modal-overlay"><div class="modal" style="max-width:520px;">
+    <h2>📅 ${autoTr(svc.name)} — ${monthLabelOf(mk)}</h2><div class="modal-sub">${t('pmMonthDatesSub')}</div>
+    <div class="form-grid">${dates.map((d,k)=>`<div class="field"><label>${n > 1 ? t('pmOrd' + (k+1)) : t('pmOrd0')}</label><input type="date" data-mdate="${k}" min="${first}" max="${last}" value="${d}"></div>`).join("")}</div>
+    <div id="pmMDMsg" style="color:#a33a2c; font-size:12.5px; min-height:18px;"></div>
+    <div class="modal-actions">${hasOv ? `<button class="btn btn-outline" id="pmMDReset" type="button">↩️ ${t('pmMonthDatesReset')}</button>` : ""}<button class="btn btn-outline" id="pmMDCancel" type="button">${t('cancel')}</button><button class="btn btn-gold" id="pmMDSave" type="button">${t('pmSave')}</button></div></div></div>`;
+  const finish = (list)=>{ savePmServices(list); pmRefreshPlaceholders(list); ensurePmStandingRecords(curMonthKey()); closeModal(); renderModule("pm"); renderNav(); showToast(t('pmBoardSaved')); };
+  document.getElementById("pmMDCancel").onclick = closeModal;
+  if(hasOv) document.getElementById("pmMDReset").onclick = ()=>{ const list = getPmServices(); const s = list.find(x=>x.id===svcId); delete s.overrides[mk]; finish(list); };
+  document.getElementById("pmMDSave").onclick = ()=>{
+    const vals = Array.from(root.querySelectorAll("[data-mdate]")).map(i=>i.value);
+    if(vals.some(v=> !/^\d{4}-\d{2}-\d{2}$/.test(v) || v.slice(0,7) !== mk) || vals.some((v,k)=> k > 0 && v <= vals[k-1])){ document.getElementById("pmMDMsg").textContent = t('pmMonthDatesBad'); return; }
+    const list = getPmServices(); const s = list.find(x=>x.id===svcId); s.overrides = Object.assign({}, s.overrides || {}, { [mk]: vals }); finish(list);
+  };
 }
 async function exportPmBoardExcel(){
   showToast(t('exportPreparing'));
