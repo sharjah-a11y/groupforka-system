@@ -6905,6 +6905,7 @@ function openForm(m, existing, viewMode, prefill){
   if(formViewOnly) autoTranslateDOM(document.getElementById("modalRoot"));
   if(document.getElementById("quotesWidget")) renderQuotesWidget();
   m.fields.filter(f=>f.type==="branchMultiSelect").forEach(f=> renderBranchMultiWidget(f.key, rec[f.key]||""));
+  if(m.key==="requests") refreshRequestEquipment();
   if(m.key==="amc"){
     const recalcInstallment = ()=>{
       const valueInput = document.querySelector('[data-field="value"]');
@@ -7083,12 +7084,12 @@ function openForm(m, existing, viewMode, prefill){
         });
       };
       if(newRec.linkedAssetName){
-        const explicitAsset = loadData("assets").find(a=> (a.name||"").trim() === newRec.linkedAssetName.trim());
+        const explicitAsset = pickAssetByName(newRec.linkedAssetName, newRec.branch, false);
         const explicitVehicle = !explicitAsset ? findVehicleByText(newRec.linkedAssetName) : null;
         newRec.linkedAssetId = explicitAsset ? explicitAsset.id : null;
         newRec.linkedVehicleId = explicitVehicle ? explicitVehicle.id : null;
       } else if(newRec.equipment){
-        const matchedAsset = loadData("assets").find(a=> (a.name||"").trim().toLowerCase() === newRec.equipment.trim().toLowerCase());
+        const matchedAsset = pickAssetByName(newRec.equipment, newRec.branch, true);
         const matchedVehicle = !matchedAsset ? findVehicleByText(newRec.equipment) : null;
         newRec.linkedAssetId = matchedAsset ? matchedAsset.id : null;
         newRec.linkedVehicleId = matchedVehicle ? matchedVehicle.id : null;
@@ -7823,6 +7824,38 @@ function renderAllocWidget(){
   w.querySelectorAll("[data-allocbranch]").forEach(inp=> inp.addEventListener("input", ()=>{ w.dataset.userEdited = "1"; sync(); }));
   sync();
 }
+/* Repair request form: the equipment suggestions (and the linked-asset list) are the equipment of the branch(es) chosen on the form */
+function branchEquipmentNames(selectedBranches){
+  const sel = selectedBranches || [];
+  const inSel = (rec)=> !sel.length || splitBranchNames(rec.branch).some(b=> sel.includes(b));
+  const names = [
+    ...loadData("assets").filter(inSel).map(a=> (a.name||"").trim()),
+    ...loadData("fleet").filter(inSel).map(v=> v.carName ? `${v.carName.trim()}${v.plate ? " — " + v.plate.trim() : ""}` : ""),
+  ].filter(Boolean);
+  return [...new Set(names)];
+}
+function refreshRequestEquipment(){
+  const hidden = document.querySelector('input[type="hidden"][data-field="branch"]'), eq = document.querySelector('input[data-field="equipment"]');
+  if(!hidden || !eq || formViewOnly) return;
+  const names = branchEquipmentNames(splitBranchNames(hidden.value));
+  let dl = document.getElementById("dl_reqEquipment");
+  if(!dl){ dl = document.createElement("datalist"); dl.id = "dl_reqEquipment"; eq.parentNode.appendChild(dl); }
+  dl.innerHTML = names.map(n=> `<option value="${escapeAttr(n)}"></option>`).join("");
+  eq.setAttribute("list", "dl_reqEquipment");
+  const linked = document.querySelector('select[data-field="linkedAssetName"]');
+  if(linked){
+    const cur = linked.value; const opts = (cur && !names.includes(cur)) ? [cur, ...names] : names;       // an older choice that is not in the list is kept
+    linked.innerHTML = `<option value=""></option>` + opts.map(o=> `<option value="${escapeAttr(o)}" ${o===cur ? "selected" : ""}>${escapeHtml(optLabel(o))}</option>`).join("");
+  }
+}
+/* the asset with this name — in the request's own branch when several branches have an asset of the same name */
+function pickAssetByName(name, branchValue, lowerCase){
+  const n = lowerCase ? String(name).trim().toLowerCase() : String(name).trim();
+  const same = loadData("assets").filter(a=>{ const an = (a.name||"").trim(); return (lowerCase ? an.toLowerCase() : an) === n; });
+  if(same.length <= 1) return same[0] || null;
+  const sel = splitBranchNames(branchValue || "");
+  return same.find(a=> splitBranchNames(a.branch).some(b=> sel.includes(b))) || same[0];
+}
 function renderBranchMultiWidget(fieldKey, currentValue){
   const w = document.getElementById(`branchMultiWidget_${fieldKey}`);
   if(!w) return;
@@ -7845,6 +7878,7 @@ function renderBranchMultiWidget(fieldKey, currentValue){
       hiddenInput.value = [...selected].join("، ");
       renderBranchMultiWidget(fieldKey, hiddenInput.value);
       if(fieldKey==="branch" && document.getElementById("allocWidget")) renderAllocWidget();
+      if(fieldKey==="branch") refreshRequestEquipment();
     };
   });
 }
