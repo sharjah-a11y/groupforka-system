@@ -833,6 +833,8 @@ const STR = {
     pmMonthDatesBtn:"مواعيد الشهر", pmMonthDatesTip:"مواعيد زيارات هذا الشهر لكل الفروع",
     pmMonthDatesReset:"العودة إلى المواعيد الأساسية", pmMonthDatesBad:"يجب أن يقع كل تاريخ ضمن هذا الشهر وبترتيب تصاعدي",
     close:"إغلاق", branchMultiNoBranches:"لا توجد فروع مسجلة",
+    sharjahImportDone:(n,b)=>`✅ تمت إضافة ${n} معدة إلى سجل الأصول لفرع «${b}».`, sharjahBranchAdded:(b)=>`➕ أُضيف «${b}» إلى قائمة الفروع.`,
+    sharjahJobError:(m)=>`❌ تعذّر استيراد معدات مطعم الشارقه:\n${m}`,
     stepName:"اسم الخطوة", stepAuthority:"الجهة", stepFee:"الرسوم", stepPaid:"المدفوع فعليًا", stepRef:"رقم المعاملة", stepStarted:"بدأت", stepDone:"انتهت", stepNotes:"ملاحظات",
     stepAdd:"➕ إضافة خطوة", stepLoadTemplate:"📋 تحميل خطوات نوع المشروع", stepsEmpty:"لسه مفيش خطوات. اختار نوع المشروع فوق وهتتحمل خطواته، أو أضف خطواتك بإيدك.",
     stepNoTemplate:"اختار نوع المشروع الأول (له قالب خطوات جاهز).", stepTemplateAllThere:"كل خطوات القالب موجودة عندك بالفعل.",
@@ -1267,6 +1269,8 @@ const STR = {
     pmMonthDatesBtn:"Month dates", pmMonthDatesTip:"This month's visit dates for all branches",
     pmMonthDatesReset:"Back to the standard dates", pmMonthDatesBad:"Each date must fall within this month, in ascending order",
     close:"Close", branchMultiNoBranches:"No branches registered",
+    sharjahImportDone:(n,b)=>`✅ ${n} equipment items were added to the Asset Register under “${b}”.`, sharjahBranchAdded:(b)=>`➕ “${b}” was added to the branch list.`,
+    sharjahJobError:(m)=>`❌ The Sharjah restaurant equipment import failed:\n${m}`,
     stepName:"Step name", stepAuthority:"Authority", stepFee:"Fees", stepPaid:"Actually paid", stepRef:"Transaction no.", stepStarted:"Started", stepDone:"Finished", stepNotes:"Notes",
     stepAdd:"➕ Add step", stepLoadTemplate:"📋 Load the steps of this project type", stepsEmpty:"No steps yet. Pick the project type above and its steps load, or add your own.",
     stepNoTemplate:"Pick the project type first (it has a ready steps template).", stepTemplateAllThere:"All the template steps are already in your list.",
@@ -2606,7 +2610,7 @@ function getListRelevantFields(m, statusFilterValue, forceAll){
    Checked BEFORE the online translator, so these always show the precise name from the original list,
    with no internet, no cache and no machine-translation guesswork. Arabic stays as stored; English shows
    automatically when the program language is switched. */
-const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"], ["سلامندر","Salamander"], ["ماكينة ثلج مكعبات","Ice Cube Machine"], ["قهوة ومشروبات","Coffee & Beverages"], ["مياه","Water"], ["إلكترونيات","Electronics"], ["تحت الصيانة","Under maintenance"], ["حجز الاسم التجاري", "Trade Name Reservation"], ["الموافقة المبدئية على النشاط", "Initial Activity Approval"], ["الموافقة الأمنية", "Security Approval"], ["عقد الإيجار وتوثيقه", "Lease Contract & Attestation"], ["اعتماد الموقع والمخططات", "Site & Drawings Approval"], ["موافقة الدفاع المدني (مخطط السلامة)", "Civil Defence Approval (Safety Plan)"], ["موافقة الصحة وسلامة الغذاء", "Health & Food Safety Approval"], ["إصدار الرخصة التجارية", "Trade License Issuance"], ["فتح ملف المنشأة والعمالة", "Establishment & Labour File"], ["التأمين الصحي وتأشيرات الموظفين", "Health Insurance & Staff Visas"], ["تجهيز الموقع والديكور والمعدات", "Site Fit-out, Décor & Equipment"], ["التفتيش النهائي وشهادة المطابقة", "Final Inspection & Compliance Certificate"], ["تدريب الفريق وتجربة التشغيل", "Team Training & Trial Run"], ["الافتتاح", "Opening"], ["تحديد الموقع والتفاوض", "Site Selection & Negotiation"], ["إضافة الموقع الجديد للرخصة", "Adding the New Site to the License"], ["مراجعة متطلبات التجديد والمستندات", "Renewal Requirements & Documents Review"], ["تجديد عقد الإيجار", "Lease Renewal"], ["تجديد شهادات الدفاع المدني والصحة", "Civil Defence & Health Certificates Renewal"], ["تجديد التأمين الصحي والعمالي", "Health & Labour Insurance Renewal"], ["سداد رسوم التجديد", "Renewal Fees Payment"], ["إصدار الرخصة المجددة", "Renewed License Issuance"], ["تحديد التعديل المطلوب (نشاط / اسم / موقع / شركاء)", "Define the Amendment (Activity / Name / Location / Partners)"], ["تقديم الطلب", "Application Submission"], ["موافقات الجهات المعنية", "Authorities' Approvals"], ["سداد الرسوم", "Fees Payment"], ["إصدار الرخصة المعدّلة", "Amended License Issuance"], ["اختيار الموقع الجديد وعقد الإيجار", "New Site Selection & Lease"], ["طلب نقل الموقع", "Relocation Request"], ["إصدار الرخصة بالموقع الجديد", "License Issued at the New Site"], ["تجهيز الموقع الجديد ونقل المعدات", "New Site Setup & Equipment Move"], ["دائرة التنمية الاقتصادية", "Department of Economic Development"], ["البلدية", "Municipality"], ["الدفاع المدني", "Civil Defence"], ["الجهات الأمنية", "Security Authorities"], ["وزارة الموارد البشرية", "Ministry of Human Resources"], ["المالك / البلدية", "Landlord / Municipality"], ["المقاولون", "Contractors"], ["التشغيل", "Operations"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["الدفاع المدني / البلدية", "Civil Defence / Municipality"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["✔ اكتملت كل الخطوات", "✔ All steps completed"], ["عقد مكافحة الحشرات", "Pest Control Contract"], ["عقد الكاميرات (CCTV)", "CCTV Cameras Contract"], ["حصر الأملاك (جرد الموقع والمعدات)", "Property & Equipment Inventory"], ["حصر الرخص والشهادات", "Licenses & Certificates Inventory"], ["شركة مكافحة معتمدة", "Approved Pest Control Company"], ["شركة أنظمة مراقبة", "CCTV Systems Company"], ["الإدارة", "Administration"], ["مكافحة الحشرات", "Pest Control"], ["تنظيف مصيدة الدهون", "Grease Trap Cleaning"]];
+const BILINGUAL_GLOSSARY = [["ثلاجة عرض", "Display Chiller"], ["ثلاجة كينزا", "Kinza Chiller"], ["ثلاجة بيبسي", "Pepsi Chiller"], ["مكيف هواء", "Air Conditioner"], ["ثلاجة", "Chiller"], ["فريزر عميق", "Deep Freezer"], ["فريزر / ثلاجة", "Freezer / Chiller"], ["وحدة حفظ بارد", "Cold Holding"], ["وحدة حفظ ساخن", "Hot Holding"], ["ثلاجة الشواية", "Grill Chiller"], ["ماكينة فرم لحم (كيمة)", "Keema Maker"], ["موقد زيت", "Oil Stove"], ["موقد شواية", "Grill Stove"], ["موقد غاز", "Gas Stove"], ["ثلاجة تبريد سريع (Blast Chiller)", "Blast Chiller"], ["فرن", "Oven"], ["موقد شوربة", "Soup Stove"], ["براد مياه", "Water Cooler"], ["خلاط حمص", "Hummus Mixer"], ["خلاط", "Blender Machine"], ["موقد إندكشن", "Induction"], ["القاعة الرئيسية", "Main Section"], ["المطبخ", "Kitchen"], ["المكتب", "Office"], ["قسم العصائر", "Juice Section"], ["غرفة الموظفين", "Staff Room"], ["تبريد", "Refrigeration"], ["تكييف", "Air Conditioning"], ["طهي", "Cooking"], ["أجهزة تحضير", "Food Prep Equipment"], ["غير مستخدم", "Not in use"], ["صيانة مقبض الباب", "Door handle maintenance"], ["البار", "Bar"], ["عربة القهوة", "Coffee Cart"], ["الكاشير", "Cashier / F.O.H"], ["فريزر", "Freezer"], ["عصارة", "Juice Machine"], ["مطحنة V60", "V60 Grinder"], ["غلاية مياه", "Water Boiler"], ["ماكينة إسبريسو", "Espresso Machine"], ["بورتافلتر", "Portafilter"], ["سلة تنظيف", "Blind Basket"], ["سلة مفتوحة 7 جرام", "Open Basket (7GM)"], ["سلة مفتوحة 18 جرام", "Open Basket (18GM)"], ["سلة مفتوحة 20 جرام", "Open Basket (20GM)"], ["فوهة", "Nozzle"], ["مطحنة إسبريسو", "Espresso Grinder"], ["ماكينة ثلج مكعبات (تحتاج صيانة)", "Ice Cube Machine (Needs Maintenance)"], ["ثلاجة تخزين", "Storage Chiller"], ["ماكينة آيس كريم", "Ice Cream Machine"], ["شطف مياه", "Water Rinsing"], ["ميزان", "Weight Machine"], ["ثلاجة خلفية للبار", "Bar Back Cooler (Chiller)"], ["نظام فلترة مياه", "Water Filter System"], ["مطحنة قهوة", "Coffee Grinder"], ["فلتر مياه", "Water Filter"], ["تابلت", "Tab"], ["تابلت (فودكس)", "Tab (Foodics)"], ["موبايل", "Mobile Phone"], ["جهاز دفع بالبطاقة", "Card Payment Machine"], ["طابعة", "Printer"], ["راوتر واي فاي", "WiFi Router"], ["جهاز طلبات (طلبات)", "Talabat Machine"], ["تلفزيون", "TV"], ["ميكسر صوت", "Sound Mixer"], ["لابتوب", "Laptop"], ["ماكينة طباعة", "Printing Machine"], ["ميكروويف", "Microwave"], ["ثلاجة تجهيز", "Setup Chiller"], ["ثلاجة / فريزر", "Chiller / Freezer"], ["بوتاجاز غاز", "Gas Stove"], ["سلامندر","Salamander"], ["ماكينة ثلج مكعبات","Ice Cube Machine"], ["قهوة ومشروبات","Coffee & Beverages"], ["مياه","Water"], ["إلكترونيات","Electronics"], ["تحت الصيانة","Under maintenance"], ["حجز الاسم التجاري", "Trade Name Reservation"], ["الموافقة المبدئية على النشاط", "Initial Activity Approval"], ["الموافقة الأمنية", "Security Approval"], ["عقد الإيجار وتوثيقه", "Lease Contract & Attestation"], ["اعتماد الموقع والمخططات", "Site & Drawings Approval"], ["موافقة الدفاع المدني (مخطط السلامة)", "Civil Defence Approval (Safety Plan)"], ["موافقة الصحة وسلامة الغذاء", "Health & Food Safety Approval"], ["إصدار الرخصة التجارية", "Trade License Issuance"], ["فتح ملف المنشأة والعمالة", "Establishment & Labour File"], ["التأمين الصحي وتأشيرات الموظفين", "Health Insurance & Staff Visas"], ["تجهيز الموقع والديكور والمعدات", "Site Fit-out, Décor & Equipment"], ["التفتيش النهائي وشهادة المطابقة", "Final Inspection & Compliance Certificate"], ["تدريب الفريق وتجربة التشغيل", "Team Training & Trial Run"], ["الافتتاح", "Opening"], ["تحديد الموقع والتفاوض", "Site Selection & Negotiation"], ["إضافة الموقع الجديد للرخصة", "Adding the New Site to the License"], ["مراجعة متطلبات التجديد والمستندات", "Renewal Requirements & Documents Review"], ["تجديد عقد الإيجار", "Lease Renewal"], ["تجديد شهادات الدفاع المدني والصحة", "Civil Defence & Health Certificates Renewal"], ["تجديد التأمين الصحي والعمالي", "Health & Labour Insurance Renewal"], ["سداد رسوم التجديد", "Renewal Fees Payment"], ["إصدار الرخصة المجددة", "Renewed License Issuance"], ["تحديد التعديل المطلوب (نشاط / اسم / موقع / شركاء)", "Define the Amendment (Activity / Name / Location / Partners)"], ["تقديم الطلب", "Application Submission"], ["موافقات الجهات المعنية", "Authorities' Approvals"], ["سداد الرسوم", "Fees Payment"], ["إصدار الرخصة المعدّلة", "Amended License Issuance"], ["اختيار الموقع الجديد وعقد الإيجار", "New Site Selection & Lease"], ["طلب نقل الموقع", "Relocation Request"], ["إصدار الرخصة بالموقع الجديد", "License Issued at the New Site"], ["تجهيز الموقع الجديد ونقل المعدات", "New Site Setup & Equipment Move"], ["دائرة التنمية الاقتصادية", "Department of Economic Development"], ["البلدية", "Municipality"], ["الدفاع المدني", "Civil Defence"], ["الجهات الأمنية", "Security Authorities"], ["وزارة الموارد البشرية", "Ministry of Human Resources"], ["المالك / البلدية", "Landlord / Municipality"], ["المقاولون", "Contractors"], ["التشغيل", "Operations"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["الدفاع المدني / البلدية", "Civil Defence / Municipality"], ["البلدية / الدفاع المدني", "Municipality / Civil Defence"], ["✔ اكتملت كل الخطوات", "✔ All steps completed"], ["عقد مكافحة الحشرات", "Pest Control Contract"], ["عقد الكاميرات (CCTV)", "CCTV Cameras Contract"], ["حصر الأملاك (جرد الموقع والمعدات)", "Property & Equipment Inventory"], ["حصر الرخص والشهادات", "Licenses & Certificates Inventory"], ["شركة مكافحة معتمدة", "Approved Pest Control Company"], ["شركة أنظمة مراقبة", "CCTV Systems Company"], ["الإدارة", "Administration"], ["مكافحة الحشرات", "Pest Control"], ["تنظيف مصيدة الدهون", "Grease Trap Cleaning"], ["الباك بار", "Back Bar"], ["الشواية", "Griller"], ["القسم الساخن", "Hot Section"], ["المجلس", "Majlis"], ["تهوية", "Ventilation"], ["ثلاجة حفظ", "Refrigerator"], ["صالة الطعام", "Dining Area"], ["قسم السلطة", "Salad Section"], ["قسم الشواء", "Grill Section"], ["قلاية", "Fryer"], ["مروحة", "Fan"], ["مفرمة لحم", "Meat Grinder"], ["منطقة الانتظار", "Waiting Area"], ["يحتاج إصلاح", "Needs fixing"], ["يحتاج إصلاح مقبض الباب", "Needs the door handle fixed"], ["يحتاج تغيير أو إصلاح", "Needs replacing or fixing"]];
 let _glossaryAR2EN = null, _glossaryEN2AR = null;
 function glossaryKey(s){ return normalizeSearchText(String(s||"")).toLowerCase().replace(/\s+/g," ").trim(); }
 function ensureGlossary(){
@@ -2833,7 +2837,7 @@ function cloudAuthOnly(timeoutMs){
 function runNormalStartSequence(){
   render(); maybeAutoSendNotification(); maybeAutoSendWeeklyReports(); navigateToQrDeepLinkIfPresent();
   setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500);
-  scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration();
+  scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleSharjahEquipmentImport();
   scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill(); schedulePmStandingEnsure();
 }
 function afterAccessStart(){ if(needsLock()) renderLockScreen(); else runNormalStartSequence(); }
@@ -4453,6 +4457,338 @@ function scheduleMayarEquipmentMigration(){
     }, 4000);
   }, 800);
 }
+/* ---------------- ONE-TIME IMPORT: Sharjah restaurant equipment (20 items from the owner's inventory sheet) ----------------
+   ADD ONLY: nothing that already exists is changed or removed. Every item goes under the branch «مطعم الشارقه». The sheet's "branch" column
+   held the restaurant AREAS, so they are stored as the section / location. Runs once, after the cloud copy of assets + branches has arrived. */
+const SHJ_MIGRATION_FLAG = "forka_sharjah_equip_import_v1", SHJ_IMPORT_PREFIX = "shj2026-";
+const SHARJAH_BRANCH_NAME = "مطعم الشارقه";
+const SHARJAH_EQUIPMENT_2026 = [
+ {
+  "id": "shj2026-01",
+  "code": "SHJ-01",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "brand": "E FORCE",
+  "location": "صالة الطعام",
+  "condition": "يحتاج صيانة",
+  "notes": "",
+  "nameEn": "AIR CONDITION",
+  "fileCondition": "بحاجة لصيانة طفيفة / Needs Minor Maintenance",
+  "fileRemarks": "",
+  "fileNo": "1"
+ },
+ {
+  "id": "shj2026-02",
+  "code": "SHJ-02",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "brand": "I GENERAL",
+  "location": "صالة الطعام",
+  "condition": "جيد",
+  "notes": "يحتاج إصلاح",
+  "nameEn": "AIR CONDITION",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "NEED TO FIX",
+  "fileNo": "2"
+ },
+ {
+  "id": "shj2026-03",
+  "code": "SHJ-03",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "MAI DUBAI",
+  "location": "منطقة الانتظار",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "CHILLER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "3"
+ },
+ {
+  "id": "shj2026-04",
+  "code": "SHJ-04",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "KINZA",
+  "location": "منطقة الانتظار",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "CHILLER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "4"
+ },
+ {
+  "id": "shj2026-05",
+  "code": "SHJ-05",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "SCANCOOL",
+  "location": "قسم السلطة",
+  "condition": "يحتاج صيانة",
+  "notes": "يحتاج إصلاح مقبض الباب",
+  "nameEn": "CHILLER",
+  "fileCondition": "بحاجة لصيانة طفيفة / Needs Minor Maintenance",
+  "fileRemarks": "NEED TO FIX THE DOOR HANDLE",
+  "fileNo": "5"
+ },
+ {
+  "id": "shj2026-06",
+  "code": "SHJ-06",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "SCANCOOL",
+  "location": "الباك بار",
+  "condition": "يحتاج صيانة",
+  "notes": "يحتاج إصلاح",
+  "nameEn": "CHILLER",
+  "fileCondition": "بحاجة لصيانة طفيفة / Needs Minor Maintenance",
+  "fileRemarks": "NEED TO FIX",
+  "fileNo": "6"
+ },
+ {
+  "id": "shj2026-07",
+  "code": "SHJ-07",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "brand": "GEE",
+  "location": "المطبخ",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "AIR CONDITION",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "7"
+ },
+ {
+  "id": "shj2026-08",
+  "code": "SHJ-08",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "EVERE",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "CHILLER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "8"
+ },
+ {
+  "id": "shj2026-09",
+  "code": "SHJ-09",
+  "name": "ثلاجة حفظ",
+  "category": "تبريد",
+  "brand": "HITACHI",
+  "location": "قسم السلطة",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "REFRIEGERATOR",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "9"
+ },
+ {
+  "id": "shj2026-10",
+  "code": "SHJ-10",
+  "name": "فريزر",
+  "category": "تبريد",
+  "brand": "TEPENTAN",
+  "location": "قسم السلطة",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "FREEZER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "10"
+ },
+ {
+  "id": "shj2026-11",
+  "code": "SHJ-11",
+  "name": "ميكروويف",
+  "category": "طهي",
+  "brand": "NIKAI",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "MICRO OVEN",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "11"
+ },
+ {
+  "id": "shj2026-12",
+  "code": "SHJ-12",
+  "name": "ميكروويف",
+  "category": "طهي",
+  "brand": "NIKAI",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "MICRO OVEN",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "12"
+ },
+ {
+  "id": "shj2026-13",
+  "code": "SHJ-13",
+  "name": "ميكروويف",
+  "category": "طهي",
+  "brand": "NIKAI",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "MICRO OVEN",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "13"
+ },
+ {
+  "id": "shj2026-14",
+  "code": "SHJ-14",
+  "name": "ثلاجة",
+  "category": "تبريد",
+  "brand": "AL BAYAN",
+  "location": "قسم الشواء",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "CHILLER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "14"
+ },
+ {
+  "id": "shj2026-15",
+  "code": "SHJ-15",
+  "name": "مكيف هواء",
+  "category": "تكييف",
+  "brand": "GREE",
+  "location": "المجلس",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "AIR CONDITION",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "15"
+ },
+ {
+  "id": "shj2026-16",
+  "code": "SHJ-16",
+  "name": "خلاط",
+  "category": "أجهزة تحضير",
+  "brand": "BLENDTECK",
+  "location": "الباك بار",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "BLENDER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "16"
+ },
+ {
+  "id": "shj2026-17",
+  "code": "SHJ-17",
+  "name": "مروحة",
+  "category": "تهوية",
+  "brand": "BURAQ",
+  "location": "قسم السلطة",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "FAN",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "17"
+ },
+ {
+  "id": "shj2026-18",
+  "code": "SHJ-18",
+  "name": "مروحة",
+  "category": "تهوية",
+  "brand": "BURAQ",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "يحتاج تغيير أو إصلاح",
+  "nameEn": "FAN",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "NEED TO CHANGE OR FIX",
+  "fileNo": "18"
+ },
+ {
+  "id": "shj2026-19",
+  "code": "SHJ-19",
+  "name": "قلاية",
+  "category": "طهي",
+  "brand": "",
+  "location": "القسم الساخن",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "fryer",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "19"
+ },
+ {
+  "id": "shj2026-20",
+  "code": "SHJ-20",
+  "name": "مفرمة لحم",
+  "category": "أجهزة تحضير",
+  "brand": "OMEGA",
+  "location": "الشواية",
+  "condition": "جيد",
+  "notes": "",
+  "nameEn": "MEAT GRINDER",
+  "fileCondition": "صالحة وتعمل بكفاءة / Operational",
+  "fileRemarks": "",
+  "fileNo": "20"
+ }
+];
+function resolveSharjahTarget(){
+  const known = loadMasters().branches || []; const want = branchKeyOf(SHARJAH_BRANCH_NAME);
+  const exact = known.find(b=> branchKeyOf(b) === want);                       // «مطعم الشارقة» / «مطعم الشارقه» are the same name
+  if(exact) return exact;
+  const cands = known.filter(b=>{ const n = normalizeSearchText(b); return n.includes("مطعم") && n.includes("الشارقه"); });
+  return cands.length === 1 ? cands[0] : null;
+}
+function runSharjahEquipmentImport(){
+  if(localStorage.getItem(SHJ_MIGRATION_FLAG)) return null;
+  const arr = loadDataRaw("assets");
+  if(arr.some(a=> String(a.id||"").startsWith(SHJ_IMPORT_PREFIX))){ localStorage.setItem(SHJ_MIGRATION_FLAG, "1"); return null; }
+  let target = resolveSharjahTarget(), created = false;
+  if(!target){                                                                  // the name the owner gave, added to the list additively
+    target = SHARJAH_BRANCH_NAME; const m = loadMasters(); m.branches = [...(m.branches||[]), target]; saveMasters(m);
+    cloudAddBranchesToMasters([target]); created = true;
+  }
+  const now = Date.now(); const pushes = [];
+  SHARJAH_EQUIPMENT_2026.forEach(it=>{
+    const rec = { id: it.id, code: it.code, name: it.name, category: it.category, brand: it.brand, serial: "", branch: target, location: it.location,
+                  condition: it.condition, notes: it.notes, quantity: "1", nameEn: it.nameEn, fileCondition: it.fileCondition, fileRemarks: it.fileRemarks, fileNo: it.fileNo,
+                  photos: [], _updatedAt: now };
+    arr.push(rec); pushes.push(cloudPushRecord("assets", rec));
+  });
+  saveData("assets", arr); localStorage.setItem(SHJ_MIGRATION_FLAG, "1");
+  return { added: SHARJAH_EQUIPMENT_2026.length, branch: target, branchCreated: created, pushes };
+}
+function scheduleSharjahEquipmentImport(){
+  if(localStorage.getItem(SHJ_MIGRATION_FLAG)) return;
+  let waited = 0;
+  const timer = setInterval(()=>{
+    waited += 800;
+    if(!cloudReadyForJobs() && waited < 15000) return;
+    clearInterval(timer);
+    setTimeout(async ()=>{
+      try{
+        const res = runSharjahEquipmentImport();
+        if(res){
+          const verdict = await cloudVerdict(res.pushes);
+          alert(t('sharjahImportDone', res.added, res.branch) + (res.branchCreated ? "\n" + t('sharjahBranchAdded', res.branch) : "") + (verdict==="fail" ? "\n\n" + t('fujCloudNotSaved') : verdict==="pending" ? "\n\n" + t('fujCloudPending') : ""));
+          render(); renderNav();
+        }
+      }catch(err){ console.error("Sharjah equipment import failed:", err); alert(t('sharjahJobError', (err && err.message) || String(err))); }
+    }, 4500);
+  }, 800);
+}
 /* ---------------- ONE-TIME SAFETY REPAIR: branches of vehicles / equipment ----------------
    (a) branch names that vehicles/equipment still reference but are missing from the branch list are added back to the list
        (add-only, never replaces the list); (b) a vehicle/asset whose branch got glued to a second, overlapping branch name
@@ -4675,7 +5011,7 @@ function renderLockScreen(){
       maybeAutoSendNotification();
       maybeAutoSendWeeklyReports();
       navigateToQrDeepLinkIfPresent();
-      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill(); schedulePmStandingEnsure();
+      setTimeout(migrateStripUploadedPhotoDataUrls, 2000); setTimeout(migratePaymentStatusDefaults, 2500); scheduleFujairahEquipmentMigration(); scheduleBranchSafetyRepair(); scheduleUnassignedAssetsCleanup(); scheduleMayarEquipmentMigration(); scheduleSharjahEquipmentImport(); scheduleImportedBranchFix(); scheduleProjectStageUpgrade(); scheduleStageDocsBackfill(); schedulePmStandingEnsure();
     } else {
       document.getElementById("lockErr").textContent = t('lockWrong');
       inp.value=""; inp.focus();
