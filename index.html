@@ -7419,7 +7419,11 @@ function openForm(m, existing, viewMode, prefill){
           return plain === t || withPlate === t;
         });
       };
-      if(newRec.linkedAssetName){
+      const pickedExact = reqEquipMap.get((newRec.linkedAssetName||"").trim()) || reqEquipMap.get((newRec.equipment||"").trim());
+      if(pickedExact){                                                                  // one of the suggestions: linked to that very device
+        newRec.linkedAssetId = pickedExact.type === "asset" ? pickedExact.id : null;
+        newRec.linkedVehicleId = pickedExact.type === "vehicle" ? pickedExact.id : null;
+      } else if(newRec.linkedAssetName){
         const explicitAsset = pickAssetByName(newRec.linkedAssetName, newRec.branch, false);
         const explicitVehicle = !explicitAsset ? findVehicleByText(newRec.linkedAssetName) : null;
         newRec.linkedAssetId = explicitAsset ? explicitAsset.id : null;
@@ -8161,19 +8165,29 @@ function renderAllocWidget(){
   sync();
 }
 /* Repair request form: the equipment suggestions (and the linked-asset list) are the equipment of the branch(es) chosen on the form */
-function branchEquipmentNames(selectedBranches){
+let reqEquipMap = new Map();          // the text of each suggestion -> the asset / vehicle it stands for
+function branchEquipmentOptions(selectedBranches){
   const sel = selectedBranches || [];
   const inSel = (rec)=> !sel.length || splitBranchNames(rec.branch).some(b=> sel.includes(b));
-  const names = [
-    ...loadData("assets").filter(inSel).map(a=> (a.name||"").trim()),
-    ...loadData("fleet").filter(inSel).map(v=> v.carName ? `${v.carName.trim()}${v.plate ? " — " + v.plate.trim() : ""}` : ""),
-  ].filter(Boolean);
-  return [...new Set(names)];
+  const used = new Map(); const out = [];
+  const uniqueLabel = (base)=>{ const n = (used.get(base) || 0) + 1; used.set(base, n); return n === 1 ? base : `${base} #${n}`; };
+  loadData("assets").filter(inSel).forEach(a=>{
+    const name = (a.name||"").trim(); if(!name) return;
+    const base = [name, (a.brand||"").trim(), (a.location||"").trim()].filter(Boolean).join(" — ") + (a.code ? ` (${String(a.code).trim()})` : "");
+    out.push({ label: uniqueLabel(base), type:"asset", id:a.id });
+  });
+  loadData("fleet").filter(inSel).forEach(v=>{
+    if(!v.carName) return;
+    out.push({ label: uniqueLabel(`${v.carName.trim()}${v.plate ? " — " + v.plate.trim() : ""}`), type:"vehicle", id:v.id });
+  });
+  return out.sort((x, y)=> x.label.localeCompare(y.label, "ar"));
 }
 function refreshRequestEquipment(){
   const hidden = document.querySelector('input[type="hidden"][data-field="branch"]'), eq = document.querySelector('input[data-field="equipment"]');
   if(!hidden || !eq || formViewOnly) return;
-  const names = branchEquipmentNames(splitBranchNames(hidden.value));
+  const opts0 = branchEquipmentOptions(splitBranchNames(hidden.value));
+  reqEquipMap = new Map(opts0.map(o=> [o.label, o]));
+  const names = opts0.map(o=> o.label);
   let dl = document.getElementById("dl_reqEquipment");
   if(!dl){ dl = document.createElement("datalist"); dl.id = "dl_reqEquipment"; eq.parentNode.appendChild(dl); }
   dl.innerHTML = names.map(n=> `<option value="${escapeAttr(n)}"></option>`).join("");
